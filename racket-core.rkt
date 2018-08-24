@@ -1,0 +1,170 @@
+#lang racket
+
+(require redex)
+
+(provide (all-defined-out))
+
+(define-language RC
+  [e   ::= x v (e e ...) (if e e e) (p1 e) (p2 e e)
+       (set! x e) (begin e e ...)
+       (lambda (x_!_ ...) e) (let-values (((x_!_) e) ...) e)
+       (raises e)] ;; expressiosn
+  [v   ::= n b c (void)] ;; values
+  [c   ::= (closure x ... e Σ)]
+  [n   ::= number]
+  [b   ::= true false]
+  [x cell ::= variable-not-otherwise-mentioned] ;; variables
+  [p1  ::= add1]
+  [p2  ::= + * <]
+  [o   ::= p1 p2]
+  [E   ::= hole (v ... E e ...) (o v ... E e ...) (if E e e)
+       (begin v ... E e ...) (set! x E)
+       (let-values (((x) v) ... ((x) E) ((x) e) ...) e)] ;; eval context
+
+  [Σ   ::= ((x any) ...)] ;; environment
+  [σ   ::= ((x any) ...)] ;; store
+
+  [e-test ::= x n b (void) 
+          (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test) 
+          (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...) 
+          (let-values (((x) e-test) ...) e-test) (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
+
+  [rc-out ::= v stuck]
+  [exp-id ::= x (x x)]
+  [C ::= cell uninit]
+
+  #:binding-forms
+  (λ (x ...) e #:refers-to (shadow x ...))
+  (let-values ([(x) e_x] ...) e_body #:refers-to (shadow x ...))
+  )
+
+; (render-language RC "RC.pdf" #:nts '(e v c n b x p1 p2 o E Σ σ))
+
+(define-metafunction RC
+  δ : (o any ...) -> v or true or false or (raises e)
+  [(δ (add1 n)) ,(add1 (term n))]
+  [(δ (< n_1 n_2)) ,(if (< (term n_1) (term n_2)) (term true) (term false))]
+  [(δ (+ n_1 n_2)) ,(+ (term n_1) (term n_2))]
+  [(δ (* n_1 n_2)) ,(* (term n_1) (term n_2))]
+  [(δ (o any_1 any_2 ...)) (raises (o any_1 any_2 ...))])
+
+(define-metafunction RC
+  extend : ((x any) ...)  (x ...) (any ...) -> ((x any) ...)
+  [(extend ((x any) ...) (x_1 ...) (any_1 ...))
+   ((x_1 any_1) ... (x any) ...)])
+
+(define-metafunction RC
+  lookup : ((x any) ...) x -> any
+  [(lookup ((x_1 any_1) ... (x any_t) (x_2 any_2) ...) x)
+   any_t
+   (side-condition (not (member (term x) (term (x_1 ...)))))]
+  [(lookup any_1 any_2)
+   (check-the-current-instance any_1 any_2)])
+
+(define-metafunction RC
+  [(check-the-current-instance
+    ((x_bef any_bef) ...
+     (current-linklet-instance
+      (linklet-instance (exp-id_bef ... (x_int x) exp-id_aft ...) (x_B C_B) ... (x_int C) (x_A C_A) ...))
+     (x_aft any_aft) ...)
+    x) C]
+  [(check-the-current-instance
+    ((x_bef any_bef) ...
+     (current-linklet-instance
+      (linklet-instance (exp-id ...) (x_B C_B) ... (x C) (x_A C_A) ...))
+     (x_aft any_aft) ...)
+    x) C]
+  [(check-the-current-instance any_1 any_2)
+   (raises any_2)])
+
+;; standard reduction
+(define -->βs
+  (reduction-relation
+   RC
+   #:domain (e Σ σ)
+   (--> [(in-hole E (raises e)) Σ σ]
+        [(raises e) Σ σ] "error")
+   (--> [(in-hole E x) Σ σ]
+        [(in-hole E (lookup σ x_1)) Σ σ] "lookup"
+        (where x_1 ,(term (lookup Σ x))))
+   (--> [(in-hole E (lambda (x ...) e)) Σ σ]
+        [(in-hole E (closure x ... e Σ)) Σ σ] "closure")
+   (--> [(in-hole E (set! x v)) Σ σ]
+        [(in-hole E (void)) Σ (extend σ (x_1) (v))]
+        (side-condition (not (equal? (term (raises ,(term x))) (term (lookup Σ x)))))
+        (where x_1 ,(term (lookup Σ x))) "set!")
+   (--> [(in-hole E (begin v_1 ... v_n)) Σ σ]
+        [(in-hole E v_n) Σ σ] "begin")
+   (--> [(in-hole E (let-values (((x) v) ...) e)) Σ σ]
+        [(in-hole E e) (extend Σ (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "let"
+        (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))
+   (--> [(in-hole E (if v_0 e_1 e_2)) Σ σ]
+        [(in-hole E e_1) Σ σ]
+        (side-condition (not (equal? (term v_0) (term false)))) "if-true")
+   (--> [(in-hole E (if false e_1 e_2)) Σ σ]
+        [(in-hole E e_2) Σ σ] "if-false")
+   (--> [(in-hole E (o v_1 v_2 ...)) Σ σ]
+        [(in-hole E (δ (o v_1 v_2 ...))) Σ σ] "δ")
+   (--> [(in-hole E ((closure x ..._n e Σ_1) v ..._n)) Σ_2 σ]
+        [(in-hole E e) (extend Σ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
+        (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))))
+
+(define -->βss ;; just for pictures (render-reduction-relation)
+  (reduction-relation
+   RC
+   #:domain (e Σ σ)
+   (--> [(in-hole E (raises e)) Σ σ]
+        [(raises e) Σ σ] "error")
+   (--> [(in-hole E x) Σ σ]
+        [(in-hole E (lookup σ x_1)) Σ σ] "lookup"
+        (where x_1 ,(term (lookup Σ x))))
+   (--> [(in-hole E (lambda (x ...) e)) Σ σ]
+        [(in-hole E (closure x ... e Σ)) Σ σ] "closure")
+   (--> [(in-hole E (set! x v)) Σ σ]
+        [(in-hole E (void)) Σ (extend σ (c_1) (v))]
+        (side-condition (term ((lookup Σ x) ≠ (raises x))))
+        (where c_1 ,(term (lookup Σ x))) "set!")
+   (--> [(in-hole E (begin v_1 ... v_n)) Σ σ]
+        [(in-hole E v_n) Σ σ] "begin")
+   (--> [(in-hole E (let-values (((x) v) ...) e)) Σ σ]
+        [(in-hole E e) (extend Σ (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "let"
+        (where (x_2 ...) ,(term (variables-not-in e (x ...)))))
+   (--> [(in-hole E (if v_0 e_1 e_2)) Σ σ]
+        [(in-hole E e_1) Σ σ]
+        (side-condition (term (v_0 ≠ false))) "if-true")
+   (--> [(in-hole E (if false e_1 e_2)) Σ σ]
+        [(in-hole E e_2) Σ σ] "if-false")
+   (--> [(in-hole E (o v_1 v_2 ...)) Σ σ]
+        [(in-hole E (δ (o v_1 v_2 ...))) Σ σ] "δ")
+   (--> [(in-hole E ((closure x ..._n e Σ_1) v ..._n)) Σ_2 σ]
+        [(in-hole E e) (extend Σ_1 (x ...) (c_2 ...)) (extend σ (c_2 ...) (v ...))] "βv"
+        (where (c_2 ...) ,(term (variables-not-in e (x ...)))))))
+
+
+(define-metafunction RC
+  eval-rc : e -> v or closure or stuck
+  [(eval-rc e) (run-rc (e () ()))])
+
+(define-metafunction RC
+  ;run-rc : (e Σ σ) -> v or closure or stuck
+  [(run-rc (n Σ σ)) n]
+  [(run-rc (b Σ σ)) b]
+  [(run-rc (c Σ σ)) closure]
+  [(run-rc ((void) Σ σ)) (void)]
+  [(run-rc ((raises e) Σ σ)) stuck]
+  [(run-rc any_1)
+   (run-rc any_again)
+   (where (any_again) ,(apply-reduction-relation -->βs (term any_1)))]
+  [(run-rc any_1) stuck])
+
+(define-metafunction RC
+  ;rc-api : (e Σ σ) -> (rc-out Σ σ)
+  [(rc-api (n Σ σ)) (n Σ σ)]
+  [(rc-api (b Σ σ)) (b Σ σ)]
+  [(rc-api (c Σ σ)) (c Σ σ)]
+  [(rc-api ((void) Σ σ)) ((void) Σ σ)]
+  [(rc-api ((raises e) Σ σ)) ((raises e) Σ σ)]
+  [(rc-api any_1)
+   (rc-api any_again)
+   (where (any_again) ,(apply-reduction-relation -->βs (term any_1)))]
+  [(rc-api (any_e any_Σ any_σ)) ((raises any_e) any_Σ any_σ)])
