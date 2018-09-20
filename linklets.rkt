@@ -77,45 +77,45 @@
 (define -->βp
   (reduction-relation
    Linklets
-   #:domain (p Ω Σ σ)
-   (--> [(in-hole EP (raises e)) Ω Σ σ]
-        [(raises e) Ω Σ σ] "error")
-   (--> [(in-hole EL (raises e)) Ω Σ σ]
-        [(raises e) Ω Σ σ] "error in EL")
-   (--> [(in-hole EP x) Ω Σ σ]
-        [(in-hole EP (lookup Ω x)) Ω Σ σ] "linklet-lookup")
-   (--> [(in-hole EP (instance-variable-value LI x)) Ω Σ σ]
-        [(in-hole EP (get-var-val LI x σ)) Ω Σ σ] "instance variable value")
-   (--> [(in-hole EP (instance-variable-value L x)) Ω Σ σ]
-        [(raises instance-expected) Ω Σ σ] "instance variable value error")
-   (--> [(in-hole EP (let-inst x LI)) Ω Σ σ]
-        [(in-hole EP (void)) (extend Ω (x) (LI)) Σ σ] "let-inst")
-   (--> [(in-hole EP (instantiate L LI ...)) Ω Σ σ]
-        [(in-hole EP LI_1) Ω_1 Σ σ_1]
-        (where (LI_1 Ω_1 Σ_1 σ_1) (instantiate-entry Ω Σ σ L LI ...)) "instantiate linklet")
-   (--> [(in-hole EP (instantiate L LI ... #:target x_80)) Ω Σ σ]
-        [(in-hole EP e_1) Ω_1 Σ_1 σ_1]
-        (where (e_1 Ω_1 Σ_1 σ_1) (instantiate-entry Ω Σ σ L LI ... #:target x_80)) "eval linklet")
-   (--> [(in-hole EP (instantiate L LI ...)) Ω Σ σ]
-        [(raises e) Ω Σ σ]
-        (where (raises e) (instantiate-entry Ω Σ σ L LI ...)) "error in instantiation")
-   (--> [(in-hole EP (instantiate L LI ... #:target x_80)) Ω Σ σ]
-        [(raises e) Ω Σ σ]
-        (where (raises e) (instantiate-entry Ω Σ σ L LI ... #:target x_80)) "error in evaluation")
+   #:domain (p Ω ρ σ)
+   (--> [(in-hole EP (raises e)) Ω ρ σ]
+        [(raises e) Ω ρ σ] "error")
+   (--> [(in-hole EL (raises e)) Ω ρ σ]
+        [(raises e) Ω ρ σ] "error in EL")
+   (--> [(in-hole EP x) Ω ρ σ]
+        [(in-hole EP (lookup Ω x)) Ω ρ σ] "linklet-lookup")
+   (--> [(in-hole EP (instance-variable-value LI x)) Ω ρ σ]
+        [(in-hole EP (get-var-val LI x σ)) Ω ρ σ] "instance variable value")
+   (--> [(in-hole EP (instance-variable-value L x)) Ω ρ σ]
+        [(raises instance-expected) Ω ρ σ] "instance variable value error")
+   (--> [(in-hole EP (let-inst x LI)) Ω ρ σ]
+        [(in-hole EP (void)) (extend Ω (x) (LI)) ρ σ] "let-inst")
+   (--> [(in-hole EP (instantiate L LI ...)) Ω ρ σ]
+        [(in-hole EP LI_1) Ω_1 ρ σ_1]
+        (where (LI_1 Ω_1 ρ_1 σ_1) (instantiate-entry Ω ρ σ L LI ...)) "instantiate linklet")
+   (--> [(in-hole EP (instantiate L LI ... #:target x_80)) Ω ρ σ]
+        [(in-hole EP e_1) Ω_1 ρ_1 σ_1]
+        (where (e_1 Ω_1 ρ_1 σ_1) (instantiate-entry Ω ρ σ L LI ... #:target x_80)) "eval linklet")
+   (--> [(in-hole EP (instantiate L LI ...)) Ω ρ σ]
+        [(raises e) Ω ρ σ]
+        (where (raises e) (instantiate-entry Ω ρ σ L LI ...)) "error in instantiation")
+   (--> [(in-hole EP (instantiate L LI ... #:target x_80)) Ω ρ σ]
+        [(raises e) Ω ρ σ]
+        (where (raises e) (instantiate-entry Ω ρ σ L LI ... #:target x_80)) "error in evaluation")
 
    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  collect-imports : (imp-id ...) LI #:env Σ #:store σ -> (Σ σ) or (raises e)
+  collect-imports : (imp-id ...) LI #:env ρ #:store σ -> (ρ σ) or (raises e)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  [(collect-imports () (linklet-instance (exp-id ...) (x cell) ...) #:env Σ #:store σ) (Σ σ)]
+  [(collect-imports () (linklet-instance (exp-id ...) (x cell) ...) #:env ρ #:store σ) (ρ σ)]
   [(collect-imports (x imp-id ...)
                     (linklet-instance (exp-id ...) (x_bef cell_bef) ... (x cell) (x_aft cell_aft) ...)
-                    #:env Σ #:store σ)
+                    #:env ρ #:store σ)
    (collect-imports (imp-id ...)
                     (linklet-instance (exp-id ...) (x_bef cell_bef) ... (x cell) (x_aft cell_aft) ...)
-                    #:env (extend Σ (x) (x_fresh)) #:store (extend σ (x_fresh) (v)))
+                    #:env (extend ρ (x) (x_fresh)) #:store (extend σ (x_fresh) (v)))
    (where x_fresh ,(variable-not-in
                     (term (linklet-instance (exp-id ...) (x_bef cell_bef) ... (x cell) (x_aft cell_aft) ...))
                     (term x)))
@@ -123,11 +123,11 @@
   ; get the values of imports, don't worry about the cells
   [(collect-imports ((x_ext x_int) imp-id ...) ;; (external-id internal-id)
                     (linklet-instance (exp-id ...) (x_bef cell_bef) ... (x_ext cell) (x_aft cell_aft) ...)
-                    #:env Σ #:store σ)
+                    #:env ρ #:store σ)
    (collect-imports (imp-id ...)
                     (linklet-instance (exp-id ...) (x_bef cell_bef) ... (x_ext cell) (x_aft cell_aft) ...)
                     ; match the external id, put into store the internal id
-                    #:env (extend Σ (x_int) (cell_fresh)) #:store (extend σ (cell_fresh) (v)))
+                    #:env (extend ρ (x_int) (cell_fresh)) #:store (extend σ (cell_fresh) (v)))
    (where cell_fresh ,(variable-not-in
                        (term (linklet-instance (exp-id ...) (x_bef cell_bef) ... (x_ext cell) (x_aft cell_aft) ...))
                        (term x_int)))
@@ -135,27 +135,27 @@
   ; error : given instance doesn't have that id
   [(collect-imports (imp-id_current imp-id ...) ;; (external-id internal-id)
                     (linklet-instance (exp-id ...) (x cell) ...)
-                    #:env Σ #:store σ)
+                    #:env ρ #:store σ)
    (raises imp-id_current)])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  collect-importss : ((imp-id ...) ...) (LI ...) #:env Σ #:store σ -> (Σ σ) or (raises e)
+  collect-importss : ((imp-id ...) ...) (LI ...) #:env ρ #:store σ -> (ρ σ) or (raises e)
 ;; put the imported vars' values into the l-toplevel environment (i.e. store - σ)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  [(collect-importss () () #:env Σ #:store σ) (Σ σ)]
-  [(collect-importss ((imp-id_1 ...) (imp-id_2 ...) ...) (LI_1 LI_2 ...) #:env Σ #:store σ)
-   (collect-importss ((imp-id_2 ...) ...) (LI_2 ...) #:env Σ_new #:store σ_new)
-   (where (Σ_new σ_new) ,(term (collect-imports (imp-id_1 ...) LI_1 #:env Σ #:store σ)))]
-  [(collect-importss ((imp-id_1 ...) (imp-id_2 ...) ...) (LI_1 LI_2 ...) #:env Σ #:store σ)
+  [(collect-importss () () #:env ρ #:store σ) (ρ σ)]
+  [(collect-importss ((imp-id_1 ...) (imp-id_2 ...) ...) (LI_1 LI_2 ...) #:env ρ #:store σ)
+   (collect-importss ((imp-id_2 ...) ...) (LI_2 ...) #:env ρ_new #:store σ_new)
+   (where (ρ_new σ_new) ,(term (collect-imports (imp-id_1 ...) LI_1 #:env ρ #:store σ)))]
+  [(collect-importss ((imp-id_1 ...) (imp-id_2 ...) ...) (LI_1 LI_2 ...) #:env ρ #:store σ)
    (raises e)
-   (where (raises e) ,(term (collect-imports (imp-id_1 ...) LI_1 #:env Σ #:store σ)))]
+   (where (raises e) ,(term (collect-imports (imp-id_1 ...) LI_1 #:env ρ #:store σ)))]
   ; error : not enough imported instances
-  [(collect-importss ((imp-id_1 ...) (imp-id_2 ...) ...) () #:env Σ #:store σ)
+  [(collect-importss ((imp-id_1 ...) (imp-id_2 ...) ...) () #:env ρ #:store σ)
    (raises not-enough-imported-instances)]
   ; error : too many imported instances
-  [(collect-importss () (LI ...) #:env Σ #:store σ)
+  [(collect-importss () (LI ...) #:env ρ #:store σ)
    (raises too-many-imported-instances)])
 
 
@@ -220,23 +220,23 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  put-target-to-env : Σ x_T Ω -> Σ or (raises e)
+  put-target-to-env : ρ x_T Ω -> ρ or (raises e)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   [(put-target-to-env 
-    Σ x_T
+    ρ x_T
     ((x_bef any_bef) ... (x_T LI) (x_aft any_aft) ...))
-   (extend Σ (current-linklet-instance) (LI))]
-  [(put-target-to-env Σ x_T Ω)
+   (extend ρ (current-linklet-instance) (LI))]
+  [(put-target-to-env ρ x_T Ω)
    (raises x_T)])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  ;instantiate-entry : Ω Σ σ L LI ... (#:target x) -> (v/LI Ω Σ σ)
+  ;instantiate-entry : Ω ρ σ L LI ... (#:target x) -> (v/LI Ω ρ σ)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  [(instantiate-entry Ω Σ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ...)
-   (instantiate-loop (l-top ...) Ω_1 Σ_1 σ_1 #:target x_T #:last-val (void) #:result instance)
-   (where (Σ_1 σ_1) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env Σ #:store σ)))
+  [(instantiate-entry Ω ρ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ...)
+   (instantiate-loop (l-top ...) Ω_1 ρ_1 σ_1 #:target x_T #:last-val (void) #:result instance)
+   (where (ρ_1 σ_1) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env ρ #:store σ)))
    (where x_T ,(variable-not-in (term Ω) 'new-inst))
    (where Ω_1 ,(term (uninitialize-exports ; put the exports of the linklet into-vvvv-the new instance
                                            (extend Ω (x_T) ((linklet-instance (exp-id ...))))
@@ -244,37 +244,37 @@
                                            (exp-id ...)
                                            (collect-linklet-defined-names (l-top ...) ()))))]
   ; eval (targeted instantiation)
-  [(instantiate-entry Ω Σ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ... #:target x_T)
-   (instantiate-loop (l-top ...) Ω_1 Σ_2 σ_1 #:target x_T #:last-val (void) #:result value)
-   (where (Σ_1 σ_1) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env Σ #:store σ)))
-   (where Σ_2 ,(term (put-target-to-env Σ_1 x_T Ω)))
+  [(instantiate-entry Ω ρ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ... #:target x_T)
+   (instantiate-loop (l-top ...) Ω_1 ρ_2 σ_1 #:target x_T #:last-val (void) #:result value)
+   (where (ρ_1 σ_1) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env ρ #:store σ)))
+   (where ρ_2 ,(term (put-target-to-env ρ_1 x_T Ω)))
    (where Ω_1 ,(term (uninitialize-exports ; overwrite target's exports
                                            (copy-exports-to-target Ω x_T (exp-id ...))
                                            x_T
                                            (exp-id ...)
                                            (collect-linklet-defined-names (l-top ...) ()))))]
   ;; import errors (regular instantitation)
-  [(instantiate-entry Ω Σ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ...)
+  [(instantiate-entry Ω ρ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ...)
    (raises e)
-   (where (raises e) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env Σ #:store σ)))]
+   (where (raises e) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env ρ #:store σ)))]
   ;; import errors (targeted)
   ;; no target found error
-  [(instantiate-entry Ω Σ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ... #:target x_T)
+  [(instantiate-entry Ω ρ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ... #:target x_T)
    (raises e)
-   (where (raises e) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env Σ #:store σ)))]
+   (where (raises e) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env ρ #:store σ)))]
   ;; no target found error
-  [(instantiate-entry Ω Σ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ... #:target x_T)
+  [(instantiate-entry Ω ρ σ (linklet ((imp-id ...) ...) (exp-id ...) l-top ...) LI ... #:target x_T)
    (raises e)
-   (where (Σ_1 σ_1) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env Σ #:store σ)))
-   (where (raises e) ,(term (put-target-to-env Σ_1 x_T Ω)))])
+   (where (ρ_1 σ_1) ,(term (collect-importss ((imp-id ...) ...) (LI ...) #:env ρ #:store σ)))
+   (where (raises e) ,(term (put-target-to-env ρ_1 x_T Ω)))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  target-add-or-overwrite : Σ σ x cell v x Ω  -> (Ω σ)
+  target-add-or-overwrite : ρ σ x cell v x Ω  -> (Ω σ)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ; target has the var, so overwrite the cell value
   [(target-add-or-overwrite
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_B C_B) ... (x cell) (x_A C_A) ...)) (x_aft any_aft) ...))
 
    (((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_B C_B) ... (x cell) (x_A C_A) ...)) (x_aft any_aft) ...)
@@ -282,7 +282,7 @@
 
   ; target has the var, but it's uninit
   [(target-add-or-overwrite
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_B C_B) ... (x uninit) (x_A C_A) ...)) (x_aft any_aft) ...))
 
    (((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_B C_B) ... (x cell_1) (x_A C_A) ...)) (x_aft any_aft) ...)
@@ -291,7 +291,7 @@
   ; target doesn't have the var
   ; so add a new one
   [(target-add-or-overwrite
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_old C_old) ...)) (x_aft any_aft) ...))
 
    (((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x cell_1) (x_old C_old) ...)) (x_aft any_aft) ...)
@@ -299,75 +299,75 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  modify-target : Σ σ x cell v x Ω -> (Ω σ)
+  modify-target : ρ σ x cell v x Ω -> (Ω σ)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;; recall : (exp-id ...) in target is really the linklet's exports
   ; name in exports (without rename)
   [(modify-target
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id_bef ... x exp-id_aft ...) (x_old C_old) ...)) (x_aft any_aft) ...))
    (target-add-or-overwrite
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id_bef ... x exp-id_aft ...) (x_old C_old) ...)) (x_aft any_aft) ...))]
 
   ; name in exports (with a rename)
   [(modify-target
-    Σ σ x_int cell_1 v_1 x_T
+    ρ σ x_int cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id_bef ... (x_int x_ext) exp-id_aft ...) (x_old C_old) ...)) (x_aft any_aft) ...))
    (target-add-or-overwrite
-    Σ σ x_ext cell_1 v_1 x_T
+    ρ σ x_ext cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id_bef ... (x_int x_ext) exp-id_aft ...) (x_old C_old) ...)) (x_aft any_aft) ...))]
 
   ; target does NOT have it (name is not in exports, so don't worry about renames)
   [(modify-target
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_old C_old) ...)) (x_aft any_aft) ...))
    (target-add-or-overwrite
-    Σ σ x cell_1 v_1 x_T
+    ρ σ x cell_1 v_1 x_T
     ((x_bef any_bef) ... (x_T (linklet-instance (exp-id ...) (x_old C_old) ...)) (x_aft any_aft) ...))
    (side-condition (not (member (term x) (term (x_old ...)))))]
 
   ; we're not exporting the name, and
   ; target already has it, so avoid modifying the target
-  [(modify-target Σ σ x cell v x_T Ω) (Ω σ)])
+  [(modify-target ρ σ x cell v x_T Ω) (Ω σ)])
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; instantiate-loop
 (define-metafunction Linklets
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  [(instantiate-loop () Ω Σ σ
-                     #:target x_T #:last-val v #:result instance) ((lookup Ω x_T) Ω Σ σ)]
-  [(instantiate-loop () Ω Σ σ
-                     #:target x_T #:last-val v #:result value) (v Ω Σ σ)]
+  [(instantiate-loop () Ω ρ σ
+                     #:target x_T #:last-val v #:result instance) ((lookup Ω x_T) Ω ρ σ)]
+  [(instantiate-loop () Ω ρ σ
+                     #:target x_T #:last-val v #:result value) (v Ω ρ σ)]
 
-  [(instantiate-loop ((define-values (x_0) e) l-top ...) Ω Σ
+  [(instantiate-loop ((define-values (x_0) e) l-top ...) Ω ρ
                      σ #:target x_T #:last-val v #:result v/i)
    ; loop define
    (instantiate-loop (l-top ...) Ω_1
-                     (extend Σ_1 (x_0) (cell_1))
+                     (extend ρ_1 (x_0) (cell_1))
                      (extend σ_2 (cell_1) (v_1))
                      #:target x_T
                      #:last-val (void)
                      #:result v/i)
-   (where (v_1 Σ_1 σ_1) ,(term (rc-api (e Σ σ))))
+   (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
    (where cell_1 ,(variable-not-in (term (x_0 l-top ...)) (term ,(gensym))))
-   (where (Ω_1 σ_2) ,(term (modify-target Σ σ_1 x_0 cell_1 v_1 x_T Ω)))]
+   (where (Ω_1 σ_2) ,(term (modify-target ρ σ_1 x_0 cell_1 v_1 x_T Ω)))]
 
   ; loop expression
-  [(instantiate-loop (e l-top ...) Ω Σ σ
+  [(instantiate-loop (e l-top ...) Ω ρ σ
                      #:target x_T #:last-val v #:result v/i)
-   (instantiate-loop (l-top ...) Ω Σ_1 σ_1
+   (instantiate-loop (l-top ...) Ω ρ_1 σ_1
                      #:target x_T
                      #:last-val v_1
                      #:result v/i)
-   (where (v_1 Σ_1 σ_1) ,(term (rc-api (e Σ σ))))]
+   (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))]
 
   ; error from rc-api
-  [(instantiate-loop (e l-top ...) Ω Σ σ
+  [(instantiate-loop (e l-top ...) Ω ρ σ
                      #:target x_T #:last-val v #:result v/i)
    (raises e_1)
-   (where ((raises e_1) Σ_1 σ_1) ,(term (rc-api (e Σ σ))))])
+   (where ((raises e_1) ρ_1 σ_1) ,(term (rc-api (e ρ σ))))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; PRECHECKS & RUNNING
@@ -593,17 +593,17 @@
 
 (define-metafunction Linklets
   ;; return
-  [(run-prog ((program (use-linklets) V ... n) Ω Σ σ)) n] ;; number
-  [(run-prog ((program (use-linklets) V ... b) Ω Σ σ)) b] ;; boolean
-  [(run-prog ((program (use-linklets) V ... (void)) Ω Σ σ)) (void)] ;; void
-  [(run-prog ((raises e) Ω Σ σ)) stuck] ;; stuck
+  [(run-prog ((program (use-linklets) V ... n) Ω ρ σ)) n] ;; number
+  [(run-prog ((program (use-linklets) V ... b) Ω ρ σ)) b] ;; boolean
+  [(run-prog ((program (use-linklets) V ... (void)) Ω ρ σ)) (void)] ;; void
+  [(run-prog ((raises e) Ω ρ σ)) stuck] ;; stuck
   
   ;; load the linklets
-  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) Ω Σ σ))
-   (run-prog ((program (use-linklets) p-top ...) (extend Ω (x_1 x ...) (L_1 L ...)) Σ σ))]
+  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) Ω ρ σ))
+   (run-prog ((program (use-linklets) p-top ...) (extend Ω (x_1 x ...) (L_1 L ...)) ρ σ))]
 
   ;; problem in intermediate steps
-  [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ...) Ω Σ σ)) stuck]
+  [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ...) Ω ρ σ)) stuck]
 
   ;; reduce
   [(run-prog any_1)
@@ -613,13 +613,13 @@
 
 
 #;(define-metafunction Linklets
-  ;debugger : (p Ω Σ σ) -> rc-out
-  [(debugger ((program (use-linklets) V ... n) Ω Σ σ)) (n Ω Σ σ)] ;; number
-  [(debugger ((program (use-linklets) V ... (void)) Ω Σ σ)) ((void) Ω Σ σ)] ;; void
-  [(debugger ((raises e) Ω Σ σ)) (stuck Ω Σ σ)] ;; stuck
+  ;debugger : (p Ω ρ σ) -> rc-out
+  [(debugger ((program (use-linklets) V ... n) Ω ρ σ)) (n Ω ρ σ)] ;; number
+  [(debugger ((program (use-linklets) V ... (void)) Ω ρ σ)) ((void) Ω ρ σ)] ;; void
+  [(debugger ((raises e) Ω ρ σ)) (stuck Ω ρ σ)] ;; stuck
 
-  [(debugger ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) Ω Σ σ))
-   (debugger ((program (use-linklets) p-top ...) (extend Ω (x_1 x ...) (L_1 L ...)) Σ σ))]
+  [(debugger ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) Ω ρ σ))
+   (debugger ((program (use-linklets) p-top ...) (extend Ω (x_1 x ...) (L_1 L ...)) ρ σ))]
 
   [(debugger any_1)
    (debugger any_again)

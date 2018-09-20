@@ -179,7 +179,7 @@
    (p1 (prog-top-to-racket e_1))]
   [(prog-top-to-racket (set! x e))
    (set! x (prog-top-to-racket e))]
-  [(prog-top-to-racket (closure x ... e Σ))
+  [(prog-top-to-racket (closure x ... e ρ))
    (lambda (x ...) (prog-top-to-racket e))]
   [(prog-top-to-racket (e_1 e ...))
    ((prog-top-to-racket e_1) (prog-top-to-racket e) ...)]
