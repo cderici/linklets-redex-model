@@ -149,43 +149,57 @@
 
 ;; Predicates and tools for testing
 
+(define-simple-macro (linklet? p)
+  (test-predicate (redex-match? Linklets L) (term p)))
+
 (define L? (redex-match? Linklets L))
 (define not-L? (compose not L?))
 
-(define-simple-macro (prog-expr? p)
+(define-simple-macro (program? p)
   (test-predicate (redex-match? Linklets p) (term p)))
 
 (define not-program? (compose not (redex-match? Linklets p)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(test-predicate L? (term (linklet () ())))
-(test-predicate L? (term (linklet () () (define-values (x) 1))))
-(test-predicate L? (term (linklet () () (define-values (x) 1) (define-values (x) 5))))
-(test-predicate L? (term (linklet () (x))))
-(test-predicate L? (term (linklet () (x) (define-values (x) 1))))
-(test-predicate L? (term (linklet () (x) (define-values (x) 1) (+ x x))))
-(test-predicate L? (term (linklet (()) (x) (define-values (x) 1))))
-(test-predicate L? (term (linklet ((a)) (x) (define-values (x) a))))
-(test-predicate L? (term (linklet ((a)) ((x x1)) (define-values (x) a))))
+(linklet? (linklet () ()))
+(linklet? (linklet () () (define-values (x) 1)))
+(linklet? (linklet () () (define-values (x) 1) (define-values (x) 5)))
+(linklet? (linklet () (x)))
+(linklet? (linklet () (x) (define-values (x) 1)))
+(linklet? (linklet () (x) (define-values (x) 1) (+ x x)))
+(linklet? (linklet (()) (x) (define-values (x) 1)))
+(linklet? (linklet ((a)) (x) (define-values (x) a)))
+(linklet? (linklet ((a)) ((x x1)) (define-values (x) a)))
 
 (test-predicate not-L? (term (linklet ()))) ; no imports (or exports)
 (test-predicate not-L? (term (linklet (x) ()))) ; imports are listof-listof-ids
+
+(linklet? (linklet ((a)) ((x x1)) (define-values (x) a)))
+
+; compiled (linklet () (x) (define-values (x) 4) (+ x x))
+(linklet? (linklet () ((x x1)) (define-values (x) 1) (var-set! x1 x) (+ x x)))
+; compiled (linklet () (x) (define-values (x) 4) (set! x 5) (+ x x))
+(linklet? (linklet () ((x x1))
+                   (define-values (x) 4)
+                   (var-set! x1 x)
+                   (var-set/check-undef! x1 5)
+                   (+ (var-ref x1) (var-ref x1))))
 
 ; "program" acts like a begin, the last result is returned, where
 ; result is either a linklet instance or a value
 
 (test-predicate not-program? (term (program (use-linklets))))
 
-(prog-expr? (program (use-linklets)
+(program? (program (use-linklets)
                      (let-inst ti (instantiate t))
                      (instantiate l #:target ti)))
-(prog-expr? (program (use-linklets
+(program? (program (use-linklets
                       [l (linklet () () 1)]
                       [t (linklet () ())])
                      (let-inst ti (instantiate t))
                      (instantiate l #:target ti)))
-(prog-expr? (program (use-linklets
+(program? (program (use-linklets
                       [l1 (linklet () ())]
                       [l2 (linklet () () (define-values (x) 5) x)])
                      (let-inst t1 (instantiate l1))

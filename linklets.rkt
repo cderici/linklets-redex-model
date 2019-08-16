@@ -12,7 +12,8 @@
   [l-top ::= d e] ; linklet body expressions
   [l-var ::= (variable x v constance)] ; linklet variables
   [d ::= (define-values (x) e)]
-  
+  [e ::= .... (var-ref x) (var-ret/no-check x) (var-set! x x) (var-set/check-undef! x v)]
+
   ; (external-imported-id internal-imported-id)
   [imp-id ::= x (x x)]
   [exp-id ::= x (x x)]
