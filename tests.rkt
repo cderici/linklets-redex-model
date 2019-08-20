@@ -209,21 +209,89 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compile-linklet
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ; get all toplevel variables
 (test-equal (term (all-toplevels () ())) (term ()))
 (test-equal (term (all-toplevels (3 4) ())) (term ()))
 (test-equal (term (all-toplevels ((set! x 14)) ())) (term ()))
 (test-equal (term (all-toplevels ((define-values (x) 3) (set! x 14)) ())) (term (x)))
 (test-equal (term (all-toplevels ((define-values (x) 3) (set! x 14) (define-values (y) 3)) ())) (term (x y)))
+
 ; get all mutated variables
 (test-equal (term (get-all-mutated-vars () ())) (term ()))
 (test-equal (term (get-mutated-vars-expr (set! x 15) ())) (term (x)))
 (test-equal (term (get-all-mutated-vars ((set! x 15)) ())) (term (x)))
 (test-equal (term (get-mutated-vars-expr 3 ())) (term ()))
-(test-equal (term (get-mutated-vars-expr (begin 3) ())) (term ()))
-(test-equal (term (get-mutated-vars-expr (begin 3 (set! x 15)) ())) (term (x)))
-(test-equal (term (get-mutated-vars-expr (begin 3 (set! x 15) (set! y 15)) ())) (term (x y)))
-(test-equal (term (get-mutated-vars-expr (define-values (x) 15) ())) (term ()))
-(test-equal (term (get-all-mutated-vars ((define-values (x) 15) (set! x 15)) ())) (term (x)))
-(test-equal (term (get-all-mutated-vars ((define-values (x) 15) (set! x 15) (set! y 14)) ())) (term (x y)))
-(test-equal (term (get-all-mutated-vars ((define-values (x) 15) (begin (set! x 15) (set! y 14)) (set! z 14)) ())) (term (x y z)))
+(test-equal (term (get-mutated-vars-expr (begin 3) ()))
+            (term ()))
+(test-equal (term (get-mutated-vars-expr (begin 3 (set! x 15)) ()))
+            (term (x)))
+(test-equal (term (get-mutated-vars-expr (begin 3
+                                                (set! x 15)
+                                                (set! y 15)) ()))
+            (term (x y)))
+(test-equal (term (get-mutated-vars-expr (define-values (x) 15) ()))
+            (term ()))
+(test-equal (term (get-all-mutated-vars ((define-values (x) 15)
+                                         (set! x 15)) ()))
+            (term (x)))
+(test-equal (term (get-all-mutated-vars ((define-values (x) 15)
+                                         (set! x 15)
+                                         (set! y 14)) ()))
+            (term (x y)))
+(test-equal (term (get-all-mutated-vars ((define-values (x) 15)
+                                         (begin (set! x 15)
+                                                (set! y 14))
+                                         (set! z 14)) ()))
+            (term (x y z)))
+
+; process imports
+; CAUTION: the gensym-ed symbols in expected results
+; are hardcoded, may brake if gensym method of redex changes
+(test-equal (term (process-importss 0 ((x)) ()))
+            (term (((Import 0 x1 x x)))))
+(test-equal (term (process-importss 0 ((x) (y)) ()))
+            (term (((Import 0 x1 x x))
+                   ((Import 1 y1 y y)))))
+(test-equal (term (process-importss 0 ((x z) (y)) ()))
+            (term (((Import 0 x1 x x) (Import 0 z1 z z))
+                   ((Import 1 y1 y y)))))
+; process exports
+(test-equal (term (process-exports () ())) (term ()))
+(test-equal (term (process-exports (a) ()))
+            (term ((Export a1 a a))))
+(test-equal (term (process-exports ((a-int a-ext) b) ()))
+            (term ((Export a-int x a-ext)
+                   (Export b1 b b))))
+
+
+; no extra asts
+#;(test-equal (compile-linklet
+             (linklet () () (define-values x 5) (+ x x)) () ())
+            (term (linklet () () (define-values x 5) (+ x x))))
+
+#;(test-equal (compile-linklet
+             (linklet ((c)) () (define-values (x) 4) (+ x c)))
+            (term (linklet ((c c0)) () (define-values (x) 4) (+ x (var-ref/no-check c0)))))
+
+; create a variable for export
+#;(test-equal (compile-linklet
+             (linklet () (x) (define-values x 5) (+ x x)) () ())
+            (term (linklet () ((x1 x))
+                           (define-values x 5)
+                           (var-set! x1 x)
+                           (+ x x))))
+
+; don't create a variable (even though it's set!
+#;(test-equal (compile-linklet
+             (linklet () () (define-values x 5) (set! x 6) (+ x x)) () ())
+            (term (linklet () () (define-values x 5) (set! x 6) (+ x x))))
+
+; create a variable for export, set! and use that one
+#;(test-equal (compile-linklet
+             (linklet () (x) (define-values x 5) (set! x 6) (+ x x)) () ())
+            (term (linklet () ((x1 x))
+                           (define-values x 5)
+                           (var-set! x1 x)
+                           (var-set/check-undef! x1 6)
+                           (+ (var-ref x1) (var-ref x1)))))
