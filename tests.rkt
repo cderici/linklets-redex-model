@@ -141,7 +141,8 @@
 (test-equal (term (eval-rc=racket-core (if (void) (let-values () (void)) (< qw F)))) #true)
 (test-equal (term (eval-rc=racket-core ((lambda () (void))))) #true)
 
-(redex-check RC e-test (term (eval-rc=racket-core e)) #:attempts 1000)
+;; Random Testing for Racket-Core
+;(redex-check RC e-test (term (eval-rc=racket-core e)) #:attempts 1000)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Linklet Model
@@ -204,3 +205,25 @@
                       [l2 (linklet () () (define-values (x) 5) x)])
                      (let-inst t1 (instantiate l1))
                      (instantiate l2 #:target t1)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; compile-linklet
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; get all toplevel variables
+(test-equal (term (all-toplevels () ())) (term ()))
+(test-equal (term (all-toplevels (3 4) ())) (term ()))
+(test-equal (term (all-toplevels ((set! x 14)) ())) (term ()))
+(test-equal (term (all-toplevels ((define-values (x) 3) (set! x 14)) ())) (term (x)))
+(test-equal (term (all-toplevels ((define-values (x) 3) (set! x 14) (define-values (y) 3)) ())) (term (x y)))
+; get all mutated variables
+(test-equal (term (get-all-mutated-vars () ())) (term ()))
+(test-equal (term (get-mutated-vars-expr (set! x 15) ())) (term (x)))
+(test-equal (term (get-all-mutated-vars ((set! x 15)) ())) (term (x)))
+(test-equal (term (get-mutated-vars-expr 3 ())) (term ()))
+(test-equal (term (get-mutated-vars-expr (begin 3) ())) (term ()))
+(test-equal (term (get-mutated-vars-expr (begin 3 (set! x 15)) ())) (term (x)))
+(test-equal (term (get-mutated-vars-expr (begin 3 (set! x 15) (set! y 15)) ())) (term (x y)))
+(test-equal (term (get-mutated-vars-expr (define-values (x) 15) ())) (term ()))
+(test-equal (term (get-all-mutated-vars ((define-values (x) 15) (set! x 15)) ())) (term (x)))
+(test-equal (term (get-all-mutated-vars ((define-values (x) 15) (set! x 15) (set! y 14)) ())) (term (x y)))
+(test-equal (term (get-all-mutated-vars ((define-values (x) 15) (begin (set! x 15) (set! y 14)) (set! z 14)) ())) (term (x y z)))

@@ -8,7 +8,7 @@
 (define-extended-language Linklets RC
   [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ...)]
   [LI ::= (linklet-instance (exp-id ...) (x l-var) ...)] ;; (var-sym cell)
-  
+
   [l-top ::= d e] ; linklet body expressions
   [l-var ::= (variable x v constance)] ; linklet variables
   [d ::= (define-values (x) e)]
@@ -16,6 +16,7 @@
 
   ; (external-imported-id internal-imported-id)
   [imp-id ::= x (x x)]
+  ; (internal-exported-id external-exported-id)
   [exp-id ::= x (x x)]
 
   [constance ::= #f constant consistent]
@@ -28,7 +29,7 @@
 
   [linkl-ref ::= x L (raises e)]
   [inst-ref ::= x LI (raises e)]
-  
+
   ;; program-stuff
   [p-top :== I T (let-inst x I) (instance-variable-value x x)]
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ... final-expr)]
@@ -50,3 +51,25 @@
           (instantiate-linklet L LI ... EL inst-ref ... #:target inst-ref) ;; resolve the imported instances
 
           (instance-variable-value EL x)])
+
+(define-metafunction Linklets
+  all-toplevels : (l-top ...) (x ...) -> (x ...)
+  [(all-toplevels () (x ...)) (x ...)]
+  [(all-toplevels ((define-values (x) v) l-top ...) (x_tops ...))
+   (all-toplevels (l-top ...) (x_tops ... x))]
+  [(all-toplevels (l-top_1 l-top ...) (x ...))
+   (all-toplevels (l-top ...) (x ...))])
+
+(define-metafunction Linklets
+  get-mutated-vars-expr : l-top (x ...) -> (x ...)
+  [(get-mutated-vars-expr (set! x v) (x_muts ...)) (x x_muts ...)]
+  [(get-mutated-vars-expr (begin l-top ...) (x_muts ...))
+   (get-all-mutated-vars (l-top ...) (x_muts ...))]
+  [(get-mutated-vars-expr l-top (x ...)) (x ...)])
+
+(define-metafunction Linklets
+  get-all-mutated-vars : (l-top ...) (x ...) -> (x ...)
+  [(get-all-mutated-vars () (x ...)) (x ...)]
+  [(get-all-mutated-vars (l-top_1 l-top ...) (x_muts ...))
+   (get-all-mutated-vars (l-top ...) (x_muts ... x_new_muts ... ))
+   (where (x_new_muts ...) (get-mutated-vars-expr l-top_1 ()))])
