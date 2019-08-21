@@ -259,10 +259,10 @@
 ; process exports
 (test-equal (term (process-exports () ())) (term ()))
 (test-equal (term (process-exports (a) ()))
-            (term ((Export a1 a a))))
+            (term ((Export a a1 a))))
 (test-equal (term (process-exports ((a-int a-ext) b) ()))
             (term ((Export a-int x a-ext)
-                   (Export b1 b b))))
+                   (Export b b1 b))))
 
 
 ; no extra asts

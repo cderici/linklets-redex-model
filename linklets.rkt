@@ -9,6 +9,10 @@
   [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ...)]
   [LI ::= (linklet-instance (exp-id ...) (x l-var) ...)] ;; (var-sym cell)
 
+  [L-obj ::= (compiled-linklet ((imp-obj ...) ...)
+                               (exp-obj ...)
+                               l-top ...)]
+
   [l-top ::= d e] ; linklet body expressions
   [l-var ::= (variable x v constance)] ; linklet variables
   [d ::= (define-values (x) e)]
@@ -58,7 +62,7 @@
 (define-metafunction Linklets
   all-toplevels : (l-top ...) (x ...) -> (x ...)
   [(all-toplevels () (x ...)) (x ...)]
-  [(all-toplevels ((define-values (x) v) l-top ...) (x_tops ...))
+  [(all-toplevels ((define-values (x) e) l-top ...) (x_tops ...))
    (all-toplevels (l-top ...) (x_tops ... x))]
   [(all-toplevels (l-top_1 l-top ...) (x ...))
    (all-toplevels (l-top ...) (x ...))])
@@ -103,7 +107,7 @@
   process-exports : (exp-id ...) (exp-obj ...) -> (exp-obj ...)
   [(process-exports () (exp-obj ...)) (exp-obj ...)]
   [(process-exports (x exp-id ...) (exp-obj ...))
-   (process-exports (exp-id ...) (exp-obj ... (Export x_gen x x)))
+   (process-exports (exp-id ...) (exp-obj ... (Export x x_gen x)))
    (where x_gen ,(variable-not-in (term (x exp-id ...)) (term x)))]
   [(process-exports ((x_int x_ext) exp-id ...) (exp-obj ...))
    (process-exports (exp-id ...) (exp-obj ... (Export x_int x_gen x_ext)))
