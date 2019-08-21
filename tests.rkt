@@ -264,34 +264,77 @@
             (term ((Export a-int x a-ext)
                    (Export b b1 b))))
 
+; compile-pre-tests
+(test-equal (term (process-importss 0 () ())) (term ()))
+(test-equal (term (process-exports () ())) (term ()))
+(test-equal (term (get-all-mutated-vars () ())) (term ()))
+(test-equal (term (all-toplevels () ())) (term ()))
+(test-equal (term (compile-linklet-body () ()
+                                        () ()
+                                        () () ()))
+            (term ()))
+; compile tests
+(test-equal (term (compile-linklet (linklet () ())))
+            (term (compiled-linklet () ())))
+(test-equal (term (compile-linklet (linklet () () 3 4)))
+            (term (compiled-linklet () () 3 4)))
+(test-equal (term (compile-linklet (linklet () () (begin 3 4))))
+            (term (compiled-linklet () () (begin 3 4))))
+(test-equal (term (compile-linklet
+                   (linklet () () (begin (set! x 3) 4))))
+            (term (compiled-linklet () () (begin (set! x 3) 4))))
+(test-equal (term (compile-linklet
+                   (linklet () () (let-values (((x) 3)) x))))
+            (term (compiled-linklet () () (let-values (((x) 3)) x))))
+(test-equal (term (compile-linklet
+                   (linklet () () (lambda (x) x))))
+            (term (compiled-linklet () () (lambda (x) x))))
+(test-equal (term (compile-linklet
+                   (linklet () () (if (lambda (x) x) 3 4))))
+            (term (compiled-linklet () () (if (lambda (x) x) 3 4))))
+(test-equal (term (compile-linklet
+                   (linklet () () (+ x x))))
+            (term (compiled-linklet () () (+ x x))))
+(test-equal (term (compile-linklet
+                   (linklet () () 3 (+ x x))))
+            (term (compiled-linklet () () 3 (+ x x))))
 
+; compile-linklet important cases:
 ; no extra asts
-#;(test-equal (compile-linklet
-             (linklet () () (define-values x 5) (+ x x)) () ())
-            (term (linklet () () (define-values x 5) (+ x x))))
+(test-equal (term (compile-linklet
+                   (linklet () () (define-values (x) 5) (+ x x))))
+            (term (compiled-linklet () () (define-values (x) 5) (+ x x))))
 
-#;(test-equal (compile-linklet
-             (linklet ((c)) () (define-values (x) 4) (+ x c)))
-            (term (linklet ((c c0)) () (define-values (x) 4) (+ x (var-ref/no-check c0)))))
+(test-equal (term (compile-linklet
+                   (linklet ((c)) () (define-values (x) 4) (+ x c))))
+            (term (compiled-linklet (((Import 0 c1 c c))) ()
+                                    (define-values (x) 4)
+                                    (+ x (var-ref/no-check c1)))))
 
 ; create a variable for export
-#;(test-equal (compile-linklet
-             (linklet () (x) (define-values x 5) (+ x x)) () ())
-            (term (linklet () ((x1 x))
-                           (define-values x 5)
-                           (var-set! x1 x)
-                           (+ x x))))
+(test-equal (term (compile-linklet
+                   (linklet () (x) (define-values (x) 5) (+ x x))))
+            (term (compiled-linklet () ((Export x x1 x))
+                                    (define-values (x) 5)
+                                    (var-set! x1 x)
+                                    (+ x x))))
 
 ; don't create a variable (even though it's set!
-#;(test-equal (compile-linklet
-             (linklet () () (define-values x 5) (set! x 6) (+ x x)) () ())
-            (term (linklet () () (define-values x 5) (set! x 6) (+ x x))))
+(test-equal (term (compile-linklet
+                   (linklet () ()
+                            (define-values (x) 5)
+                            (set! x 6) (+ x x))))
+            (term (compiled-linklet () ()
+                                    (define-values (x) 5)
+                                    (set! x 6) (+ x x))))
 
 ; create a variable for export, set! and use that one
-#;(test-equal (compile-linklet
-             (linklet () (x) (define-values x 5) (set! x 6) (+ x x)) () ())
-            (term (linklet () ((x1 x))
-                           (define-values x 5)
-                           (var-set! x1 x)
-                           (var-set/check-undef! x1 6)
-                           (+ (var-ref x1) (var-ref x1)))))
+(test-equal (term (compile-linklet
+                   (linklet () (x)
+                            (define-values (x) 5)
+                            (set! x 6) (+ x x))))
+            (term (compiled-linklet () ((Export x x1 x))
+                                    (define-values (x) 5)
+                                    (var-set! x1 x)
+                                    (var-set/check-undef! x1 6)
+                                    (+ (var-ref x1) (var-ref x1)))))

@@ -33,9 +33,9 @@
   [exp-id ::= x (x x)]
   [C ::= cell uninit]
 
-  #:binding-forms
-  (λ (x ...) e #:refers-to (shadow x ...))
-  (let-values ([(x) e_x] ...) e_body #:refers-to (shadow x ...))
+  ;#:binding-forms
+  #;(λ (x ...) e #:refers-to (shadow x ...))
+  #;(let-values ([(x) e_x] ...) e_body #:refers-to (shadow x ...))
   )
 
 ; (render-language RC "RC.pdf" #:nts '(e v c n b x p1 p2 o E ρ σ))
