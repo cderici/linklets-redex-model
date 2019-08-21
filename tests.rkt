@@ -3,6 +3,7 @@
 (require redex
          "linklets.rkt"
          "racket-core.rkt"
+         "compile-linklets.rkt"
          syntax/parse/define)
 
 
