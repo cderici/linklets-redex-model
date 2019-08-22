@@ -347,7 +347,7 @@
                                     (+ (var-ref x1) (var-ref x1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; run-prog side tests
+;; eval-prog/run-prog side tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (test-equal (term (compile-linklet (linklet () ())))
@@ -356,17 +356,42 @@
                              () () () ()))) 3)
 (test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
                              () () () ()))) 3)
-#;(run-prog ((program (use-linklets (l1 (linklet () () 2))) 3) () () () ()))
+(program? (program (use-linklets)
+                   (let-inst t1 (linklet-instance))
+                   (instantiate-linklet l1 #:target t1)))
+
+(test-equal (apply-reduction-relation
+             -->βp
+             (term ((program (use-linklets)
+                             (void)
+                             (instantiate-linklet (compiled-linklet () ()) #:target t1))
+                    ((l1 (compiled-linklet () ())))
+                    ((t1 (linklet-instance)))
+                    () ())))
+            (term (((program (use-linklets)
+                             (void)
+                             (void))
+                    ((l1 (compiled-linklet () ())))
+                    ((t1 (linklet-instance)))
+                    () ()))))
+
+(test-equal (term (run-prog ((program (use-linklets)
+                                      (void)
+                                      (instantiate-linklet l1 #:target t1))
+                             ((l1 (compiled-linklet () ())))
+                             ((t1 (linklet-instance)))
+                             () ())))
+            (term (void)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog main tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (test-equal (term (eval-prog (program (use-linklets) 3))) 3)
-#;(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () () 2)])
+(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () () 2)])
                                       3)))
-            (term 3))
-#;(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () ())])
+            3)
+(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () ())])
                                       (let-inst t1 (instantiate-linklet l1))
                                       (instantiate-linklet l1 #:target t1))))
             (term (void)))

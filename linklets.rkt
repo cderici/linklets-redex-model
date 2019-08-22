@@ -29,9 +29,9 @@
 
   ;; compile-instantiate expressions
   [CL ::= (compile-linklet L)]
-  [I ::= (make-instance (exp-id ...) (x v) ...)
+  [I ::= LI (make-instance (exp-id ...) (x v) ...)
          (instantiate-linklet linkl-ref inst-ref ...)] ; instantiate
-  [T ::= (instantiate-linklet linkl-ref inst-ref ... #:target x)] ; evaluate
+  [T ::= v (instantiate-linklet linkl-ref inst-ref ... #:target x)] ; evaluate
 
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
@@ -46,6 +46,7 @@
   [ω   ::= ((x L-obj) ...)] ; linklet env
   [Ω   ::= ((x LI) ...)] ; linklet instance env
 
+  [V ::= v LI]
   [EP ::= hole
           (program (use-linklets) V ... (let-inst x EL) p-top ... final-expr)
           (program (use-linklets) V ... EL p-top ... final-expr)
@@ -77,11 +78,11 @@
    (--> [(in-hole EP (let-inst x LI)) ω Ω ρ σ]
         [(in-hole EP (void)) ω (extend Ω (x) (LI)) ρ σ] "let-inst")
    (--> [(in-hole EP (instantiate-linklet L-obj LI ...)) ω Ω ρ σ]
-        [(in-hole EP LI_1) Ω_1 ρ σ_1]
+        [(in-hole EP LI_1) ω_1 Ω_1 ρ σ_1]
         (where (LI_1 ω_1 Ω_1 ρ_1 σ_1)
                (instantiate-entry ω Ω ρ σ L-obj LI ...)) "instantiate linklet")
    (--> [(in-hole EP (instantiate-linklet L-obj LI ... #:target inst-ref_80)) ω Ω ρ σ]
-        [(in-hole EP e_1) ω_1 Ω_1 ρ_1 σ_1]
+        [(in-hole EP v_1) ω_1 Ω_1 ρ_1 σ_1]
         (where (v_1 ω_1 Ω_1 ρ_1 σ_1)
                (instantiate-entry ω Ω ρ σ L-obj LI ... #:target inst-ref_80)) "eval linklet")
    (--> [(in-hole EP (instantiate-linklet L-obj LI ...)) ω Ω ρ σ]
@@ -100,7 +101,7 @@
 
 Instantiating a linklet is basically getting the imported vars into
 the env and evaluating all the forms in the body in the presence of
-a "target" linklet instance.  
+a "target" linklet instance.
 
 If a target instance is not provided to the instantiation (as an
 initial argument), then it's a regular instantiation, we will create a
@@ -152,7 +153,7 @@ we call "evaluating a linklet".
    (LI_target ω Ω ρ σ)])
 
 #|
-  
+
   ;; (There are forms in the linklet body)
   ;; prepare inputs case-lambda style
   [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ...)
@@ -165,5 +166,3 @@ we call "evaluating a linklet".
   ; start the loop
   [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target LI_target #:result value)
   |#
-  
-
