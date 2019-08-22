@@ -7,7 +7,7 @@
 
 (define-extended-language Linklets RC
   [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ...)]
-  [LI ::= (linklet-instance (exp-id ...) (x l-var) ...)] ;; (sym-var pairs)
+  [LI ::= (linklet-instance (x l-var) ...)] ;; note that an instance have no exports
 
   [L-obj ::= (compiled-linklet ((imp-obj ...) ...)
                                (exp-obj ...)
@@ -36,12 +36,14 @@
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
 
+  #;[v/i ::= value instance]
+
   ;; program-stuff
   [p-top :== I T (let-inst x I) (instance-variable-value x x)]
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ... final-expr)]
   [final-expr ::= p-top v]
 
-  [ω   ::= ((x L) ...)] ; linklet env
+  [ω   ::= ((x L-obj) ...)] ; linklet env
   [Ω   ::= ((x LI) ...)] ; linklet instance env
 
   [EP ::= hole
@@ -74,58 +76,94 @@
         [(raises instance-expected) ω Ω ρ σ] "instance variable value error")
    (--> [(in-hole EP (let-inst x LI)) ω Ω ρ σ]
         [(in-hole EP (void)) ω (extend Ω (x) (LI)) ρ σ] "let-inst")
-   (--> [(in-hole EP (instantiate L-obj LI ...)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet L-obj LI ...)) ω Ω ρ σ]
         [(in-hole EP LI_1) Ω_1 ρ σ_1]
         (where (LI_1 ω_1 Ω_1 ρ_1 σ_1)
                (instantiate-entry ω Ω ρ σ L-obj LI ...)) "instantiate linklet")
-   (--> [(in-hole EP (instantiate L-obj LI ... #:target x_80)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet L-obj LI ... #:target inst-ref_80)) ω Ω ρ σ]
         [(in-hole EP e_1) ω_1 Ω_1 ρ_1 σ_1]
-        (where (e_1 ω_1 Ω_1 ρ_1 σ_1)
-               (instantiate-entry ω Ω ρ σ L-obj LI ... #:target x_80)) "eval linklet")
-   (--> [(in-hole EP (instantiate L-obj LI ...)) ω Ω ρ σ]
+        (where (v_1 ω_1 Ω_1 ρ_1 σ_1)
+               (instantiate-entry ω Ω ρ σ L-obj LI ... #:target inst-ref_80)) "eval linklet")
+   (--> [(in-hole EP (instantiate-linklet L-obj LI ...)) ω Ω ρ σ]
         [(raises e) ω Ω ρ σ]
         (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ...)) "error in instantiation")
-   (--> [(in-hole EP (instantiate L-obj LI ... #:target x_80)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet L-obj LI ... #:target inst-ref_80)) ω Ω ρ σ]
         [(raises e) ω Ω ρ σ]
-        (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ... #:target x_80)) "error in evaluation")
+        (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ... #:target inst-ref_80)) "error in evaluation")
 
    ))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Instantiation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#|
+
+Instantiating a linklet is basically getting the imported vars into
+the env and evaluating all the forms in the body in the presence of
+a "target" linklet instance.  
+
+If a target instance is not provided to the instantiation (as an
+initial argument), then it's a regular instantiation, we will create a
+new instance and evaluate all the forms in the linklet body and the
+instantiation will return the created linklet instance (the variables
+inside the created instance depends on the evaluated forms within the
+linklet body).
+
+If a target is provided to the instantiation, then the instantiation
+will take place similarly, but the result will be the result of
+evaluating the last expression in the linklet body, i.e. the
+instantiation will return a value instead of an instance. This is what
+we call "evaluating a linklet".
+
+|#
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-metafunction Linklets
-  ;; return
-  [(run-prog ((program (use-linklets) V ... n) ω Ω ρ σ)) n] ;; number
-  [(run-prog ((program (use-linklets) V ... b) ω Ω ρ σ)) b] ;; boolean
-  [(run-prog ((program (use-linklets) V ... (void)) ω Ω ρ σ)) (void)] ;; void
-  [(run-prog ((raises e) ω Ω ρ σ)) stuck] ;; stuck
+  ;instantiate-entry : ω Ω ρ σ L-obj LI ... (#:target x) -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  ;; 1) get the imported variables (l-var ...) and put them into the environment
+  ;; 2) create a target if it's not given
+  ;; (?) instance-variable-reference
+  ;; 3) for each exported variable,
+  ;;        - either get it from the target, or create one
+  ;;        - put it in the environment
+  ;; 4) if there's no form in the body, either
+  ;;        - return void (if target is provided)
+  ;;        - return target (if target is not provided)
+  ;; 5) if there are forms in the body, start the instantiation loop
 
-  ;; load the linklets
-  [(run-prog ((program (use-linklets (x_1 L-obj_1) (x L-obj) ...) p-top ...) ω Ω ρ σ))
-   (run-prog ((program (use-linklets) p-top ...)
-              (extend ω (x_1 x ...) (L-obj_1 L-obj ...)) Ω ρ σ))]
+  ;; (No forms in the linklet body) -> no reason to deal with imports exports
+  ;; prepare inputs case-lambda style
+  ; instantiate without target
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ...)
+   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target (linklet-instance) #:result instance)]
+  ; instantiate with a reference to target instance
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target)
+   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target LI_target #:result value)
+   (where LI_target (lookup Ω x_target))]
+  ; instantiate with an explicit target instance
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target LI_target)
+   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target LI_target #:result value)]
+  ; return void
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target LI_target #:result value)
+   ((void) ω Ω ρ σ)]
+  ; return instance
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target LI_target #:result instance)
+   (LI_target ω Ω ρ σ)])
 
-  ;; problem in intermediate steps
-  [(run-prog ((program (use-linklets (x L-obj) ...) p-top_1 ... stuck p-top_2 ...)
-              ω Ω ρ σ)) stuck]
+#|
+  
+  ;; (There are forms in the linklet body)
+  ;; prepare inputs case-lambda style
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ...)
+   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target (linklet-instance) #:result instance)]
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target)
+   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target LI_target #:result value)
+   (where LI_target (lookup Ω x_target))]
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target LI_target)
+   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target LI_target #:result value)]
+  ; start the loop
+  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target LI_target #:result value)
+  |#
+  
 
-  ;; reduce
-  [(run-prog any_1)
-   (run-prog any_again)
-   (where (any_again) ,(apply-reduction-relation -->βp (term any_1)))]
-  [(run-prog any_1) stuck])
-
-
-(define-metafunction Linklets
-  ;eval-prog :Linklets-> v or closure or stuck or void
-  [(eval-prog (program (use-linklets (x_L L) ...) p-top ...))
-   (run-prog ((program (use-linklets (x_L L-obj) ...) p-top ...) () () () ()))
-   (where (L-obj ...) ((compile-linklet L) ...))
-   #;(side-condition (and (term (check-free-varss L ...))
-                        (term (no-exp/imp-duplicates L ...))
-                        (term (no-export-rename-duplicates L ...))
-                        (term (no-non-definable-variables L ...))
-                        (term (no-duplicate-binding-namess L ...))
-                        (term (linklet-refs-check-out
-                               (p-top ...)
-                               (x_L ...)
-                               (get-defined-instance-ids (p-top ...) ())))))]
-  [(eval-prog p) stuck])
