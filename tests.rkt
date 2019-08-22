@@ -4,6 +4,7 @@
          "linklets.rkt"
          "racket-core.rkt"
          "compile-linklets.rkt"
+         "main.rkt"
          syntax/parse/define)
 
 
@@ -193,19 +194,24 @@
 
 (test-predicate not-program? (term (program (use-linklets))))
 
+(program? (program (use-linklets) 3))
+(program? (program (use-linklets [l1 (linklet () ())])
+                   (let-inst t1 (instantiate l1))
+                   (instantiate l1 #:target t1)))
+
 (program? (program (use-linklets)
-                     (let-inst ti (instantiate t))
-                     (instantiate l #:target ti)))
+                   (let-inst ti (instantiate t))
+                   (instantiate l #:target ti)))
 (program? (program (use-linklets
-                      [l (linklet () () 1)]
-                      [t (linklet () ())])
-                     (let-inst ti (instantiate t))
-                     (instantiate l #:target ti)))
+                    [l (linklet () () 1)]
+                    [t (linklet () ())])
+                   (let-inst ti (instantiate t))
+                   (instantiate l #:target ti)))
 (program? (program (use-linklets
-                      [l1 (linklet () ())]
-                      [l2 (linklet () () (define-values (x) 5) x)])
-                     (let-inst t1 (instantiate l1))
-                     (instantiate l2 #:target t1)))
+                    [l1 (linklet () ())]
+                    [l2 (linklet () () (define-values (x) 5) x)])
+                   (let-inst t1 (instantiate l1))
+                   (instantiate l2 #:target t1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compile-linklet
@@ -339,3 +345,28 @@
                                     (var-set! x1 x)
                                     (var-set/check-undef! x1 6)
                                     (+ (var-ref x1) (var-ref x1)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; run-prog side tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(test-equal (term (compile-linklet (linklet () ())))
+            (term (compiled-linklet () ())))
+(test-equal (term (run-prog ((program (use-linklets) 3)
+                             () () () ()))) 3)
+(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
+                             () () () ()))) 3)
+#;(run-prog ((program (use-linklets (l1 (linklet () () 2))) 3) () () () ()))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; eval-prog main tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(test-equal (term (eval-prog (program (use-linklets) 3))) 3)
+#;(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () () 2)])
+                                      3)))
+            (term 3))
+#;(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () ())])
+                                      (let-inst t1 (instantiate-linklet l1))
+                                      (instantiate-linklet l1 #:target t1))))
+            (term (void)))
