@@ -614,3 +614,32 @@
                        (instance-variable-value i x15)
                        (instance-variable-value i k))
               75) ; not 4
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; use targets def
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(linklet-test (program (use-linklets
+                        [l (linklet () (x) (+ x x))]
+                        [t-l (linklet () (x) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t))
+              20)
+
+; "use linklet's definition if both linklet and target have it"
+; tests the compile linklet, the x's in the (+ x x) should be toplevel
+; defined ids (not linklet vars)
+(linklet-test (program (use-linklets
+                        [l (linklet () () (define-values (x) 4) (+ x x))]
+                        [t-l (linklet () (x) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t))
+              8)
+
+(linklet-test (program (use-linklets
+                        [l (linklet () () (define-values (x) 4) (+ x x))]
+                        [t-l (linklet () (x) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x))
+              10)

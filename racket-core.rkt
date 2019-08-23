@@ -94,7 +94,7 @@
 
    (--> [(in-hole E (var-ref x)) ρ σ]
         [(in-hole E v) ρ σ]
-        (where (variable x v) (lookup σ (lookup ρ x)))
+        (where (variable x_var v) (lookup σ (lookup ρ x)))
         "var-ref")
    (--> [(in-hole E (var-ref/no-check x)) ρ σ]
         [(in-hole E v) ρ σ]
