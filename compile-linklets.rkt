@@ -254,7 +254,7 @@
    (compile-linklet-body (l-top ...) (x_lex ...)
                          ((imp-obj ...) ...) (exp-obj ...)
                          (x_mut ...) (x_top ...)
-                         (l-top_compiled ... (lambda (x ...) e_body)))
+                         (l-top_compiled ... (lambda (x ...) e_body_new)))
    (where (e_body_new) (compile-linklet-body (e_body) (x ... x_lex ...) ((imp-obj ...) ...) (exp-obj ...) (x_mut ...) (x_top ...) ()))]
   ; let-values
   [(compile-linklet-body ((let-values (((x_rhs) e_rhs) ...) e_body) l-top ...)

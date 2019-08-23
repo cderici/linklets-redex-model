@@ -318,6 +318,35 @@
                                     (define-values (x) 4)
                                     (+ x (var-ref/no-check c1)))))
 
+; inside lambda
+#;(test-equal (term (compile-linklet
+                   (linklet ((c)) ()
+                            c
+                            (lambda (y) c)
+                            )))
+            (term (compiled-linklet (((Import 0 c1 c c))) ()
+                                    (var-ref/no-check c1)
+                                    (lambda (y) (var-ref/no-check c1))
+                                    )))
+
+(test-equal (term (compile-linklet
+                   (linklet ((cc)) (w)
+                            cc
+                            (lambda (p) w)
+                            )))
+            (term (compiled-linklet (((Import 0 cc1 cc cc))) ((Export w w1 w))
+                                    (var-ref/no-check cc1)
+                                    (lambda (p) (var-ref w1)))))
+; slightly more realistic lambda
+(test-equal (term (compile-linklet
+                   (linklet ((c)) ()
+                            (define-values (a) (+ c c))
+                            (define-values (x) (lambda (y) c))
+                            )))
+            (term (compiled-linklet (((Import 0 c1 c c))) ()
+                                    (define-values (a) (+ (var-ref/no-check c1) (var-ref/no-check c1)))
+                                    (define-values (x) (lambda (y) (var-ref/no-check c1))))))
+
 ; create a variable for export
 (test-equal (term (compile-linklet
                    (linklet () (x) (define-values (x) 5) (+ x x))))
@@ -766,3 +795,95 @@
                        (let-inst t (linklet-instance))
                        (instantiate-linklet l3 L1 L2 #:target t))
               14)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; uninitialize undefine-valuesd exports
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; "don't touch if target has it"
+(linklet-test (program (use-linklets
+                        [l (linklet () (x))]
+                        [t-l (linklet () (x) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x))
+              10)
+
+(linklet-test (program (use-linklets
+                        [l (linklet () (x) (+ x x))]
+                        [t-l (linklet () (x) (define-values (x) 30))]
+                        [k (linklet () (x) (define-values (x) 20))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet k)
+                       (instantiate-linklet l #:target t))
+              60)
+
+; "target exports the same var with another external name"
+(linklet-test (program (use-linklets
+                        [l (linklet () (x2) (+ x2 x2))]
+                        [t-l (linklet () ((x x2)) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t))
+              20)
+
+(linklet-test (program (use-linklets
+                        [l (linklet () (x2) (+ x2 x2))]
+                        [t-l (linklet () ((x x2)) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x2))
+              10)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; eval define values
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
+                        [t-l (linklet () ((x x16)) (define-values (x) 1000))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t))
+              8)
+
+; these two below are actually an export rename test
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
+                        [t-l (linklet () ((x x16)) (define-values (x) 1000))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x15))
+              4)
+
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
+                        [t-l (linklet () ((x x16)) (define-values (x) 1000))])
+                       (let-inst t (instantiate-linklet t-l))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x16))
+              1000)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; closures and variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; find the closure in the target and apply it
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) (g) (define-values (g) (lambda (y) x)))]
+                        [l3 (linklet () (g) (g 5))])
+                       (let-inst L1 (instantiate-linklet l1))
+                       (let-inst t (linklet-instance))
+                       (instantiate-linklet l2 L1 #:target t)
+                       (instantiate-linklet l3 #:target t))
+              4)
+
+; import the closure and apply it
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) (g) (define-values (g) (lambda (y) x)))]
+                        [l4 (linklet ((g)) () (g 3))])
+                       (let-inst L1 (instantiate-linklet l1))
+                       (let-inst t (linklet-instance))
+                       (let-inst L5 (instantiate-linklet l2 L1))
+                       (instantiate-linklet l4 L5 #:target t))
+              4)
