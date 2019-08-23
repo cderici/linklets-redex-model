@@ -28,8 +28,7 @@
 
   ;; compile-instantiate expressions
   [CL ::= (compile-linklet L)]
-  [I ::= LI (make-instance (exp-id ...) (x v) ...)
-         (instantiate-linklet linkl-ref inst-ref ...)] ; instantiate
+  [I ::= LI (instantiate-linklet linkl-ref inst-ref ...)] ; instantiate
   [T ::= v (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)] ; evaluate
 
   [linkl-ref ::= x L-obj (raises e)]
