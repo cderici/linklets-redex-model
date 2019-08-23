@@ -7,9 +7,10 @@
 (define-language RC
   [e   ::= x v (e e ...) (if e e e) (p1 e) (p2 e e)
        (set! x e) (begin e e ...)
+       (var-ref x) (var-ref/no-check x) (var-set! x e) (var-set/check-undef! x e)
        (lambda (x_!_ ...) e) (let-values (((x_!_) e) ...) e)
        (raises e)] ;; expressiosn
-  [v   ::= n b c (void)] ;; values
+  [v   ::= n b c (void) uninit] ;; values
   [c   ::= (closure x ... e ρ)]
   [n   ::= number]
   [b   ::= true false]
@@ -18,15 +19,16 @@
   [p2  ::= + * <]
   [o   ::= p1 p2]
   [E   ::= hole (v ... E e ...) (o v ... E e ...) (if E e e)
+       (var-set! x E) (var-set/check-undef! x E)
        (begin v ... E e ...) (set! x E)
        (let-values (((x) v) ... ((x) E) ((x) e) ...) e)] ;; eval context
 
   [ρ   ::= ((x any) ...)] ;; environment
   [σ   ::= ((x any) ...)] ;; store
 
-  [e-test ::= x n b (void) 
-          (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test) 
-          (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...) 
+  [e-test ::= x n b (void)
+          (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test)
+          (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...)
           (let-values (((x) e-test) ...) e-test) (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
 
   [rc-out ::= v stuck]
@@ -52,6 +54,8 @@
   extend : ((x any) ...)  (x ...) (any ...) -> ((x any) ...)
   [(extend ((x any) ...) (x_1 ...) (any_1 ...))
    ((x_1 any_1) ... (x any) ...)])
+
+
 
 (define-metafunction RC
   lookup : ((x any) ...) x -> any
@@ -87,6 +91,26 @@
    (--> [(in-hole E x) ρ σ]
         [(in-hole E (lookup σ x_1)) ρ σ] "lookup"
         (where x_1 ,(term (lookup ρ x))))
+
+   (--> [(in-hole E (var-ref x)) ρ σ]
+        [(in-hole E v) ρ σ]
+        (where (variable x v) (lookup σ (lookup ρ x)))
+        "var-ref")
+   (--> [(in-hole E (var-ref/no-check x)) ρ σ]
+        [(in-hole E v) ρ σ]
+        (where (variable x_var v) (lookup σ (lookup ρ x)))
+        "var-ref/no-check") ; for now the same with var-ref
+   (--> [(in-hole E (var-set! x v)) ρ σ]
+        [(in-hole E (void)) ρ (extend σ (cell_var) ((variable x_var v)))]
+        (where cell_var (lookup ρ x))
+        (where (variable x_var v_var) (lookup σ cell_var))
+        "var-set!")
+   (--> [(in-hole E (var-set/check-undef! x v)) ρ σ]
+        [(in-hole E (void)) ρ (extend σ (cell_var) ((variable x_var v)))]
+        (where cell_var (lookup ρ x))
+        (where (variable x_var v_var) (lookup σ cell_var))
+        "var-set/check-undef!") ; for now the same with var-set!
+
    (--> [(in-hole E (lambda (x ...) e)) ρ σ]
         [(in-hole E (closure x ... e ρ)) ρ σ] "closure")
    (--> [(in-hole E (set! x v)) ρ σ]

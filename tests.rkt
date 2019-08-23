@@ -347,6 +347,25 @@
                                     (+ (var-ref x1) (var-ref x1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; instantiation side tests
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(test-equal (term (get-var-from-instance c (linklet-instance (c cell1)))) (term cell1))
+
+; put-imported-vars-into-env
+#;(test-equal (term (instantiate-imports () () ())) (term (())))
+#;(test-equal (term (instantiate-imports (((Import 0 c1 c c))) ((linklet-instance (c cell))) () ())) (term (((c1 cell)))))
+#;(test-equal (term (instantiate-imports (((Import 0 c1 c c))
+                                        ((Import 1 a1 a a)(Import 1 b1 b b)))
+                                       ((linklet-instance (c (variable v1 5)))
+                                        (linklet-instance (a (variable v2 2))(b (variable v3 3))))
+                                       () ()))
+            (term (((b1 cell2)(a1 cell1)(c1 cell))
+                   ((cell2 (variable v3 3)) (cell1 (variable v2 2)) (cell (variable v1 5))))))
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog/run-prog side tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -383,15 +402,136 @@
                              () ())))
             (term (void)))
 
+(test-equal
+ (term
+  (instantiate-exports ((Export a a1 a)) target ((target (linklet-instance))) () ()))
+ (term (((target (linklet-instance (a cell_1))) (target (linklet-instance)))
+        ((a1 cell_1))
+        ((cell_1 (variable a uninit))))))
+; (term ((linklet-instance (a cell_1)) ((a1 cell_1)) ((cell_1 (variable a uninit))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog main tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(test-equal (term (eval-prog (program (use-linklets) 3))) 3)
-(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () () 2)])
-                                      3)))
-            3)
-(test-equal (term (eval-prog (program (use-linklets [l1 (linklet () ())])
+(define-simple-macro (linklet-test p v)
+  (test-equal (term (eval-prog p)) (term v)))
+
+(linklet-test (program (use-linklets) 3) 3)
+(linklet-test (program (use-linklets [l1 (linklet () () 2)])
+                       3)
+              3)
+(linklet-test (program (use-linklets [l1 (linklet () ())])
                                       (let-inst t1 (instantiate-linklet l1))
-                                      (instantiate-linklet l1 #:target t1))))
-            (term (void)))
+                                      (instantiate-linklet l1 #:target t1))
+              (void))
+
+(linklet-test (program (use-linklets [l1 (linklet () () 3)])
+                       (instantiate-linklet l1 #:target (linklet-instance)))
+              3)
+(linklet-test (program (use-linklets [l1 (linklet () () (+ 1 2))])
+                       (instantiate-linklet l1 #:target (linklet-instance)))
+              3)
+
+(linklet-test (program (use-linklets
+                        [l (linklet () () 2 1)]
+                        [t (linklet () ())])
+                       (let-inst ti (instantiate-linklet t))
+                       (instantiate-linklet l #:target ti))
+              1)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () ())]
+                        [l2 (linklet () () (define-values (a) 5) a)])
+                       (let-inst t1 (instantiate-linklet l1))
+                       (instantiate-linklet l2 #:target t1))
+              5)
+
+(linklet-test (program (use-linklets
+                        [l2 (linklet () (a) (define-values (a) 5) a)])
+                       (let-inst t1 (instantiate-linklet l2))
+                       (instance-variable-value t1 a))
+              5)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () ())]
+                        [l2 (linklet ((b)) () (define-values (a) 5) (+ a b))]
+                        [l3 (linklet () (b) (define-values (b) 3))])
+                       (let-inst t1 (instantiate-linklet l1))
+                       (let-inst t3 (instantiate-linklet l3))
+                       (instantiate-linklet l2 t3 #:target t1))
+              8)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; PYCKET LINKLET TESTS BEGIN
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; target
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(linklet-test (program (use-linklets
+                        [l (linklet () (x) (define-values (x) 4) (+ x x))]
+                        [t (linklet () () (define-values (x) 1) (define-values (y) 2))])
+                       (let-inst t1 (instantiate-linklet t))
+                       (instantiate-linklet l #:target t1))
+              8)
+
+
+; even if linklet doesn't export, def goes into target if it doesn't already have it
+; skipped in pycket
+; @pytest.mark.skip(reason="this behavior is different btw Racket and Chez")
+#;(linklet-test (program (use-linklets
+                        [l2 (linklet () () (define-values (x) 4) (+ x x))])
+                       (let-inst t2 (linklet-instance))
+                       (instantiate-linklet l2 #:target t2)
+                       (instance-variable-value t2 x)) 4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; target_transfer_set_banged
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(linklet-test (program (use-linklets
+                        [l (linklet () (y) (define-values (y) 10) (set! y 50))])
+                       (let-inst t (linklet-instance))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t y))
+              50)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; target_def_overwrite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(linklet-test (program (use-linklets
+                        [l (linklet () (x) (define-values (x) 4) (+ x x))]
+                        [tl (linklet () (x) (define-values (x) 1))])
+                       (let-inst t (instantiate-linklet tl))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x))
+              4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; target always overwrite
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; "if target doesn't have it, then it doesn't matter if linklet exports or not, put the variable in the target"
+; @pytest.mark.skip(reason="this behavior is different btw Racket and Chez")
+#;(test-equal (term (eval-prog (program (use-linklets
+                                       [l (linklet () () (define-values (z) 4) z)])
+                                      (let-inst t (linklet-instance ()))
+                                      (instantiate l #:target t)
+                                      (instance-variable-value t z)))) 4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; target def stays the same
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; "if linklet doesn't export, then target's def stay the same"
+
+(linklet-test (program (use-linklets
+                        [l (linklet () () (define-values (x) 4) (+ x x))]
+                        [tl (linklet () (x) (define-values (x) 1))])
+                       (let-inst t (instantiate-linklet tl))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x))
+              1)
