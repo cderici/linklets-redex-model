@@ -535,3 +535,82 @@
                        (instantiate-linklet l #:target t)
                        (instance-variable-value t x))
               1)
+
+; "use the local var, don't change target's var if you don't export"
+
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
+                        [tl (linklet () (x) (define-values (x) 10))])
+                       (let-inst t (instantiate-linklet tl))
+                       (instantiate-linklet l #:target t))
+              8)
+
+(linklet-test (program (use-linklets
+                        [l (linklet () () (define-values (x) 4) (+ x x))]
+                        [tl (linklet () (x) (define-values (x) 10))]); <------------|
+                       (let-inst t (instantiate-linklet tl));                       |
+                       (instantiate-linklet l #:target t);                          |
+                       (instance-variable-value t x));                              |
+              10);                                                                  |
+; t1  exports here   >--------------------------------------------------------------|
+
+;  "imported variables doesn't get into target at all ... let alone overwrite any var inside the target"
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) () (+ x x))])
+                       (let-inst li-1 (instantiate-linklet l1))
+                       (let-inst t1 (linklet-instance))
+                       (instantiate-linklet l2 li-1 #:target t1))
+              8) ; t1 doesn't have x
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) () (+ x x))]
+                        [tl-2 (linklet () (x) (define-values (x) 1))])
+                       (let-inst li-1 (instantiate-linklet l1))
+                       (let-inst t2 (instantiate-linklet tl-2))
+                       (instantiate-linklet l2 li-1 #:target t2)
+                       (instance-variable-value t2 x))
+              1)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; defs_export_names
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15)) (define-values (x) 4))])
+                       (let-inst i (instantiate-linklet l))
+                       (instance-variable-value i x15))
+              4)
+
+; "LinkletVars will be referred by the external name (e.g. (+ x15 x15)"
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))])
+                       (let-inst t (linklet-instance))
+                       (instantiate-linklet l #:target t)
+                       (instance-variable-value t x15)) ; t doesn't have x
+              4)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; discarding_defs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15))
+                                    (define-values (x) 4)
+                                    (define-values (x15) 75))])
+                       (let-inst i (instantiate-linklet l))
+                       (instance-variable-value i x15))
+              4) ; not 75
+
+(linklet-test (program (use-linklets
+                        [l (linklet () ((x x15) k)
+                                    (define-values (x) 4)
+                                    (define-values (x15) 75)
+                                    (define-values (k) x15))])
+                       (let-inst i (instantiate-linklet l))
+                       (instance-variable-value i x15)
+                       (instance-variable-value i k))
+              75) ; not 4
