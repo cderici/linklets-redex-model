@@ -643,3 +643,82 @@
                        (instantiate-linklet l #:target t)
                        (instance-variable-value t x))
               10)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; imports
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) () (+ x x))])
+                       (let-inst t (linklet-instance))
+                       (let-inst L1 (instantiate-linklet l1))
+                       (instantiate-linklet l2 L1 #:target t))
+              8)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet (((x x2))) () (+ x2 x2))])
+                       (let-inst t (linklet-instance))
+                       (let-inst L1 (instantiate-linklet l1))
+                       (instantiate-linklet l2 L1 #:target t))
+              8)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) (y) (define-values (y) (+ x x)) (+ y y))])
+                       (let-inst t (linklet-instance))
+                       (let-inst L1 (instantiate-linklet l1))
+                       (instantiate-linklet l2 L1 #:target t))
+              16)
+
+; "target's defs are overwritten only if the linklet has a definition not with an imported variable"
+; (whether or not the linklet exports it)
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet ((x)) (x) (+ x x))]
+                        [t-l (linklet () (x) (define-values (x) 1000))])
+
+                       (let-inst L1 (instantiate-linklet l1)) ; x 4
+                       (let-inst t (instantiate-linklet t-l)) ; x 1000
+
+                       (instantiate-linklet l2 L1 #:target t)
+                       (instance-variable-value t x))
+              1000)
+
+; "same thing with the import renaming"
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet (((x x2))) () (+ x2 x2))]
+                        [t-l (linklet () (x2) (define-values (x) 1000) (define-values (x2) 2000))])
+
+                       (let-inst L1 (instantiate-linklet l1)) ; x 4
+                       (let-inst t (instantiate-linklet t-l)) ; x 1000
+
+                       (instantiate-linklet l2 L1 #:target t)
+                       (instance-variable-value t x2))
+              2000)
+;;;; FIXME : create a way to check multiple things at once
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet (((x x2))) () (+ x2 x2))]
+                        [t-l (linklet () (x) (define-values (x) 1000) (define-values (x2) 2000))])
+
+                       (let-inst L1 (instantiate-linklet l1)) ; x 4
+                       (let-inst t (instantiate-linklet t-l)) ; x 1000
+
+                       (instantiate-linklet l2 L1 #:target t)
+                       (instance-variable-value t x))
+              1000)
+
+; "slightly trickier"
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet (((x x2))) () (define-values (x) 14) (+ x2 x))]
+                        [t-l (linklet () (x x2) (define-values (x) 1000) (define-values (x2) 2000))])
+
+                       (let-inst L1 (instantiate-linklet l1)) ; x 4
+                       (let-inst t (instantiate-linklet t-l)) ; x 1000
+
+                       (instantiate-linklet l2 L1 #:target t))
+              18)
