@@ -645,7 +645,7 @@
               10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; imports
+;; imports & exports
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (linklet-test (program (use-linklets
@@ -722,3 +722,47 @@
 
                        (instantiate-linklet l2 L1 #:target t))
               18)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (a) (define-values (a) 4))]
+                        [l2 (linklet ((a)) () (+ a a))])
+                       (let-inst t (linklet-instance))
+                       (let-inst L1 (instantiate-linklet l1))
+                       (instantiate-linklet l2 L1 #:target t))
+              8)
+; "export-rename"
+(linklet-test (program (use-linklets
+                        [l1 (linklet () ((a1 a)) (define-values (a1) 4))]
+                        [l2 (linklet ((a)) () (+ a a))])
+                       (let-inst t (linklet-instance))
+                       (let-inst L1 (instantiate-linklet l1))
+                       (instantiate-linklet l2 L1 #:target t))
+              8)
+
+; these may be redundant
+(linklet-test (program (use-linklets
+                        [l1 (linklet () ((x1 x)) (define-values (x1) 4))]
+                        [l2 (linklet ((x)) ((y1 y)) (define-values (y1) x) (+ x y1))])
+                       (let-inst L1 (instantiate-linklet l1))
+                       (let-inst t (linklet-instance))
+                       (instantiate-linklet l2 L1 #:target t))
+              8)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () ((x1 x)) (define-values (x1) 4))]
+                        [l2 (linklet ((x)) ((y1 y)) (define-values (y1) x) (+ x y1))])
+                       (let-inst L1 (instantiate-linklet l1))
+                       (let-inst t (linklet-instance))
+                       (instantiate-linklet l2 L1 #:target t)
+                       (instance-variable-value t y))
+              4)
+
+(linklet-test (program (use-linklets
+                        [l1 (linklet () (x) (define-values (x) 4))]
+                        [l2 (linklet () (x) (define-values (x) 10))]
+                        [l3 (linklet (((x x1))((x x2))) () (+ x1 x2))])
+                       (let-inst L1 (instantiate-linklet l1))
+                       (let-inst L2 (instantiate-linklet l2))
+                       (let-inst t (linklet-instance))
+                       (instantiate-linklet l3 L1 L2 #:target t))
+              14)
