@@ -99,9 +99,7 @@
         (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ...)) "error in instantiation")
    (--> [(in-hole EP (instantiate-linklet L-obj LI ... #:target inst-ref_80)) ω Ω ρ σ]
         [(raises e) ω Ω ρ σ]
-        (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ... #:target inst-ref_80)) "error in evaluation")
-
-   ))
+        (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ... #:target inst-ref_80)) "error in evaluation")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Instantiation Utilities
@@ -146,18 +144,14 @@
    (Ω ρ_1 σ) ; <- same store (σ) and instances (Ω), i.e. don't create new variable
    (where (linklet-instance (x_bef cell_bef) ... (x_ext cell) (x_aft cell_aft) ...)
           (lookup Ω x_target))
-   (where ρ_1 (extend ρ (x_gen) (cell)))
-   #;(side-condition (begin (printf "process-one-export - target has it : ~a \n"
-                                  (term x_ext)) #t))]
+   (where ρ_1 (extend ρ (x_gen) (cell)))]
   ; target doesn't have it
   [(process-one-export (Export x_id x_gen x_ext) x_target Ω ρ σ)
    ((extend Ω (x_target) ((linklet-instance (x cell) ... (x_ext cell_new)))) ρ_1 σ_1)
    ; create a new variable and put a reference to it within the target
    (where (linklet-instance (x cell) ...) (lookup Ω x_target))
    (where cell_new ,(variable-not-in (term (ρ σ x ... cell ...)) (term cell_1)))
-   (where (ρ_1 σ_1) ((extend ρ (x_gen) (cell_new)) (extend σ (cell_new) ((variable x_ext uninit)))))
-   #;(side-condition (begin (printf "process-one-export - target doesn't have it : ~a \n"
-                                  (term x_ext)) #t))])
+   (where (ρ_1 σ_1) ((extend ρ (x_gen) (cell_new)) (extend σ (cell_new) ((variable x_ext uninit)))))])
 
 (define-metafunction Linklets
   instantiate-exports : (exp-obj ...) x Ω ρ σ -> (Ω ρ σ)
@@ -242,12 +236,7 @@ we call "evaluating a linklet".
   [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target #:result x_result)
    (instantiate-loop (l-top_1 l-top ...) ω Ω_1 ρ_2 σ_1 #:target x_target #:last-val (void) #:result x_result)
    (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
-   (where (Ω_1 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω ρ_1 σ))
-   #;(side-condition (begin (printf "\nENTRY -- l-tops : ~a -- target : ~a \n ------ env : ~a -- store : ~a\n"
-                                  (term (l-top_1 l-top ...))
-                                  (term LI_target_1)
-                                  (term ρ_2)
-                                  (term σ_1)) #t))])
+   (where (Ω_1 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω ρ_1 σ))])
 
 (define-metafunction Linklets
   instantiate-loop : (l-top ...) ω Ω ρ σ #:target x #:last-val v #:result x -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
@@ -258,13 +247,7 @@ we call "evaluating a linklet".
    (instantiate-loop (l-top ...) ω Ω (extend ρ (x) (cell)) (extend σ (cell) (v_1))
                      #:target x_target #:last-val (void) #:result x_result)
    (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-   (where cell ,(variable-not-in (term (x l-top ... ρ σ)) (term cell)))
-   #;(side-condition (begin (printf "\ndef-val got env : ~a -- store : ~a\n ----- continues with env : ~a -- store : ~a\n"
-                                  (term ρ)
-                                  (term σ)
-                                  (term (extend ρ (x) (cell)))
-                                  (term (extend σ (cell) (v_1))))
-                          #t))]
+   (where cell ,(variable-not-in (term (x l-top ... ρ σ)) (term cell)))]
   ; loop expression
   [(instantiate-loop (e l-top ...) ω Ω ρ σ #:target x_target #:last-val v #:result x_result)
    (instantiate-loop (l-top ...) ω Ω ρ_1 σ_1
