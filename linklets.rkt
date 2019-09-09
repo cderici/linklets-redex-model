@@ -5,44 +5,42 @@
 
 (provide (all-defined-out))
 
-(define-extended-language Linklets RC
+(define-extended-language LinkletSource RC
   [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ...)]
-  [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
 
+  [l-top ::= d e] ; linklet body expressions
+  [d ::= (define-values (x) e)]
+
+  ;; (external-imported-id internal-imported-id)
+  [imp-id ::= x (x x)]
+  ;; (internal-exported-id external-exported-id)
+  [exp-id ::= x (x x)])
+
+(define-extended-language Linklets LinkletSource
+  ;; compile
+  [CL ::= (compile-linklet L)]
   [L-obj ::= (compiled-linklet ((imp-obj ...) ...)
                                (exp-obj ...)
                                l-top ...)]
-
-  [l-top ::= d e] ; linklet body expressions
-  [l-var ::= (variable x v)] ; linklet variables
-  [d ::= (define-values (x) e)]
-
-  ; (external-imported-id internal-imported-id)
-  [imp-id ::= x (x x)]
+  ;; import & export objects
   [imp-obj ::= (Import n x x x)] ; group-index id(<-gensymed) int_id ext_id
-  ; (internal-exported-id external-exported-id)
-  [exp-id ::= x (x x)]
   [exp-obj ::= (Export x x x)] ; int_id int_gensymed ext_id
 
-  #;[constance ::= #f constant consistent]
-
-  ;; compile-instantiate expressions
-  [CL ::= (compile-linklet L)]
+  ;; instantiate
+  [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
   [I ::= LI (instantiate-linklet linkl-ref inst-ref ...)] ; instantiate
   [T ::= v (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)] ; evaluate
-
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
-
-  #;[v/i ::= value instance]
 
   ;; program-stuff
   [p-top :== I T (let-inst x I) (instance-variable-value inst-ref x)]
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ... final-expr)]
   [final-expr ::= p-top v]
 
+  ;; environments
   [ω   ::= ((x L-obj) ...)] ; linklet env
-  [Ω   ::= ((x LI) ...)] ; linklet instance env
+  [Ω   ::= ((x LI) ...)] ; instance env
 
   [V ::= v LI]
   ; extend the evaluation context of Racket Core with the new var-set!s
