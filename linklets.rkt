@@ -16,6 +16,7 @@
   ;; (internal-exported-id external-exported-id)
   [exp-id ::= x (x x)])
 
+
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
@@ -28,13 +29,15 @@
 
   ;; instantiate
   [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
-  [I ::= LI (instantiate-linklet linkl-ref inst-ref ...)] ; instantiate
-  [T ::= v (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)] ; evaluate
+  [I ::= v LI
+     (instantiate-linklet linkl-ref inst-ref ...)
+     (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
+
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
 
   ;; program-stuff
-  [p-top :== I T (let-inst x I) (instance-variable-value inst-ref x)]
+  [p-top :== I (let-inst x I) (instance-variable-value inst-ref x)]
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ... final-expr)]
   [final-expr ::= p-top v]
 
