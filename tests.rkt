@@ -5,7 +5,8 @@
          "racket-core.rkt"
          "compile-linklets.rkt"
          "main.rkt"
-         syntax/parse/define)
+         syntax/parse/define
+         "test-utils.rkt")
 
 
 
@@ -90,61 +91,24 @@
                                  (set! x 10)
                                  (c 1)))))) 10)
 
-;; random testing
-
-(define-namespace-anchor A)
-(define N (namespace-anchor->namespace A))
-
-; Lambda.e -> Number or 'closure or exn or 'true or 'false or (void)
-(define (racket-evaluator t0)
-  (define result
-    (with-handlers ((exn:fail? values) ((lambda (x) #t) values))
-      (let ((C (make-base-namespace)))
-        (parameterize ((current-namespace C))
-          (begin
-            (namespace-require 'racket/bool)
-            (namespace-require 'racket/linklet)
-            (eval t0))))))
-  (cond
-    [(number? result) result] ;; Number
-    [(boolean? result) (if result 'true 'false)] ;; 'true or 'false
-    [(procedure? result) (term closure)] ;; 'closure
-    [(void? result) '(void)] ;; (void)
-    [(exn? result) (make-exn (exn-message result) (current-continuation-marks))]
-    ;; exn
-    [else (make-exn (format "check the result type : ~a" result) (current-continuation-marks))]))
-
-(define-metafunction RC
-  eval-rc=racket-core : e -> boolean
-  [(eval-rc=racket-core e)
-   ,(letrec ([rr (racket-evaluator (term e))]
-             [vr (term (eval-rc e))])
-      (begin 1 #;(printf "Trying e : ~a\n" (term e))
-      (cond
-        [(and (exn? rr) (eq? (term stuck) vr)) (begin 1 #;(printf "both stuck on : ~a" (term e)) #true)]
-        [(exn? rr) (begin (printf "\n racket raised exn : ~a -- ~a\n\n" (term e) (exn-message rr)) #false)]
-        [(and (void? rr) (eq? (term void) vr)) #true]
-        [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term e)) #false)]
-        [else (let ((q (equal? vr rr)))
-                (begin (unless q
-                         (printf "\nTerm : ~a ==> racket : ~a -- eval-rc : ~a\n" (term e) rr vr))
-                       q))])))])
-
-(test-equal (term (eval-rc=racket-core 1)) #true)
-(test-equal (term (eval-rc=racket-core ((lambda (x) x) 1))) #true)
-(test-equal (term (eval-rc=racket-core (+ x 1))) #true)
-(test-equal (term (eval-rc=racket-core (void))) #true)
-(test-equal (term (eval-rc=racket-core (add1 (void)))) #true)
-(test-equal (term (eval-rc=racket-core (if (< 1 2) 1 2))) #true)
-(test-equal (term (eval-rc=racket-core (if (< 1 2) (< 1 2) 2))) #true)
-(test-equal (term (eval-rc=racket-core (set! q (void)))) #true)
-(test-equal (term (eval-rc=racket-core ((lambda (x) x) (+ a b)))) #true)
-(test-equal (term (eval-rc=racket-core (if (void) (void) (void)))) #true)
-(test-equal (term (eval-rc=racket-core (if (void) (let-values () (void)) (< qw F)))) #true)
-(test-equal (term (eval-rc=racket-core ((lambda () (void))))) #true)
-
 ;; Random Testing for Racket-Core
-;(redex-check RC e-test (term (eval-rc=racket-core e)) #:attempts 1000)
+
+(eval-rc=racket-core? 1)
+(eval-rc=racket-core? ((lambda (x) x) 1))
+(eval-rc=racket-core? (+ x 1))
+(eval-rc=racket-core? (void))
+(eval-rc=racket-core? (add1 (void)))
+(eval-rc=racket-core? (if (< 1 2) 1 2))
+(eval-rc=racket-core? (if (< 1 2) (< 1 2) 2))
+(eval-rc=racket-core? (set! q (void)))
+(eval-rc=racket-core? ((lambda (x) x) (+ a b)))
+(eval-rc=racket-core? (if (void) (void) (void)))
+(eval-rc=racket-core? (if (void) (let-values () (void)) (< qw F)))
+(eval-rc=racket-core? ((lambda () (void))))
+
+(redex-check RC e-test (term (eval-rc=racket-core e)) #:attempts 1000)
+
+;(redex-check Linklets (term (eval-programs=racket-linklets e)) #:attempts 1000)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Linklet Model
