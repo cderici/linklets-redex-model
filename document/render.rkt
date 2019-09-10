@@ -16,7 +16,7 @@
 "-----------------------------------------------------------------"
 (render-language-nts '(LI L-obj imp-obj exp-obj
                          I linkl-ref inst-ref
-                         ω Ω EL))
+                         ω Ω EL EI))
 (define runtime-img (render-language Linklets))
 (define bm2 (pict->bitmap runtime-img))
 (send bm2 save-file "linklet-runtime.png" 'png)
@@ -33,5 +33,12 @@
 (render-reduction-relation-rules '("linklet-lookup" "instance-lookup" "instance variable value" "let-inst" "instantiate linklet" "eval linklet"))
 (define reduction (render-reduction-relation -->βp #:style 'vertical))
 (define bm4 (pict->bitmap reduction))
-(send bm4 save-file "linklet-reduction.png" 'png)
+(send bm4 save-file "program-reduction.png" 'png)
+"---------------------- PROG REDUCTION DONE ----------------------"
+
+"-----------------------------------------------------------------"
+(render-reduction-relation-rules #f)
+(define i-reduction (render-reduction-relation -->βi-render #:style 'horizontal-side-conditions-same-line))
+(define bm5 (pict->bitmap i-reduction))
+(send bm5 save-file "linklet-body-reduction.png" 'png)
 "------------------------- REDUCTION DONE ------------------------"
