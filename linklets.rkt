@@ -20,25 +20,22 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (compiled-linklet ((imp-obj ...) ...)
-                               (exp-obj ...)
-                               l-top ...)]
+  [L-obj ::= (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top ...)]
   ;; import & export objects
   [imp-obj ::= (Import n x x x)] ; group-index id(<-gensymed) int_id ext_id
   [exp-obj ::= (Export x x x)] ; int_id int_gensymed ext_id
 
   ;; instantiate
   [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
-  [I ::= v LI
-     (instantiate-linklet linkl-ref inst-ref ...)
+  [I ::= v LI (instantiate-linklet linkl-ref inst-ref ...)
      (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
 
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
 
   ;; program-stuff
-  [p-top :== I (let-inst x I) (instance-variable-value inst-ref x)]
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ... final-expr)]
+  [p-top :== I (let-inst x I) (instance-variable-value inst-ref x)]
   [final-expr ::= p-top v]
 
   ;; environments
@@ -54,20 +51,14 @@
           (program (use-linklets) V ... EL p-top ... final-expr)
           (program (use-linklets) V ... EL)]
   [EL ::= hole
-          ;; resolve the linklet
-          (instantiate-linklet EL x ...)
-          ;; resolve the imported instances
-          (instantiate-linklet L-obj LI ... EL inst-ref ...)
-          ;; resolve the linklet
-          (instantiate-linklet EL inst-ref ... #:target inst-ref)
-          ;; resolve the imported instances
-          (instantiate-linklet L-obj LI ... EL inst-ref ... #:target inst-ref)
+          (instantiate-linklet EL inst-ref ...) ;; resolve the linklet
+          (instantiate-linklet L-obj LI ... EL inst-ref ...) ;; resolve the imported instances
+          (instantiate-linklet EL inst-ref ... #:target inst-ref) ;; resolve the linklet
+          (instantiate-linklet L-obj LI ... EL inst-ref ... #:target inst-ref) ;; resolve the imported instances
           (instance-variable-value EL x)]
 
   ;; evaluation-context for the linklet body
-  [EI ::= hole (compiled-linklet ((imp-obj ...) ...)
-                                 (exp-obj ...)
-                                 v ... EI l-top ...)]
+  [EI ::= hole (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
   )
 
 (define -->βp
@@ -276,3 +267,17 @@ we call "evaluating a linklet".
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
         (side-condition (not (redex-match? Linklets v (term e))))
         "inst-expr")))
+
+(define -->βi-render
+  (reduction-relation
+   Linklets
+   #:domain (L-obj ρ σ)
+   (--> [(in-hole EI (define-values (x) e)) ρ σ]
+        [(in-hole EI (void)) ρ_2 σ_2]
+        (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v_1))))
+        (side-condition (term (cell ∉ (x ρ_1 σ_1))))  "inst-def-val")
+   (--> [(in-hole EI e) ρ σ]
+        [(in-hole EI v) ρ_1 σ_1]
+        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (side-condition (term (e ∉ v))) "inst-expr")))
