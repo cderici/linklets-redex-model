@@ -61,13 +61,14 @@
   )
 
 (define-extended-language LinkletProgramTest Linklets
-  [p-test ::= (program (use-linklets (x_!_ L) ...) p-top-test ... final-expr)]
+  [p-test ::= (program (use-linklets (x_!_ L) ...) p-top-test ... final-expr-test)]
   [p-top-test ::= (instantiate-linklet x x ... #:target I-test)
                   (let-inst x (instantiate-linklet x x ...))
                   (instance-variable-value inst-ref x)
-                  n b (void)]
+                  v-test]
   [I-test ::= x (linklet-instance)]
-  [final-expr-test ::= p-top-test v])
+  [v-test ::= n b (void)]
+  [final-expr-test ::= p-top-test v-test])
 
 (define -->βp
   (reduction-relation
