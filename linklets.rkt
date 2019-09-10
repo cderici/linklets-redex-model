@@ -16,7 +16,6 @@
   ;; (internal-exported-id external-exported-id)
   [exp-id ::= x (x x)])
 
-
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
@@ -60,6 +59,15 @@
   ;; evaluation-context for the linklet body
   [EI ::= hole (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
   )
+
+(define-extended-language LinkletProgramTest Linklets
+  [p-test ::= (program (use-linklets (x_!_ L) ...) p-top-test ... final-expr)]
+  [p-top-test ::= (instantiate-linklet x x ... #:target I-test)
+                  (let-inst x (instantiate-linklet x x ...))
+                  (instance-variable-value inst-ref x)
+                  n b (void)]
+  [I-test ::= x (linklet-instance)]
+  [final-expr-test ::= p-top-test v])
 
 (define -->βp
   (reduction-relation

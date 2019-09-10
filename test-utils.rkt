@@ -3,11 +3,17 @@
 (require redex
          "racket-core.rkt"
          "linklets.rkt"
-         syntax/parse/define)
+         syntax/parse/define
+         "main.rkt"
+         (prefix-in model: "compile-linklets.rkt"))
 
 (provide (all-defined-out))
 
 ;; random testing
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; For Racket Core
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-namespace-anchor A)
 (define N (namespace-anchor->namespace A))
@@ -50,3 +56,90 @@
 
 (define-simple-macro (eval-rc=racket-core? e)
   (test-equal (term (eval-rc=racket-core e)) #true))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; For Linklets
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-metafunction Linklets
+  [(IT-to-racket (instantiate-linklet x x_1 ...))
+   (instantiate-linklet x (list x_1 ...))]
+  [(IT-to-racket (instantiate-linklet x x_1 ... #:target x_T))
+   (instantiate-linklet x (list x_1 ...) x_T)]
+  [(IT-to-racket (instantiate-linklet x x_1 ... #:target (linklet-instance)))
+   (instantiate-linklet x (list x_1 ...) (make-instance #f #f))])
+
+(define-metafunction LinkletProgramTest
+  ; instance-variable-value
+  [(prog-top-to-racket (instance-variable-value x_1 x_2))
+   (instance-variable-value x_1 (quote x_2))]
+  ; instantiate
+  [(prog-top-to-racket (name ins (instantiate-linklet x_L x_LI ...))) (IT-to-racket ins)]
+  ; evaluate
+  [(prog-top-to-racket (name ins (instantiate-linklet x_L x_LI ... #:target I-test)))
+   (IT-to-racket ins)]
+  ; let-inst
+  [(prog-top-to-racket (let-inst x (instantiate-linklet x_L x_LI ...)))
+   (define x (IT-to-racket (instantiate-linklet x_L x_LI ...)))]
+  ; values
+  [(prog-top-to-racket true) #t]
+  [(prog-top-to-racket false) #f]
+  [(prog-top-to-racket x) x]
+  [(prog-top-to-racket v) v]
+  ; below are for the linklet body
+  [(prog-top-to-racket (p2 e_1 e_2))
+   (p2 (prog-top-to-racket e_1) (prog-top-to-racket e_2))]
+  [(prog-top-to-racket (p1 e_1))
+   (p1 (prog-top-to-racket e_1))]
+  [(prog-top-to-racket (define-values (x) e))
+   (define-values (x) (prog-top-to-racket e))]
+  [(prog-top-to-racket (lambda (x ...) e))
+   (lambda (x ...) (prog-top-to-racket e))]
+  [(prog-top-to-racket (begin e ...))
+   (begin (prog-top-to-racket e) ...)]
+  [(prog-top-to-racket (if e_1 e_2 e_3))
+   (if (prog-top-to-racket e_1)
+       (prog-top-to-racket e_2) (prog-top-to-racket e_3))]
+  [(prog-top-to-racket (let-values (((x) e) ...) e_b))
+   (let-values (((x) (prog-top-to-racket e)) ...) (prog-top-to-racket e_b))]
+  [(prog-top-to-racket (set! x e))
+   (set! x (prog-top-to-racket e))]
+  [(prog-top-to-racket (e_1 e ...))
+   ((prog-top-to-racket e_1) (prog-top-to-racket e) ...)]
+  #;[(prog-top-to-racket any) any]
+  )
+
+(define-metafunction LinkletProgramTest
+  [(to-actual-racket
+    (program
+     (use-linklets (x (linklet ((imp-id_r ...) ...) (exp-id ...) l-top ...)) ...)
+     p-top-test ... final-expr-test))
+   (let ((x (compile-linklet
+             (quote
+              (linklet ((imp-id_r ...) ...) (exp-id ...)
+                       (prog-top-to-racket l-top) ...)))) ...)
+     (prog-top-to-racket p-top-test) ...
+     (prog-top-to-racket final-expr-test))])
+
+(define-metafunction LinkletProgramTest
+  eval-prog=racket-linklets : p-test -> boolean
+  [(eval-prog=racket-linklets p-test)
+   ,(letrec ([rr (racket-evaluator (term (to-actual-racket p-test)))]
+             [vr (term (eval-prog p-test))])
+      (begin 1 #;(printf "Trying e : ~a\n" (term p-test))
+             (cond
+               [(and (exn? rr) (eq? (term stuck) vr))
+                (begin 1 #;(printf "both stuck on : ~a" (term p-test)) #true)]
+               [(exn? rr)
+                (begin (printf "\n racket raised exn : ~a -- ~a\n\n" (term p-test) (exn-message rr)) #false)]
+               [(and (void? rr) (eq? (term void) vr)) #true]
+               [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term p-test)) #false)]
+               [else (let ((q (equal? vr rr)))
+                       (begin (unless q
+                                (printf "\nTerm : ~a ==> racket : ~a -- eval-rc : ~a\n" (term p-test) rr vr))
+                              q))])))])
+
+
+(define-simple-macro (eval-prog=racket-linklets? e)
+  (test-equal (term (eval-prog=racket-linklets e)) #true))
