@@ -48,19 +48,27 @@
   [V ::= v LI]
   ; extend the evaluation context of Racket Core with the new var-set!s
 
+  ;; evaluation-context for the programs
   [EP ::= hole
           (program (use-linklets) V ... (let-inst x EL) p-top ... final-expr)
           (program (use-linklets) V ... EL p-top ... final-expr)
           (program (use-linklets) V ... EL)]
-
   [EL ::= hole
-          (instantiate-linklet EL x ...) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EL inst-ref ...) ;; resolve the imported instances
+          ;; resolve the linklet
+          (instantiate-linklet EL x ...)
+          ;; resolve the imported instances
+          (instantiate-linklet L-obj LI ... EL inst-ref ...)
+          ;; resolve the linklet
+          (instantiate-linklet EL inst-ref ... #:target inst-ref)
+          ;; resolve the imported instances
+          (instantiate-linklet L-obj LI ... EL inst-ref ... #:target inst-ref)
+          (instance-variable-value EL x)]
 
-          (instantiate-linklet EL inst-ref ... #:target inst-ref) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EL inst-ref ... #:target inst-ref) ;; resolve the imported instances
-
-          (instance-variable-value EL x)])
+  ;; evaluation-context for the linklet body
+  [EI ::= hole (compiled-linklet ((imp-obj ...) ...)
+                                 (exp-obj ...)
+                                 v ... EI l-top ...)]
+  )
 
 (define -->βp
   (reduction-relation
@@ -234,26 +242,37 @@ we call "evaluating a linklet".
   ;;          - put it in the environment
   ;; go    - start the instantiation loop
   [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target #:result x_result)
-   (instantiate-loop (l-top_1 l-top ...) ω Ω_1 ρ_2 σ_1 #:target x_target #:last-val (void) #:result x_result)
+   (instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...)
+                     ω Ω_1 ρ_2 σ_1 #:target x_target #:result x_result)
    (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
    (where (Ω_1 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω ρ_1 σ))])
 
 (define-metafunction Linklets
-  instantiate-loop : (l-top ...) ω Ω ρ σ #:target x #:last-val v #:result x -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
-  [(instantiate-loop () ω Ω ρ σ #:target x_target #:last-val v #:result instance) ((lookup Ω x_target) ω Ω ρ σ)]
-  [(instantiate-loop () ω Ω ρ σ #:target x_target #:last-val v #:result value) (v ω Ω ρ σ)]
-  ; define-values
-  [(instantiate-loop ((define-values (x) e) l-top ...) ω Ω ρ σ #:target x_target #:last-val v #:result x_result)
-   (instantiate-loop (l-top ...) ω Ω (extend ρ (x) (cell)) (extend σ (cell) (v_1))
-                     #:target x_target #:last-val (void) #:result x_result)
-   (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-   (where cell ,(variable-not-in (term (x l-top ... ρ σ)) (term cell)))]
-  ; loop expression
-  [(instantiate-loop (e l-top ...) ω Ω ρ σ #:target x_target #:last-val v #:result x_result)
-   (instantiate-loop (l-top ...) ω Ω ρ_1 σ_1
-                     #:target x_target #:last-val v_1 #:result x_result)
-   (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))]
-  ; error from rc-api
-  [(instantiate-loop (e l-top ...) ω Ω ρ σ #:target x_target #:last-val v #:result x_result)
-   (raises e_1)
-   (where ((raises e_1) ρ_1 σ_1) ,(term (rc-api (e ρ σ))))])
+  instantiate-loop : L-obj ω Ω ρ σ #:target x #:result x -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
+  ;; return value/instance after all the body is evaluated
+  [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ...)
+                     ω Ω ρ σ #:target x_target #:result instance)
+   ((lookup Ω x_target) ω Ω ρ σ)]
+  [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... v_last)
+                     ω Ω ρ σ #:target x_target #:result value)
+   (v_last ω Ω ρ σ)]
+  ;; repeatedly one-step reduce
+  [(instantiate-loop L-obj ω Ω ρ σ #:target x_target #:result x_result)
+   (instantiate-loop L-obj_new ω Ω ρ_1 σ_1 #:target x_target #:result x_result)
+   (where ((L-obj_new ρ_1 σ_1))
+          ,(apply-reduction-relation -->βi (term (L-obj ρ σ))))])
+
+(define -->βi
+  (reduction-relation
+   Linklets
+   #:domain (L-obj ρ σ)
+   (--> [(in-hole EI (define-values (x) e)) ρ σ]
+        [(in-hole EI (void)) ρ_2 σ_2]
+        (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v_1))))
+        (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell))) "inst-def-val")
+   (--> [(in-hole EI e) ρ σ]
+        [(in-hole EI v) ρ_1 σ_1]
+        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (side-condition (not (redex-match? Linklets v (term e))))
+        "inst-expr")))

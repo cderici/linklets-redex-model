@@ -402,6 +402,7 @@
             (term (compiled-linklet () ())))
 (test-equal (term (run-prog ((program (use-linklets) 3)
                              () () () ()))) 3)
+
 (test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
                              () () () ()))) 3)
 (program? (program (use-linklets)
@@ -439,6 +440,26 @@
         ((cell_1 (variable a uninit))))))
 ; (term ((linklet-instance (a cell_1)) ((a1 cell_1)) ((cell_1 (variable a uninit))))))
 
+(test-equal (apply-reduction-relation
+             -->βi
+             (term ((compiled-linklet () () (+ 1 2)) () ())))
+            (term (((compiled-linklet () () 3) () ()))))
+
+(test-equal (apply-reduction-relation
+             -->βi
+             (term ((compiled-linklet () () (define-values (a) 5) a) () ())))
+            (term (((compiled-linklet () () (void) a) ((a cell)) ((cell 5))))))
+
+(test-equal (apply-reduction-relation
+             -->βi
+             (term ((compiled-linklet () () 3 a) ((a cell)) ((cell 5)))))
+            (term (((compiled-linklet () () 3 5) ((a cell)) ((cell 5))))))
+
+(test-equal (apply-reduction-relation
+             -->βi
+             (term ((compiled-linklet () () (void) a) ((a cell)) ((cell 5)))))
+            (term (((compiled-linklet () () (void) 5) ((a cell)) ((cell 5))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog main tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -447,6 +468,8 @@
   (test-equal (term (eval-prog p)) (term v)))
 
 (linklet-test (program (use-linklets) 3) 3)
+
+
 (linklet-test (program (use-linklets [l1 (linklet () () 2)])
                        3)
               3)
@@ -458,6 +481,7 @@
 (linklet-test (program (use-linklets [l1 (linklet () () 3)])
                        (instantiate-linklet l1 #:target (linklet-instance)))
               3)
+
 (linklet-test (program (use-linklets [l1 (linklet () () (+ 1 2))])
                        (instantiate-linklet l1 #:target (linklet-instance)))
               3)
