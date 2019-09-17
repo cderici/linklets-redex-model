@@ -218,62 +218,7 @@ we call "evaluating a linklet".
 |#
 
 (define-metafunction Linklets
-  ;instantiate-entry : ω Ω ρ σ L-obj LI ... (#:target x) -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
-
-  ;; (No forms in the linklet body)
-  ;;    -> no reason to deal with imports exports
-  ;;    -> no reason to go into the instantiate-loop
-
-  ;;   either
-  ;;    - return void (if target is provided)
-  ;;    - return target (if target is not provided)
-
-  ;; prepare inputs case-lambda style
-  ; instantiate without target
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ...)
-   (instantiate-entry ω (extend Ω (x_target) ((linklet-instance))) ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target #:result instance)
-   (where x_target ,(variable-not-in (term Ω) (term x)))]
-  ; instantiate with a reference to target instance
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target)
-   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target #:result value)]
-  ; instantiate with an explicit target instance
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target LI_target)
-   (instantiate-entry ω (extend Ω (x_target) (LI_target)) ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target #:result value)
-   (where x_target ,(variable-not-in (term Ω) (term x)))]
-  ; return void
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target #:result value)
-   ((void) ω Ω ρ σ)]
-  ; return instance
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...)) LI ... #:target x_target #:result instance)
-   ((lookup Ω x_target) ω Ω ρ σ)]
-
-  ;; (There are forms in the linklet body)
-  ;; prepare inputs case-lambda style
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ...)
-   (instantiate-entry ω (extend Ω (x_target) ((linklet-instance))) ρ σ
-                      (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target #:result instance)
-   (where x_target ,(variable-not-in (term Ω) (term x)))]
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target)
-   (instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target #:result value)]
-
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target LI_target)
-   (instantiate-entry ω (extend Ω (x_target) (LI_target)) ρ σ
-                      (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target #:result value)
-   (where x_target ,(variable-not-in (term Ω) (term x)))]
-  ;; ready - get the imported variables (l-var ...) and put them into the environment
-  ;;         (?) instance-variable-reference
-  ;; set   - for each exported variable,
-  ;;          - either get it from the target, or create one (and put it in the target)
-  ;;          - put it in the environment
-  ;; go    - start the instantiation loop
-  [(instantiate-entry ω Ω ρ σ (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...) LI ... #:target x_target #:result x_result)
-   (instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top_1 l-top ...)
-                     ω Ω_1 ρ_2 σ_1 #:target x_target #:result x_result)
-   (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
-   (where (Ω_1 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω ρ_1 σ))])
-
-(define-metafunction Linklets
-  instantiate-loop : L-obj ω Ω ρ σ #:target x #:result x -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
+  instantiate-loop : L-obj Ω ρ σ #:target x #:result x -> (LI Ω ρ σ) or (v Ω ρ σ)
   ;; return value/instance after all the body is evaluated
   [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ...)
                      Ω ρ σ #:target x_target #:result instance)
