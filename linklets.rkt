@@ -247,14 +247,17 @@ we call "evaluating a linklet".
   instantiate-loop : L-obj ω Ω ρ σ #:target x #:result x -> (LI ω Ω ρ σ) or (v ω Ω ρ σ)
   ;; return value/instance after all the body is evaluated
   [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ...)
-                     ω Ω ρ σ #:target x_target #:result instance)
-   ((lookup Ω x_target) ω Ω ρ σ)]
+                     Ω ρ σ #:target x_target #:result instance)
+   ((lookup Ω x_target) Ω ρ σ)]
   [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... v_last)
-                     ω Ω ρ σ #:target x_target #:result value)
-   (v_last ω Ω ρ σ)]
+                     Ω ρ σ #:target x_target #:result value)
+   (v_last Ω ρ σ)]
+  [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...))
+                     Ω ρ σ #:target x_target #:result value)
+   ((void) Ω ρ σ)]
   ;; repeatedly one-step reduce
-  [(instantiate-loop L-obj ω Ω ρ σ #:target x_target #:result x_result)
-   (instantiate-loop L-obj_new ω Ω ρ_1 σ_1 #:target x_target #:result x_result)
+  [(instantiate-loop L-obj Ω ρ σ #:target x_target #:result x_result)
+   (instantiate-loop L-obj_new Ω ρ_1 σ_1 #:target x_target #:result x_result)
    (where ((L-obj_new ρ_1 σ_1))
           ,(apply-reduction-relation -->βi (term (L-obj ρ σ))))])
 
