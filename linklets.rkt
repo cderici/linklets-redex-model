@@ -72,10 +72,8 @@
   (reduction-relation
    Linklets
    #:domain (p ω Ω ρ σ)
-   (--> [(in-hole EP (raises e)) ω Ω ρ σ]
+   #;(--> [(in-hole EP (raises e)) ω Ω ρ σ]
         [(raises e) ω Ω ρ σ] "error")
-   (--> [(in-hole EL (raises e)) ω Ω ρ σ]
-        [(raises e) ω Ω ρ σ] "error in EL")
    (--> [(in-hole EP x) ω Ω ρ σ]
         [(in-hole EP L-obj_found) ω Ω ρ σ]
         (where L-obj_found (lookup ω x))
