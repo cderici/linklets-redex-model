@@ -137,8 +137,7 @@
 ; "program" acts like a begin, the last result is returned, where
 ; result is either a linklet instance or a value
 
-(test-predicate not-program? (term (program (use-linklets))))
-
+(program? (program (use-linklets)))
 (program? (program (use-linklets) 3))
 (program? (program (use-linklets [l1 (linklet () ())])
                    (let-inst t1 (instantiate l1))
