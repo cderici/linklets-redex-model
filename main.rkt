@@ -15,13 +15,13 @@
   [(run-prog ((raises e) ω Ω ρ σ)) stuck] ;; stuck
 
   ;; compile and load the linklets
-  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ... final-expr) ω Ω ρ σ))
-   (run-prog ((program (use-linklets (x L) ...) p-top ... final-expr)
+  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) ω Ω ρ σ))
+   (run-prog ((program (use-linklets (x L) ...) p-top ...)
               (extend ω (x_1) (L-obj_1)) Ω ρ σ))
    (where L-obj_1 (compile-linklet L_1))]
 
   ;; problem in intermediate steps
-  [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ... final-expr)
+  [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ...)
               ω Ω ρ σ)) stuck]
 
   ;; reduce
@@ -33,8 +33,8 @@
 
 (define-metafunction Linklets
   ;eval-prog :Linklets-> v or closure or stuck or void
-  [(eval-prog (program (use-linklets (x_L L) ...) p-top ... final-expr))
-   (run-prog ((program (use-linklets (x_L L) ...) p-top ... final-expr) () () () ()))
+  [(eval-prog (program (use-linklets (x_L L) ...) p-top ...))
+   (run-prog ((program (use-linklets (x_L L) ...) p-top ...) () () () ()))
    #;(where ((x_L L-obj) ...) ((x_L (compile-linklet L)) ...))
    #;(side-condition (and (term (check-free-varss L ...))
                         (term (no-exp/imp-duplicates L ...))
