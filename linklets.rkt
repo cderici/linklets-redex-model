@@ -26,16 +26,15 @@
 
   ;; instantiate
   [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
-  [I ::= v LI (instantiate-linklet linkl-ref inst-ref ...)
-     (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
+  [I ::= (instantiate-linklet linkl-ref inst-ref ...)
+         (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
 
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
 
   ;; program-stuff
-  [p ::= (program (use-linklets (x_!_ L) ...) p-top ... final-expr)]
-  [p-top :== I (let-inst x I) (instance-variable-value inst-ref x)]
-  [final-expr ::= p-top v]
+  [p ::= (program (use-linklets (x_!_ L) ...) p-top ...)]
+  [p-top :== v LI I (let-inst x I) (let-inst x LI) (instance-variable-value inst-ref x)]
 
   ;; environments
   [ω   ::= ((x L-obj) ...)] ; linklet env
