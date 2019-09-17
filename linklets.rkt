@@ -41,20 +41,18 @@
   [Ω   ::= ((x LI) ...)] ; instance env
 
   [V ::= v LI]
-  ; extend the evaluation context of Racket Core with the new var-set!s
 
   ;; evaluation-context for the programs
   [EP ::= hole
-          (program (use-linklets) V ... (let-inst x EL) p-top ... final-expr)
-          (program (use-linklets) V ... EL p-top ... final-expr)
-          (program (use-linklets) V ... EL)]
-  [EL ::= hole
-          (instantiate-linklet EL inst-ref ...) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EL inst-ref ...) ;; resolve the imported instances
-          (instantiate-linklet EL inst-ref ... #:target inst-ref) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EL inst-ref ... #:target inst-ref) ;; resolve the imported instances
-          (instance-variable-value EL x)]
+          (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
+          (instantiate-linklet L-obj LI ... EP inst-ref ...) ;; resolve the imported instances
+          (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
+          (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
 
+          (instance-variable-value EP x)
+          (let-inst x EP)
+
+          (program (use-linklets) V ... EP p-top ...)]
   ;; evaluation-context for the linklet body
   [EI ::= hole (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
   )
