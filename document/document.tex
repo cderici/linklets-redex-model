@@ -46,6 +46,11 @@ compiler into a full implementation.
 \label{fig:linklet-grammar}
 \end{figure}
 
+\paragraph{} Linklets are basic $\lambda$-like forms that consume
+(i.e. import) and produce (i.e. export) variables instead of
+values. As shown in Figure \ref{fig:linklet-grammar}, linklets may
+rename imports as well as exports. The \emph{defn-or-expr} is an
+expression of ``fully expanded programs'' (FIXME).
 
 \begin{figure}[h!]
 \begin{center}
@@ -53,12 +58,6 @@ compiler into a full implementation.
 \caption{Linklet Source}
 \end{center}
 \end{figure}
-
-\paragraph{} Linklets are basic $\lambda$-like forms that consume
-(i.e. import) and produce (i.e. export) variables instead of
-values. As shown in Figure \ref{fig:linklet-grammar}, linklets may
-rename imports as well as exports. The \emph{defn-or-expr} is an
-expression of ``fully expanded programs'' (FIXME).
 
 \section{Instantiating \& Evaluating Linklets}
 
@@ -78,17 +77,24 @@ expression of ``fully expanded programs'' (FIXME).
 \end{center}
 \end{figure}
 
+\begin{center}
+\begin{figure}[h!]
+    \includegraphics[scale=0.5]{program-reduction}
+    \caption{Reduction Relation for Programs}
+\end{figure}
+\end{center}
+
 \begin{figure}[h!]
 \begin{center}
-\includegraphics[scale=0.6]{program-reduction}
-\caption{Reduction Relation for Programs}
+\includegraphics[scale=0.5]{instantiate-loop}
+\caption{Instantiate-Loop Metafunction}
 \end{center}
 \end{figure}
 
 \begin{figure}[h!]
 \begin{center}
 \includegraphics[scale=0.5]{linklet-body-reduction}
-\caption{Reduction Relation for Linklet Body}
+\caption{Reduction Relation for the Linklet Body}
 \end{center}
 \end{figure}
 
