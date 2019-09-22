@@ -19,7 +19,9 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top ...)]
+  [L-obj ::= (compiled-linklet c-imps c-exps l-top ...)]
+  [c-imps ::= ((imp-obj ...) ...)]
+  [c-exps ::= (exp-obj ...)]
   ;; import & export objects
   [imp-obj ::= (Import n x x x)] ; group-index id(<-gensymed) int_id ext_id
   [exp-obj ::= (Export x x x)] ; int_id int_gensymed ext_id
