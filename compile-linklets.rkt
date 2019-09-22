@@ -74,8 +74,7 @@ export's internal id should be the same with the defined id.
 we create the variable with the exports internal gensym.
 |#
 (define-metafunction LinkletsCompile
-  ; c-def-val : exprs lex-env importss exports mutated-ids toplevel-ids out
-  c-def-val : x e c-exps  -> (l-top ...)
+  c-def-val : x e c-exps  -> exprs
   [(c-def-val x e_body (exp-obj_before ... (Export x x_gen x_int) exp-obj_after ...))
    ((define-values (x) e_body) (var-set! x_gen x))]
   [(c-def-val x e_body c-exps)
@@ -118,13 +117,11 @@ or a primitive (op)(which is handled in a separate case below)
 
 ;; ----  Set!
 (define-metafunction LinkletsCompile
-  ; c-set-bang : x exports rhs -> l-top
   c-set-bang : x c-exps e -> l-top
-  [(c-set-bang x
-                     ((Export x_int_bef x_gen_bef x_ext_bef) ...
-                      (Export x x_gen_cur x_ext_cur)
-                      (Export x_int_aft x_gen_aft x_ext_aft) ...)
-                     e_rhs)
+  [(c-set-bang x ((Export x_int_bef x_gen_bef x_ext_bef) ...
+                  (Export x x_gen_cur x_ext_cur)
+                  (Export x_int_aft x_gen_aft x_ext_aft) ...)
+               e_rhs)
    (var-set/check-undef! x_gen_cur e_rhs)]
   [(c-set-bang x c-exps e_rhs) (set! x e_rhs)])
 
@@ -134,106 +131,61 @@ or a primitive (op)(which is handled in a separate case below)
   ; base case
   [(c-body () lex-ids c-imps c-exps mut-ids top-ids exprs) exprs]
   ; define-values
-  [(c-body ((define-values (x) e) l-top ...) (x_lex ...) c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) (x_lex ...) c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ... l-top_def_val ...))
-   (where (e_new) (c-body (e) (x x_lex ...) c-imps c-exps
-                                        mut-ids top-ids ()))
+  [(c-body ((define-values (x) e) l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids (l-top_compiled ... l-top_def_val ...))
+   (where (e_new) (c-body (e) (x x_lex ...) c-imps c-exps mut-ids top-ids ()))
    (where (l-top_def_val ...) (c-def-val x e_new c-exps))]
   ; symbols
-  [(c-body (x_current l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ... l-top_sym))
+  [(c-body (x_current l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... l-top_sym))
    (where l-top_sym (c-symbol x_current mut-ids top-ids c-imps c-exps))]
   ; set!
-  [(c-body ((set! x e) l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... l-top_set_bang))
-   (where (e_new) (c-body (e) lex-ids c-imps c-exps
-                                        mut-ids top-ids ()))
+  [(c-body ((set! x e) l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... l-top_set_bang))
+   (where (e_new) (c-body (e) lex-ids c-imps c-exps mut-ids top-ids ()))
    (where l-top_set_bang (c-set-bang x c-exps e_new))]
   ; others
-  [(c-body exprs lex-ids c-imps c-exps
-                         mut-ids top-ids exprs_compiled)
-   (c-expr exprs lex-ids c-imps c-exps
-                         mut-ids top-ids exprs_compiled)])
+  [(c-body exprs lex-ids c-imps c-exps mut-ids top-ids exprs_compiled)
+   (c-expr exprs lex-ids c-imps c-exps mut-ids top-ids exprs_compiled)])
 
 (define-metafunction LinkletsCompile
   c-expr : exprs lex-ids c-imps c-exps mut-ids top-ids exprs -> exprs
   ; values
-  [(c-expr (v l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ... v))]
+  [(c-expr (v l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... v))]
   ; begin
-  [(c-expr ((begin e ...) l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... (begin e_new ...)))
-   (where (e_new ...) (c-body (e ...) lex-ids c-imps c-exps
-                                            mut-ids top-ids ()))]
+  [(c-expr ((begin e ...) l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... (begin e_new ...)))
+   (where (e_new ...) (c-body (e ...) lex-ids c-imps c-exps mut-ids top-ids ()))]
   ; op
-  [(c-expr ((o e ...) l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... (o e_new ...)))
-   (where (e_new ...) (c-body (e ...) lex-ids c-imps c-exps
-                                            mut-ids top-ids ()))]
+  [(c-expr ((o e ...) l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... (o e_new ...)))
+   (where (e_new ...) (c-body (e ...) lex-ids c-imps c-exps mut-ids top-ids ()))]
   ; if
-  [(c-expr ((if e_tst e_thn e_els) l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... (if e_tst_new e_thn_new e_els_new)))
-   (where (e_tst_new) (c-body (e_tst) lex-ids c-imps c-exps
-                                            mut-ids top-ids ()))
-   (where (e_thn_new) (c-body (e_thn) lex-ids c-imps c-exps
-                                            mut-ids top-ids ()))
-   (where (e_els_new) (c-body (e_els) lex-ids c-imps c-exps
-                                            mut-ids top-ids ()))]
+  [(c-expr ((if e_tst e_thn e_els) l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... (if e_tst_new e_thn_new e_els_new)))
+   (where (e_tst_new) (c-body (e_tst) lex-ids c-imps c-exps mut-ids top-ids ()))
+   (where (e_thn_new) (c-body (e_thn) lex-ids c-imps c-exps mut-ids top-ids ()))
+   (where (e_els_new) (c-body (e_els) lex-ids c-imps c-exps mut-ids top-ids ()))]
   ; lambda
-  [(c-expr ((lambda (x ...) e_body) l-top ...) (x_lex ...) c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) (x_lex ...) c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... (lambda (x ...) e_body_new)))
-   (where (e_body_new) (c-body (e_body) (x ... x_lex ...) c-imps c-exps
-                                             mut-ids top-ids ()))]
+  [(c-expr ((lambda (x ...) e_body) l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids (l-top_compiled ... (lambda (x ...) e_body_new)))
+   (where (e_body_new) (c-body (e_body) (x ... x_lex ...) c-imps c-exps mut-ids top-ids ()))]
 
   ; let-values
-  [(c-expr ((let-values (((x_rhs) e_rhs) ...) e_body) l-top ...)
-                         (x_lex ...) c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) (x_lex ...) c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ...
-                                         (let-values (((x_rhs) e_rhs_new) ...)
-                                           e_body_new)))
-   (where (e_rhs_new ...) (c-body (e_rhs ...) (x_lex ...) c-imps c-exps
-                                                mut-ids top-ids ()))
-   (where (e_body_new) (c-body (e_body) (x_rhs ... x_lex ...) c-imps
-                                             c-exps mut-ids top-ids ()))]
+  [(c-expr ((let-values (((x_rhs) e_rhs) ...) e_body) l-top ...) (x_lex ...)
+           c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids
+           (l-top_compiled ... (let-values (((x_rhs) e_rhs_new) ...) e_body_new)))
+   (where (e_rhs_new ...) (c-body (e_rhs ...) (x_lex ...) c-imps c-exps mut-ids top-ids ()))
+   (where (e_body_new) (c-body (e_body) (x_rhs ... x_lex ...) c-imps c-exps mut-ids top-ids ()))]
   ; raises
-  [(c-expr ((raises e) l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... (raises e)))]
+  [(c-expr ((raises e) l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... (raises e)))]
   ; app
-  [(c-expr ((e ...) l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids (l-top_compiled ...))
-   (c-body (l-top ...) lex-ids c-imps c-exps
-                         mut-ids top-ids
-                         (l-top_compiled ... (e_new ...)))
-   (where (e_new ...) (c-body (e ...) lex-ids c-imps c-exps
-                                            mut-ids top-ids ()))])
-
+  [(c-expr ((e ...) l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ...))
+   (c-body (l-top ...) lex-ids c-imps c-exps mut-ids top-ids (l-top_compiled ... (e_new ...)))
+   (where (e_new ...) (c-body (e ...) lex-ids c-imps c-exps mut-ids top-ids ()))])
 
 (define-metafunction LinkletsCompile
   compile-linklet : L -> L-obj or stuck
