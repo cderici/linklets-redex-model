@@ -114,13 +114,12 @@
   [(to-actual-racket
     (program
      (use-linklets (x (linklet ((imp-id_r ...) ...) (exp-id ...) l-top ...)) ...)
-     p-top-test ... final-expr-test))
+     p-top-test ...))
    (let ((x (compile-linklet
              (quote
               (linklet ((imp-id_r ...) ...) (exp-id ...)
                        (prog-top-to-racket l-top) ...)))) ...)
-     (prog-top-to-racket p-top-test) ...
-     (prog-top-to-racket final-expr-test))])
+     (prog-top-to-racket p-top-test) ...)])
 
 (define-metafunction LinkletProgramTest
   eval-prog=racket-linklets : p-test -> boolean
