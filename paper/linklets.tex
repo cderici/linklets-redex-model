@@ -204,32 +204,32 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure}[tbp]
 \begin{align*}
-L  &::= (linklet\:((imp\dash id ...) ...)\:(exp\dash id ...)\:l\dash top\:\ldots)\\
+L  &::= (\textbf{linklet}\:((imp\dash id ...) ...)\:(exp\dash id ...)\:l\dash top\:\ldots)\\
 l\dash top &::= d\:|\:e \\
-d &::= (define\dash values\:(x)\:e) \\
-imp\dash id &::= x\:|\:(x x) \tag{external internal}\\
-exp\dash id &::= x\:|\:(x x) \tag{internal external}
+d &::= (\textbf{define\dash values}\:(x)\:e) \\
+imp\dash id &::= x\:|\:(x x) \tag*{[external internal]}\\
+exp\dash id &::= x\:|\:(x x) \tag*{[internal external]}
 \end{align*}
 \caption{Linklet Source Language}
 \label{fig:linklet-source}
 \end{figure}
 
-\begin{figure*}[tbp]
+\begin{figure*}[tbp!]
   \begin{align*}
-    CL             &::= (compile\dash linklet \: L)\\
-    L\dash obj    &::= (compiled\dash linklet\: c\dash imps \: c\dash exps \: l\dash top \ldots)\\
+    CL             &::= (\textbf{compile\dash linklet} \: L)\\
+    L\dash obj    &::= (\textbf{compiled\dash linklet}\: c\dash imps \: c\dash exps \: l\dash top \ldots)\\
     c\dash imps    &::= ((imp\dash obj \ldots) \ldots)\\
     c\dash exps    &::= (exp\dash obj \ldots)\\
-    imp\dash obj   &::= (Import\: n\: x\: x\: x) \tag{index id internal external} \\
-    exp\dash obj   &::= (Export\: x\: x\: x) \tag{internal id external} \\
-    LI             &::= (linklet\dash instance\: (x\: cell)\: \ldots) \\
-    I              &::= (instantiate\dash linklet\: linkl\dash ref\: inst\dash ref\: \ldots) \\
-    \;           &\;|\; (instantiate\dash linklet\: linkl\dash ref\: inst\dash ref\: \ldots\: \text{\#:target}\: inst\dash ref) \\
+    imp\dash obj   &::= (\textbf{Import}\: n\: x\: x\: x) \tag*{[index id int ext]} \\
+    exp\dash obj   &::= (\textbf{Export}\: x\: x\: x) \tag*{[int id ext]} \\
+    LI             &::= (\textbf{linklet\dash instance}\: (x\: cell)\: \ldots) \\
+    I              &::= (\textbf{instantiate\dash linklet}\: linkl\dash ref\: inst\dash ref\: \ldots) \\
+    \;           &\;|\; (\textbf{instantiate\dash linklet}\: linkl\dash ref\: inst\dash ref\: \ldots\: \textbf{\#:target}\: inst\dash ref) \\
     linkl\dash ref &::= x\: |\: L\dash obj \\
     inst\dash ref  &::= x\: |\: LI \\
-    ω              &::= ((x\: L\dash obj)\: \ldots) \tag{linklet environment} \\
-    Ω              &::= ((x\: LI)\: \ldots) \tag{linklet instance environment} \\
-    EI             &::= []\: |\: (compiled\dash linklet\: ((imp\dash obj\: \ldots)\: \ldots)\: (exp\dash obj\: \ldots)\: v\: \ldots\: EI\: l\dash top\: \ldots)
+    \omega              &::= ((x\: L\dash obj)\: \ldots) \tag*{[linklet environment]} \\
+    \Omega              &::= ((x\: LI)\: \ldots) \tag*{[linklet instance environment]} \\
+    EI             &::= []\: |\: (\textbf{compiled\dash linklet}\: ((imp\dash obj\: \ldots)\: \ldots)\: (exp\dash obj\: \ldots)\: v\: \ldots\: EI\: l\dash top\: \ldots)
   \end{align*}
 \caption{Linklet Runtime Language}
 \label{fig:linklet-runtime}
