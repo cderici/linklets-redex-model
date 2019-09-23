@@ -220,10 +220,7 @@
 (test-equal (term (process-exports () ())) (term ()))
 (test-equal (term (get-all-mutated-vars () ())) (term ()))
 (test-equal (term (all-toplevels () ())) (term ()))
-(test-equal (term (compile-linklet-body () ()
-                                        () ()
-                                        () () ()))
-            (term ()))
+(test-equal (term (c-body () () () () () () ())) (term ()))
 ; compile tests
 (test-equal (term (compile-linklet (linklet () ())))
             (term (compiled-linklet () ())))
