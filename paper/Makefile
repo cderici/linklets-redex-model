@@ -1,5 +1,7 @@
 all:
 	pdflatex linklets.tex
+	bibtex linklets.aux
+	pdflatex linklets.tex
 
 sample:
 	pdflatex sample.tex
