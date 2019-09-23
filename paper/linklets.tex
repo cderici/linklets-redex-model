@@ -45,6 +45,7 @@
 \floatstyle{boxed}
 \restylefloat{figure}
 
+\def\dash {\text{-}}
 %
 % end of the preamble, start of the body of the document source.
 \begin{document}
@@ -203,11 +204,11 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure}[tbp]
 \begin{align*}
-L  &::= (linklet\text{ }((imp\text{-}id ...) ...)\text{ }(exp\text{-}id ...)\text{ }l\text{-}top\text{ }\ldots)\\
-l\text{-}top &::= d\text{ }|\text{ }e \\
-d &::= (define\text{-}values\text{ }(x)\text{ }e) \\
-imp\text{-}id &::= x\text{ }|\text{ }(x x) \tag{external internal}\\
-exp\text{-}id &::= x\text{ }|\text{ }(x x) \tag{internal external}
+L  &::= (linklet\:((imp\dash id ...) ...)\:(exp\dash id ...)\:l\dash top\:\ldots)\\
+l\dash top &::= d\:|\:e \\
+d &::= (define\dash values\:(x)\:e) \\
+imp\dash id &::= x\:|\:(x x) \tag{external internal}\\
+exp\dash id &::= x\:|\:(x x) \tag{internal external}
 \end{align*}
 \caption{Linklet Source Language}
 \label{fig:linklet-source}
