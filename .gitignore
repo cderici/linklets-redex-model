@@ -2,6 +2,7 @@ compiled/
 *~
 \#*\#
 .\#*
+*.cut
 *.acn
 *.acr
 *.alg
