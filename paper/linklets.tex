@@ -41,6 +41,10 @@
 % the next command will enable that style.
 %\citestyle{acmauthoryear}
 
+\usepackage{float}
+\floatstyle{boxed}
+\restylefloat{figure}
+
 %
 % end of the preamble, start of the body of the document source.
 \begin{document}
@@ -196,6 +200,18 @@ ACM's consolidated article template, introduced in 2017, provides a consistent \
 If you are new to publishing with ACM, this document is a valuable guide to the process of preparing your work for publication. If you have published with ACM before, this document provides insight and instruction into more recent changes to the article template.
 
 The ``\verb|acmart|'' document class can be used to prepare articles for any ACM publication --- conference or journal, and for any stage of publication, from review to final ``camera-ready'' copy, to the author's own version, with {\it very} few changes to the source.
+
+\begin{figure}[tbp]
+\begin{align*}
+L  &::= (linklet\text{ }((imp\text{-}id ...) ...)\text{ }(exp\text{-}id ...)\text{ }l\text{-}top\text{ }\ldots)\\
+l\text{-}top &::= d\text{ }|\text{ }e \\
+d &::= (define\text{-}values\text{ }(x)\text{ }e) \\
+imp\text{-}id &::= x\text{ }|\text{ }(x x) \tag{external internal}\\
+exp\text{-}id &::= x\text{ }|\text{ }(x x) \tag{internal external}
+\end{align*}
+\caption{Linklet Source Language}
+\label{fig:linklet-source}
+\end{figure}
 
 \newpage
 
