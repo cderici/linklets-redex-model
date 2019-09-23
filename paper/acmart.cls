@@ -1143,8 +1143,7 @@ Computing Machinery]
   \ifx\acmConference@shortname\@empty
     \gdef\acmConference@shortname{#2}%
   \fi}
-\acmConference[Conference'17]{ACM Conference}{July 2017}{Washington,
-  DC, USA}
+\acmConference[Conference'19]{ACM Conference}{2019}{USA}
 \def\acmBooktitle#1{\gdef\@acmBooktitle{#1}}
 \acmBooktitle{Proceedings of \acmConference@name
        \ifx\acmConference@name\acmConference@shortname\else
@@ -1288,7 +1287,7 @@ Computing Machinery]
   July\or August\or September\or October\or November\or
   December\fi~\@acmYear}
 \def\acmPrice#1{\def\@acmPrice{#1}}
-\acmPrice{15.00}
+\acmPrice{}
 \def\acmSubmissionID#1{\def\@acmSubmissionID{#1}}
 \acmSubmissionID{}
 \def\acmISBN#1{\def\@acmISBN{#1}}
@@ -2244,7 +2243,7 @@ Computing Machinery]
        \ifx\@acmEditors\@empty\textit{.}\else
          \andify\@acmEditors\textit{, }\@acmEditors~\@editorsAbbrev.%
        \fi\
-       ACM, New York, NY, USA%
+       ACM, USA%
          \@article@string\unskip, \ref{TotPages}~\@pages@word.
     \fi
   \fi
