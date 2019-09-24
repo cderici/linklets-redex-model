@@ -36,7 +36,7 @@
 
   ;; program-stuff
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ...)]
-  [p-top :== v LI I (let-inst x I) (let-inst x LI) (instance-variable-value inst-ref x)]
+  [p-top ::= v LI I (let-inst x I) (let-inst x LI) (instance-variable-value inst-ref x)]
 
   ;; environments
   [ω   ::= ((x L-obj) ...)] ; linklet env
