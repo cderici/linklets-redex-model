@@ -19,7 +19,7 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ c-imps c-exps l-top ...)]
+  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...)]
   [c-imps ::= ((imp-obj ...) ...)]
   [c-exps ::= (exp-obj ...)]
   ;; import & export objects
@@ -48,8 +48,11 @@
   [EP ::= hole
           (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
           (instantiate-linklet L-obj LI ... EP inst-ref ...) ;; resolve the imported instances
+          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
+
           (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
           (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
+          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ... #:target inst-ref) ;; evaluate
 
           (instance-variable-value EP x)
           (let-inst x EP)
@@ -88,44 +91,41 @@
         "instance variable value")
    (--> [(in-hole EP (instance-variable-value L-obj x)) ω Ω ρ σ]
         [(raises instance-expected) ω Ω ρ σ] "instance variable value error")
-
    (--> [(in-hole EP (let-inst x LI)) ω Ω ρ σ]
         [(in-hole EP (void)) ω (extend Ω (x) (LI)) ρ σ] "let-inst")
 
-   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ...))
-         ω Ω ρ σ]
-        [(in-hole EP LI_1) ω Ω_3 ρ_3 σ_2]
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ...) LI ...)) ω Ω ρ σ]
+        [(in-hole EP (lookup Ω x_target)) ω Ω ρ σ] "return instance")
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target) LI ... #:target x_target)) ω Ω ρ σ]
+        [(in-hole EP (void)) ω Ω ρ σ] "return no value")
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last) LI ... #:target x_target)) ω Ω ρ σ]
+        [(in-hole EP v_last) ω Ω ρ σ] "return value")
+
+   (--> [(in-hole EP (define-values (x) e)) ω Ω ρ σ]
+        [(in-hole EP (void)) ω Ω ρ_2 σ_2]
+        (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v_1))))
+        (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell))) "define-values")
+   (--> [(in-hole EP e) ω Ω ρ σ]
+        [(in-hole EP v) ω Ω ρ_1 σ_1]
+        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (side-condition (not (redex-match? Linklets v (term e)))) "expression")
+
+   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ...)) ω Ω ρ σ]
+        [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ...)) ω Ω_2 ρ_2 σ_1]
         ; set the stage for target/imports/exports
         (where x_target ,(variable-not-in (term Ω) (term x)))
         (where Ω_1 (extend Ω (x_target) ((linklet-instance))))
         (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
         (where (Ω_2 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ))
-        ; start the loop
-        (where (LI_1 Ω_3 ρ_3 σ_2)
-               (instantiate-loop
-                (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) Ω_2 ρ_2 σ_1
-                #:target x_target #:result instance))
-        "instantiate linklet")
-
-   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ... #:target inst-ref))
-         ω Ω ρ σ]
-        [(in-hole EP v_1) ω Ω_3 ρ_3 σ_2]
+        "set the stage for instantiation")
+   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ... #:target inst-ref)) ω Ω ρ σ]
+        [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ... #:target x_target)) ω Ω_2 ρ_2 σ_1]
         ; set the stage for target/imports/exports
         (where (x_target Ω_1) (prepare-target inst-ref Ω))
         (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
         (where (Ω_2 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ))
-        ; start the loop
-        (where (v_1 Ω_3 ρ_3 σ_2)
-               (instantiate-loop
-                (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) Ω_2 ρ_2 σ_1
-                #:target x_target #:result value))
-        "eval linklet")
-   #;(--> [(in-hole EP (instantiate-linklet L-obj LI ...)) ω Ω ρ σ]
-        [(raises e) ω Ω ρ σ]
-        (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ...)) "error in instantiation")
-   #;(--> [(in-hole EP (instantiate-linklet L-obj LI ... #:target inst-ref_80)) ω Ω ρ σ]
-        [(raises e) ω Ω ρ σ]
-        (where (raises e) (instantiate-entry ω Ω ρ σ L-obj LI ... #:target inst-ref_80)) "error in evaluation")))
+        "set the stage for evaluation")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Instantiation Utilities
@@ -218,24 +218,6 @@ instantiation will return a value instead of an instance. This is what
 we call "evaluating a linklet".
 
 |#
-
-(define-metafunction Linklets
-  instantiate-loop : L-obj Ω ρ σ #:target x #:result x -> (LI Ω ρ σ) or (v Ω ρ σ)
-  ;; return value/instance after all the body is evaluated
-  [(instantiate-loop (Lα ((imp-obj ...) ...) (exp-obj ...) v ...)
-                     Ω ρ σ #:target x_target #:result instance)
-   ((lookup Ω x_target) Ω ρ σ)]
-  [(instantiate-loop (Lα ((imp-obj ...) ...) (exp-obj ...) v ... v_last)
-                     Ω ρ σ #:target x_target #:result value)
-   (v_last Ω ρ σ)]
-  [(instantiate-loop (Lα ((imp-obj ...) ...) (exp-obj ...))
-                     Ω ρ σ #:target x_target #:result value)
-   ((void) Ω ρ σ)]
-  ;; repeatedly one-step reduce
-  [(instantiate-loop L-obj Ω ρ σ #:target x_target #:result x_result)
-   (instantiate-loop L-obj_new Ω ρ_1 σ_1 #:target x_target #:result x_result)
-   (where ((L-obj_new ρ_1 σ_1))
-          ,(apply-reduction-relation -->βi (term (L-obj ρ σ))))])
 
 (define -->βi
   (reduction-relation
