@@ -189,7 +189,7 @@ or a primitive (op)(which is handled in a separate case below)
 (define-metafunction LinkletsCompile
   compile-linklet : L -> L-obj or stuck
   [(compile-linklet (linklet ((imp-id ...) ...) (exp-id ...) l-top ...))
-   (compiled-linklet c-imps c-exps l-top_compiled ...)
+   (Lα c-imps c-exps l-top_compiled ...)
    ; where
    (where c-imps (process-importss 0 ((imp-id ...) ...) ()))
    (where c-exps (process-exports (exp-id ...) ()))

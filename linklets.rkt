@@ -19,7 +19,7 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (compiled-linklet c-imps c-exps l-top ...)]
+  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ c-imps c-exps l-top ...)]
   [c-imps ::= ((imp-obj ...) ...)]
   [c-exps ::= (exp-obj ...)]
   ;; import & export objects
@@ -56,7 +56,7 @@
 
           (program (use-linklets) V ... EP p-top ...)]
   ;; evaluation-context for the linklet body
-  [EI ::= hole (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
+  [EI ::= hole (Lα ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
   )
 
 (define-extended-language LinkletProgramTest Linklets
@@ -92,7 +92,7 @@
    (--> [(in-hole EP (let-inst x LI)) ω Ω ρ σ]
         [(in-hole EP (void)) ω (extend Ω (x) (LI)) ρ σ] "let-inst")
 
-   (--> [(in-hole EP (instantiate-linklet (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ...))
+   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ...))
          ω Ω ρ σ]
         [(in-hole EP LI_1) ω Ω_3 ρ_3 σ_2]
         ; set the stage for target/imports/exports
@@ -103,11 +103,11 @@
         ; start the loop
         (where (LI_1 Ω_3 ρ_3 σ_2)
                (instantiate-loop
-                (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top ...) Ω_2 ρ_2 σ_1
+                (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) Ω_2 ρ_2 σ_1
                 #:target x_target #:result instance))
         "instantiate linklet")
 
-   (--> [(in-hole EP (instantiate-linklet (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ... #:target inst-ref))
+   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ... #:target inst-ref))
          ω Ω ρ σ]
         [(in-hole EP v_1) ω Ω_3 ρ_3 σ_2]
         ; set the stage for target/imports/exports
@@ -117,7 +117,7 @@
         ; start the loop
         (where (v_1 Ω_3 ρ_3 σ_2)
                (instantiate-loop
-                (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) l-top ...) Ω_2 ρ_2 σ_1
+                (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) Ω_2 ρ_2 σ_1
                 #:target x_target #:result value))
         "eval linklet")
    #;(--> [(in-hole EP (instantiate-linklet L-obj LI ...)) ω Ω ρ σ]
@@ -222,13 +222,13 @@ we call "evaluating a linklet".
 (define-metafunction Linklets
   instantiate-loop : L-obj Ω ρ σ #:target x #:result x -> (LI Ω ρ σ) or (v Ω ρ σ)
   ;; return value/instance after all the body is evaluated
-  [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ...)
+  [(instantiate-loop (Lα ((imp-obj ...) ...) (exp-obj ...) v ...)
                      Ω ρ σ #:target x_target #:result instance)
    ((lookup Ω x_target) Ω ρ σ)]
-  [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...) v ... v_last)
+  [(instantiate-loop (Lα ((imp-obj ...) ...) (exp-obj ...) v ... v_last)
                      Ω ρ σ #:target x_target #:result value)
    (v_last Ω ρ σ)]
-  [(instantiate-loop (compiled-linklet ((imp-obj ...) ...) (exp-obj ...))
+  [(instantiate-loop (Lα ((imp-obj ...) ...) (exp-obj ...))
                      Ω ρ σ #:target x_target #:result value)
    ((void) Ω ρ σ)]
   ;; repeatedly one-step reduce

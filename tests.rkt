@@ -223,39 +223,39 @@
 (test-equal (term (c-body () () () () () () ())) (term ()))
 ; compile tests
 (test-equal (term (compile-linklet (linklet () ())))
-            (term (compiled-linklet () ())))
+            (term (Lα () ())))
 (test-equal (term (compile-linklet (linklet () () 3 4)))
-            (term (compiled-linklet () () 3 4)))
+            (term (Lα () () 3 4)))
 (test-equal (term (compile-linklet (linklet () () (begin 3 4))))
-            (term (compiled-linklet () () (begin 3 4))))
+            (term (Lα () () (begin 3 4))))
 (test-equal (term (compile-linklet
                    (linklet () () (begin (set! x 3) 4))))
-            (term (compiled-linklet () () (begin (set! x 3) 4))))
+            (term (Lα () () (begin (set! x 3) 4))))
 (test-equal (term (compile-linklet
                    (linklet () () (let-values (((x) 3)) x))))
-            (term (compiled-linklet () () (let-values (((x) 3)) x))))
+            (term (Lα () () (let-values (((x) 3)) x))))
 (test-equal (term (compile-linklet
                    (linklet () () (lambda (x) x))))
-            (term (compiled-linklet () () (lambda (x) x))))
+            (term (Lα () () (lambda (x) x))))
 (test-equal (term (compile-linklet
                    (linklet () () (if (lambda (x) x) 3 4))))
-            (term (compiled-linklet () () (if (lambda (x) x) 3 4))))
+            (term (Lα () () (if (lambda (x) x) 3 4))))
 (test-equal (term (compile-linklet
                    (linklet () () (+ x x))))
-            (term (compiled-linklet () () (+ x x))))
+            (term (Lα () () (+ x x))))
 (test-equal (term (compile-linklet
                    (linklet () () 3 (+ x x))))
-            (term (compiled-linklet () () 3 (+ x x))))
+            (term (Lα () () 3 (+ x x))))
 
 ; compile-linklet important cases:
 ; no extra asts
 (test-equal (term (compile-linklet
                    (linklet () () (define-values (x) 5) (+ x x))))
-            (term (compiled-linklet () () (define-values (x) 5) (+ x x))))
+            (term (Lα () () (define-values (x) 5) (+ x x))))
 
 (test-equal (term (compile-linklet
                    (linklet ((c)) () (define-values (x) 4) (+ x c))))
-            (term (compiled-linklet (((Import 0 c1 c c))) ()
+            (term (Lα (((Import 0 c1 c c))) ()
                                     (define-values (x) 4)
                                     (+ x (var-ref/no-check c1)))))
 
@@ -265,7 +265,7 @@
                             c
                             (lambda (y) c)
                             )))
-            (term (compiled-linklet (((Import 0 c1 c c))) ()
+            (term (Lα (((Import 0 c1 c c))) ()
                                     (var-ref/no-check c1)
                                     (lambda (y) (var-ref/no-check c1))
                                     )))
@@ -275,7 +275,7 @@
                             cc
                             (lambda (p) w)
                             )))
-            (term (compiled-linklet (((Import 0 cc1 cc cc))) ((Export w w1 w))
+            (term (Lα (((Import 0 cc1 cc cc))) ((Export w w1 w))
                                     (var-ref/no-check cc1)
                                     (lambda (p) (var-ref w1)))))
 ; slightly more realistic lambda
@@ -284,14 +284,14 @@
                             (define-values (a) (+ c c))
                             (define-values (x) (lambda (y) c))
                             )))
-            (term (compiled-linklet (((Import 0 c1 c c))) ()
+            (term (Lα (((Import 0 c1 c c))) ()
                                     (define-values (a) (+ (var-ref/no-check c1) (var-ref/no-check c1)))
                                     (define-values (x) (lambda (y) (var-ref/no-check c1))))))
 
 ; create a variable for export
 (test-equal (term (compile-linklet
                    (linklet () (x) (define-values (x) 5) (+ x x))))
-            (term (compiled-linklet () ((Export x x1 x))
+            (term (Lα () ((Export x x1 x))
                                     (define-values (x) 5)
                                     (var-set! x1 x)
                                     (+ x x))))
@@ -301,7 +301,7 @@
                    (linklet () ()
                             (define-values (x) 5)
                             (set! x 6) (+ x x))))
-            (term (compiled-linklet () ()
+            (term (Lα () ()
                                     (define-values (x) 5)
                                     (set! x 6) (+ x x))))
 
@@ -310,7 +310,7 @@
                    (linklet () (x)
                             (define-values (x) 5)
                             (set! x 6) (+ x x))))
-            (term (compiled-linklet () ((Export x x1 x))
+            (term (Lα () ((Export x x1 x))
                                     (define-values (x) 5)
                                     (var-set! x1 x)
                                     (var-set/check-undef! x1 6)
@@ -340,7 +340,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (test-equal (term (compile-linklet (linklet () ())))
-            (term (compiled-linklet () ())))
+            (term (Lα () ())))
 (test-equal (term (run-prog ((program (use-linklets) 3)
                              () () () ()))) 3)
 
@@ -354,21 +354,21 @@
              -->βp
              (term ((program (use-linklets)
                              (void)
-                             (instantiate-linklet (compiled-linklet () ()) #:target t1))
-                    ((l1 (compiled-linklet () ())))
+                             (instantiate-linklet (Lα () ()) #:target t1))
+                    ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     () ())))
             (term (((program (use-linklets)
                              (void)
                              (void))
-                    ((l1 (compiled-linklet () ())))
+                    ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     () ()))))
 
 (test-equal (term (run-prog ((program (use-linklets)
                                       (void)
                                       (instantiate-linklet l1 #:target t1))
-                             ((l1 (compiled-linklet () ())))
+                             ((l1 (Lα () ())))
                              ((t1 (linklet-instance)))
                              () ())))
             (term (void)))
@@ -383,23 +383,23 @@
 
 (test-equal (apply-reduction-relation
              -->βi
-             (term ((compiled-linklet () () (+ 1 2)) () ())))
-            (term (((compiled-linklet () () 3) () ()))))
+             (term ((Lα () () (+ 1 2)) () ())))
+            (term (((Lα () () 3) () ()))))
 
 (test-equal (apply-reduction-relation
              -->βi
-             (term ((compiled-linklet () () (define-values (a) 5) a) () ())))
-            (term (((compiled-linklet () () (void) a) ((a cell)) ((cell 5))))))
+             (term ((Lα () () (define-values (a) 5) a) () ())))
+            (term (((Lα () () (void) a) ((a cell)) ((cell 5))))))
 
 (test-equal (apply-reduction-relation
              -->βi
-             (term ((compiled-linklet () () 3 a) ((a cell)) ((cell 5)))))
-            (term (((compiled-linklet () () 3 5) ((a cell)) ((cell 5))))))
+             (term ((Lα () () 3 a) ((a cell)) ((cell 5)))))
+            (term (((Lα () () 3 5) ((a cell)) ((cell 5))))))
 
 (test-equal (apply-reduction-relation
              -->βi
-             (term ((compiled-linklet () () (void) a) ((a cell)) ((cell 5)))))
-            (term (((compiled-linklet () () (void) 5) ((a cell)) ((cell 5))))))
+             (term ((Lα () () (void) a) ((a cell)) ((cell 5)))))
+            (term (((Lα () () (void) 5) ((a cell)) ((cell 5))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog main tests
@@ -1074,6 +1074,9 @@
                                       [l2 (linklet () (a) (define-values (a) 5) a)])
                                      (let-inst t1 (instantiate-linklet l2))
                                      (instance-variable-value t1 a)))
+
+
+
 (eval-prog=racket-linklets? (program (use-linklets
                                       [l1 (linklet () ())]
                                       [l2 (linklet ((b)) () (define-values (a) 5) (+ a b))]
