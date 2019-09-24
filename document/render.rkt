@@ -45,7 +45,7 @@
 
 "-----------------------------------------------------------------"
 (render-reduction-relation-rules #f)
-(define i-reduction (render-reduction-relation -->βi-render #:style 'vertical))
+(define i-reduction (render-reduction-relation -->βi #:style 'vertical))
 (define bm5 (pict->bitmap i-reduction))
 (send bm5 save-file "linklet-body-reduction.png" 'png)
 "------------------------- REDUCTION DONE ------------------------"

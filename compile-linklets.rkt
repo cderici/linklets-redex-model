@@ -171,7 +171,6 @@ or a primitive (op)(which is handled in a separate case below)
   [(c-expr ((lambda (x ...) e_body) l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids (l-top_compiled ...))
    (c-body (l-top ...) (x_lex ...) c-imps c-exps mut-ids top-ids (l-top_compiled ... (lambda (x ...) e_body_new)))
    (where (e_body_new) (c-body (e_body) (x ... x_lex ...) c-imps c-exps mut-ids top-ids ()))]
-
   ; let-values
   [(c-expr ((let-values (((x_rhs) e_rhs) ...) e_body) l-top ...) (x_lex ...)
            c-imps c-exps mut-ids top-ids (l-top_compiled ...))

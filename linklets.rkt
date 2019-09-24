@@ -251,17 +251,3 @@ we call "evaluating a linklet".
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
         (side-condition (not (redex-match? Linklets v (term e))))
         "inst-expr")))
-
-(define -->βi-render
-  (reduction-relation
-   Linklets
-   #:domain (L-obj ρ σ)
-   (--> [(in-hole EI (define-values (x) e)) ρ σ]
-        [(in-hole EI (void)) ρ_2 σ_2]
-        (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v_1))))
-        (side-condition (term (cell ∉ (x ρ_1 σ_1))))  "inst-def-val")
-   (--> [(in-hole EI e) ρ σ]
-        [(in-hole EI v) ρ_1 σ_1]
-        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (side-condition (term (e ∉ v))) "inst-expr")))
