@@ -68,21 +68,20 @@
 
    (--> [(in-hole E (var-ref x)) ρ σ]
         [(in-hole E v) ρ σ]
-        (where (variable x_var v) (lookup σ (lookup ρ x)))
+        (where v (lookup σ (lookup ρ x)))
         "var-ref")
    (--> [(in-hole E (var-ref/no-check x)) ρ σ]
         [(in-hole E v) ρ σ]
-        (where (variable x_var v) (lookup σ (lookup ρ x)))
+        (where v (lookup σ (lookup ρ x)))
         "var-ref/no-check") ; for now the same with var-ref
    (--> [(in-hole E (var-set! x v)) ρ σ]
-        [(in-hole E (void)) ρ (extend σ (cell_var) ((variable x_var v)))]
+        [(in-hole E (void)) ρ (extend σ (cell_var) (v))]
         (where cell_var (lookup ρ x))
-        (where (variable x_var v_var) (lookup σ cell_var))
         "var-set!")
    (--> [(in-hole E (var-set/check-undef! x v)) ρ σ]
-        [(in-hole E (void)) ρ (extend σ (cell_var) ((variable x_var v)))]
+        [(in-hole E (void)) ρ (extend σ (cell_var) (v))]
         (where cell_var (lookup ρ x))
-        (where (variable x_var v_var) (lookup σ cell_var))
+        (where v_var (lookup σ cell_var)) ; to make sure it's there
         "var-set/check-undef!") ; for now the same with var-set!
 
    (--> [(in-hole E (lambda (x ...) e)) ρ σ]

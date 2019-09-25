@@ -391,7 +391,7 @@
   (instantiate-exports ((Export a a1 a)) target ((target (linklet-instance))) () ()))
  (term (((target (linklet-instance (a cell_1))) (target (linklet-instance)))
         ((a1 cell_1))
-        ((cell_1 (variable a uninit))))))
+        ((cell_1 uninit)))))
 ; (term ((linklet-instance (a cell_1)) ((a1 cell_1)) ((cell_1 (variable a uninit))))))
 
 (test-equal (apply-reduction-relation

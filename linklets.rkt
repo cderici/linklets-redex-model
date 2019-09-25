@@ -87,7 +87,7 @@
         "instance-lookup")
    (--> [(in-hole EP (instance-variable-value LI x)) ω Ω ρ σ]
         [(in-hole EP v) ω Ω ρ σ]
-        (where (variable x_var v) (lookup σ (get-var-from-instance x LI)))
+        (where v (lookup σ (get-var-from-instance x LI)))
         "instance variable value")
    (--> [(in-hole EP (instance-variable-value L-obj x)) ω Ω ρ σ]
         [(raises instance-expected) ω Ω ρ σ] "instance variable value error")
@@ -186,7 +186,7 @@
    ; create a new variable and put a reference to it within the target
    (where (linklet-instance (x cell) ...) (lookup Ω x_target))
    (where cell_new ,(variable-not-in (term (ρ σ x ... cell ...)) (term cell_1)))
-   (where (ρ_1 σ_1) ((extend ρ (x_gen) (cell_new)) (extend σ (cell_new) ((variable x_ext uninit)))))])
+   (where (ρ_1 σ_1) ((extend ρ (x_gen) (cell_new)) (extend σ (cell_new) (uninit))))])
 
 (define-metafunction Linklets
   instantiate-exports : (exp-obj ...) x Ω ρ σ -> (Ω ρ σ)
