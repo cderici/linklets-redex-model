@@ -203,16 +203,43 @@ If you are new to publishing with ACM, this document is a valuable guide to the 
 The ``\verb|acmart|'' document class can be used to prepare articles for any ACM publication --- conference or journal, and for any stage of publication, from review to final ``camera-ready'' copy, to the author's own version, with {\it very} few changes to the source.
 
 \begin{figure}[tbp]
-\begin{align*}
-L  &::= (\textbf{linklet}\:((imp\dash id ...) ...)\:(exp\dash id ...)\:l\dash top\:\ldots)\\
-l\dash top &::= d\:|\:e \\
-d &::= (\textbf{define\dash values}\:(x)\:e) \\
-imp\dash id &::= x\:|\:(x x) \tag*{[external internal]}\\
-exp\dash id &::= x\:|\:(x x) \tag*{[internal external]}
-\end{align*}
-\caption{Linklet Source Language}
-\label{fig:linklet-source}
+  \begin{align*}
+    L  &::= (\textbf{linklet}\:((imp\dash id ...) ...)\:(exp\dash id ...)\:l\dash top\:\ldots)\\
+    l\dash top &::= d\:|\:e \\
+    d &::= (\textbf{define\dash values}\:(x)\:e) \\
+    imp\dash id &::= x\:|\:(x x) \tag*{[external internal]}\\
+    exp\dash id &::= x\:|\:(x x) \tag*{[internal external]}
+  \end{align*}
+  \caption{Linklet Source Language}
+  \label{fig:linklet-source}
 \end{figure}
+
+\begin{figure}[tbp]
+  \begin{align*}
+    e &::=\: x\; |\; v\; |\; (e\; e\; \ldots)\; |\; (\textbf{if}\; e\; e\; e)\; |\; (p1\; e)\; |\; (p2\; e\; e)\; \\
+    \: &|\: (\textbf{begin}\; e\; e\; \ldots)\; |\; (\textbf{lambda}\; (x_{\_!\_}\; \ldots)\; e)\; |\; (\textbf{set!}\; x\; e)\\
+    \: &|\: (\textbf{let\dash values}\; (((x_{\_!\_})\; e)\; \ldots)\; e)\; |\; (\textbf{raises}\; e)\\
+    \: &|\: (\textbf{var\dash ref}\; x)\; |\; (\textbf{var\dash ref/no\dash check}\; x) \\
+    \: &|\: (\textbf{var\dash set!}\; x\; e)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; e) \\
+    v   &::=\: n\; |\; b\; |\; c\; |\; (void)\; |\; uninit \\ %;; values
+    c   &::=\: (closure\; x\; \ldots e\; \rho) \\
+    n   &::=\: number \\
+    b   &::=\: true\; |\; false \\
+    x\; cell &::=\: variable\dash not\dash otherwise\dash mentioned \\ %;; variables
+    p1  &::=\: add1 \\
+    p2  &::=\: +\; |\; * |\; < \\
+    o   &::=\: p1\; |\; p2 \\
+    \rho   &::=\: ((x\; any)\; \ldots) \tag*{[Environment]}\\
+    \sigma   &::=\: ((x\; any)\; \ldots) \tag*{[Store]}\\
+    E   &::=\: []\; |\; (v\; \ldots\; E\; e\; \ldots)\; |\; (o\; v\; \ldots\; E\; e\; \ldots)\; \\
+    \:  &|\: (\textbf{var\dash set!}\; x\; E)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; E) \\
+    \:  &|\: (\textbf{begin}\; v\; \ldots\; E\; e\; \ldots)\; |\; (\textbf{set!}\; x\; E)\; |\; (\textbf{if}\; E\; e\; e)\\
+    \:  &|\: (\textbf{let\dash values}\; (((x)\; v)\; \ldots\; ((x)\; E)\; ((x)\; e)\; \ldots)\; e)
+  \end{align*}
+  \caption{Racket Core Language}
+  \label{fig:racket-source}
+\end{figure}
+
 
 \begin{figure*}[tbp]
   \begin{align*}
