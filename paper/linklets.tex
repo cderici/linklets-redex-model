@@ -42,6 +42,7 @@
 %\citestyle{acmauthoryear}
 
 \usepackage{float}
+% \usepackage{multicol}
 \floatstyle{boxed}
 \restylefloat{figure}
 
@@ -262,7 +263,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \label{fig:linklet-runtime}
 \end{figure}
 
-\begin{figure}[tbp]
+\begin{figure}[h!]
   \begin{align*}
     p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top\; \ldots) \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{let\dash inst}\; x\; I)\; |\; (\textbf{let\dash inst}\; x\; LI) \\
@@ -282,9 +283,24 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \label{fig:linklet-program}
 \end{figure}
 
+%\onecolumn
+%\newpage
+\newcommand{\redinput}[1]{EP\llbracket #1 \rrbracket\; \omega\; \Omega\; \rho\; \sigma\;}
+\newcommand{\redoutput}[5]{EP\llbracket #1 \rrbracket\; #2\; #3\; #4\; #5\;}
+\def\where {\textbf{where}\;}
 
+% \redoutput{}{}{}{}{}
+\begin{figure*}[tbp]
+  \begin{align*}
+    \redinput{x} &\hookrightarrow_{\beta p}\; \redoutput{L\dash obj}{\omega}{\Omega}{\rho}{\sigma} \where L\dash obj \; =\; (lookup\; \omega\; x)\\
+    \redinput{x} &\hookrightarrow_{\beta p}\; \redoutput{LI}{\omega}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
+    \redinput{\Phi^V(L\dash obj\; x)} &\hookrightarrow_{\beta p}\; \redoutput{LI}{v}{\Omega}{\rho}{\sigma} \where 
+  \end{align*}
+\caption{Reduction Relation}
+\label{fig:reduction}
+\end{figure*}
 
-\newpage
+%\newpage
 
 \section{Template Overview}
 As noted in the introduction, the ``\verb|acmart|'' document class can be used to prepare many different kinds of documentation --- a double-blind initial submission of a full-length technical paper, a two-page SIGGRAPH Emerging Technologies abstract, a ``camera-ready'' journal article, a SIGCHI Extended Abstract, and more --- all by selecting the appropriate {\it template style} and {\it template parameters}.
