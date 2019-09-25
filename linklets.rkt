@@ -19,7 +19,7 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...)]
+  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...) (Lγ l-top ...)]
   [c-imps ::= ((imp-obj ...) ...)]
   [c-exps ::= (exp-obj ...)]
   ;; import & export objects
@@ -49,10 +49,10 @@
           (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
           (instantiate-linklet L-obj LI ... EP inst-ref ...) ;; resolve the imported instances
           (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
+          (instantiate-linklet (Lγ v ... EP l-top ...) inst-ref ...) ;; evaluate
 
           (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
           (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
-          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ... #:target inst-ref) ;; evaluate
 
           (instance-variable-value EP x)
           (let-inst x EP)
@@ -96,9 +96,9 @@
 
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ...) LI ...)) ω Ω ρ σ]
         [(in-hole EP (lookup Ω x_target)) ω Ω ρ σ] "return instance")
-   (--> [(in-hole EP (instantiate-linklet (Lβ x_target) LI ... #:target x_target)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet (Lγ) LI ...)) ω Ω ρ σ]
         [(in-hole EP (void)) ω Ω ρ σ] "return no value")
-   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last) LI ... #:target x_target)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet (Lγ v ... v_last) LI ...)) ω Ω ρ σ]
         [(in-hole EP v_last) ω Ω ρ σ] "return value")
 
    (--> [(in-hole EP (define-values (x) e)) ω Ω ρ σ]
@@ -120,7 +120,7 @@
         (where (Ω_2 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ))
         "set the stage for instantiation")
    (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ... #:target inst-ref)) ω Ω ρ σ]
-        [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ... #:target x_target)) ω Ω_2 ρ_2 σ_1]
+        [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) ω Ω_2 ρ_2 σ_1]
         ; set the stage for target/imports/exports
         (where (x_target Ω_1) (prepare-target inst-ref Ω))
         (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))

@@ -358,7 +358,7 @@
                     ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     () ())))
-            (term (((program (use-linklets) (void) (instantiate-linklet (Lβ t1) #:target t1))
+            (term (((program (use-linklets) (void) (instantiate-linklet (Lγ)))
                     ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     ()
@@ -366,7 +366,7 @@
 
 (test-equal (apply-reduction-relation
              -->βp
-             (term ((program (use-linklets) (void) (instantiate-linklet (Lβ t1) #:target t1))
+             (term ((program (use-linklets) (void) (instantiate-linklet (Lγ)))
                     ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     ()
