@@ -63,23 +63,7 @@
    any_t
    (side-condition (not (member (term x) (term (x_1 ...)))))]
   [(lookup any_1 any_2)
-   (check-the-current-instance any_1 any_2)])
-
-(define-metafunction RC
-  [(check-the-current-instance
-    ((x_bef any_bef) ...
-     (current-linklet-instance
-      (linklet-instance (exp-id_bef ... (x_int x) exp-id_aft ...) (x_B C_B) ... (x_int C) (x_A C_A) ...))
-     (x_aft any_aft) ...)
-    x) C]
-  [(check-the-current-instance
-    ((x_bef any_bef) ...
-     (current-linklet-instance
-      (linklet-instance (exp-id ...) (x_B C_B) ... (x C) (x_A C_A) ...))
-     (x_aft any_aft) ...)
-    x) C]
-  [(check-the-current-instance any_1 any_2)
-   (raises any_2)])
+   (raises any_1)])
 
 ;; standard reduction
 (define -->βs
