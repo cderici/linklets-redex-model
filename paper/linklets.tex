@@ -256,10 +256,10 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     imp\dash obj   &::=\; (\textbf{Import}\; n\; x\; x\; x) \tag*{[index id int ext]} \\
     exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[int id ext]} \\
     LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
-    I              &::=\; \bm{\Phi^I}(linkl\dash ref\; inst\dash ref\; \ldots) \\
-    \;           &\;|\; \bm{\Phi^I}(linkl\dash ref\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\
-    linkl\dash ref &::=\; x\; |\; L\dash obj \\
-    inst\dash ref  &::=\; x\; |\; LI \\
+    I              &::=\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots) \\
+    \;           &\;|\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots\; \textbf{\#:t}\; i\dash ref) \\
+    l\dash ref &::=\; x\; |\; L\dash obj \\
+    i\dash ref  &::=\; x\; |\; LI \\
     \omega              &::=\; ((x\; L\dash obj)\; \ldots) \tag*{[linklet environment]} \\
     \Omega              &::=\; ((x\; LI)\; \ldots) \tag*{[linklet instance environment]} \\
   \end{align*}
@@ -272,15 +272,15 @@ p\caption{Linklet Runtime Language}
   \begin{align*}
     p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top\; \ldots) \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{let\dash inst}\; x\; I)\; |\; (\textbf{let\dash inst}\; x\; LI) \\
-    \;          &\;|\; \bm{\Phi^V}(inst\dash ref\; x) \\
+    \;          &\;|\; \bm{\Phi^V}(i\dash ref\; x) \\
     V           &::=\; v\; |\; LI \\
     EP          &::=\; [] \\
-    \;          &\;|\; \bm{\Phi^I}(EP\; inst\dash ref\; \ldots) \\ % resolve the linklet
-    \;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots) \\ % resolve the imported instances
-    \;          &\;|\; \bm{\Phi^I}(EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the linklet
-    \;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\ % resolve the imported instances
-    \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; inst\dash ref\; \ldots) \\
-    \;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; inst\dash ref\; \ldots) \\
+    \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots) \\ % resolve the linklet
+    \;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; i\dash ref\; \ldots) \\ % resolve the imported instances
+    \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots \textbf{\#:t}\; i\dash ref) \\ % resolve the linklet
+    \;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; i\dash ref\; \ldots\; \textbf{\#:t}\; i\dash ref) \\ % resolve the imported instances
+    \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
+    \;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     \;          &\;|\; \bm{\Phi^V}(EP\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP) \\
     \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; V\; \ldots\; EP\; p\dash top\; \ldots) \\
@@ -292,8 +292,8 @@ p\caption{Linklet Runtime Language}
 
 %\onecolumn
 %\newpage
-\newcommand{\redinput}[1]{EP\llbracket #1 \rrbracket\; \omega\; \Omega\; \rho\; \sigma\;}
-\newcommand{\redoutput}[5]{EP\llbracket #1 \rrbracket\; #2\; #3\; #4\; #5\;}
+\newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \omega, \Omega, \rho, \sigma\;}
+\newcommand{\redoutput}[5]{EP\;\llbracket #1 \rrbracket, #2, #3, #4, #5\;}
 \def\where {\textbf{where}\;}
 \def\rel {&\hookrightarrow_{\beta p}\;}
 
@@ -302,11 +302,25 @@ p\caption{Linklet Runtime Language}
   \begin{align*}
     \redinput{x} \rel \redoutput{L\dash obj}{\omega}{\Omega}{\rho}{\sigma} \where L\dash obj \; =\; (lookup\; \omega\; x)\\
     \redinput{x} \rel \redoutput{LI}{\omega}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
-    \redinput{\Phi^V(L\dash obj\; x)} \rel \redoutput{v}{\omega}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
+    \redinput{\bm{\Phi^V}(L\dash obj\; x)} \rel \redoutput{v}{\omega}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
     \redinput{(\textbf{let\dash inst}\; x\; LI)} \rel \redoutput{(void)}{\omega}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
-    \redinput{\Phi^I((L\beta\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\omega}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
-    \redinput{\Phi^I((L\beta\; x\; v\; \ldots)\; LI\; \ldots \textbf{\#:target}\; inst\dash ref)} \rel \redoutput{LI_t}{\omega}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
+    \redinput{\bm{\Phi^I}((\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\omega}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
+    \redinput{\bm{\Phi^I}((\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\omega}{\Omega}{\rho}{\sigma} \\
+    \redinput{\bm{\Phi^I}((\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\omega}{\Omega}{\rho}{\sigma} \\
+    \redinput{(\textbf{define\dash values}\; (x)\; e)} \rel \redoutput{(void)}{\omega}{\Omega}{\rho_2}{\sigma_2} \\
+    \;          &\;\; \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
+    \;          &\;\; \rho_2 = \rho_1[x\rightarrow cell],\; \sigma_2 = \sigma_1[cell\rightarrow v]  \\
+    \redinput{e} \rel \redoutput{v}{\omega}{\Omega}{\rho_1}{\sigma_1} \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
+    \redinput{\bm{\Phi^I}((\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{\bm{\Phi^I}((\lb\; x_t\; l\dash top\; \ldots)\; LI\; \ldots)}{\omega}{\Omega_2}{\rho_2}{\sigma_1} \\
+    \;          &\;\; \where x_t = (gensym),  \Omega_1 = \Omega[x_t\rightarrow \textbf{(linklet-instance)}] \\
+    \;          &\;\; \rho_1 = (instantiate\dash imports\; c\dash imps\; (LI\; \ldots)\; \rho\; \sigma) \\
+    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = (instantiate\dash exports\; c\dash exps\; x_t\; \Omega_1\; \rho_1\; \sigma) \\
+    EP\;\llbracket \bm{\Phi^I}((\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{\bm{\Phi^I}((\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\omega}{\Omega_2}{\rho_2}{\sigma_1} \\
+    \omega, \Omega, \rho, \sigma\; &\;\; \where (x_t, \Omega_1) = (prepare\dash target\; i\dash ref\; \Omega) \\
+    \;          &\;\; \rho_1 = (instantiate\dash imports\; c\dash imps\; (LI\; \ldots)\; \rho\; \sigma) \\
+    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = (instantiate\dash exports\; c\dash exps\; x_t\; \Omega_1\; \rho_1\; \sigma) \\
   \end{align*}
+  $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Reduction Relation}
 \label{fig:reduction}
 \end{figure*}
