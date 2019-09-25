@@ -42,6 +42,7 @@
 %\citestyle{acmauthoryear}
 
 \usepackage{float}
+\usepackage{bm}
 % \usepackage{multicol}
 \floatstyle{boxed}
 \restylefloat{figure}
@@ -241,25 +242,29 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \label{fig:racket-source}
 \end{figure}
 
+\def\la {\bm{L_\alpha}}
+\def\lb {\bm{L_\beta}}
+\def\lc {\bm{L_\gamma}}
 
 \begin{figure}[tbp]
   \begin{align*}
-    CL             &::=\; \Phi^C(L)\\
-    L\dash obj     &::= (L\alpha\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; |\; (L\beta\; x\; l\dash top \ldots)\\
-    c\dash imps    &::=\; ((imp\dash obj \ldots) \ldots)\\
-    c\dash exps    &::=\; (exp\dash obj \ldots)\\
+    CL             &::=\; \bm{\Phi^C}(L)\\
+    L\dash obj     &::= (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\\
+    \;           &\;|\; (\lb\; x\; l\dash top\; \ldots) |\; (\lc\; l\dash top\; \ldots) \\
+    c\dash imps    &::=\; ((imp\dash obj\; \ldots)\; \ldots)\\
+    c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
     imp\dash obj   &::=\; (\textbf{Import}\; n\; x\; x\; x) \tag*{[index id int ext]} \\
     exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[int id ext]} \\
     LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
-    I              &::=\; \Phi^I(linkl\dash ref\; inst\dash ref\; \ldots) \\
-    \;           &\;|\; \Phi^I(linkl\dash ref\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\
+    I              &::=\; \bm{\Phi^I}(linkl\dash ref\; inst\dash ref\; \ldots) \\
+    \;           &\;|\; \bm{\Phi^I}(linkl\dash ref\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\
     linkl\dash ref &::=\; x\; |\; L\dash obj \\
     inst\dash ref  &::=\; x\; |\; LI \\
     \omega              &::=\; ((x\; L\dash obj)\; \ldots) \tag*{[linklet environment]} \\
     \Omega              &::=\; ((x\; LI)\; \ldots) \tag*{[linklet instance environment]} \\
   \end{align*}
   $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
-\caption{Linklet Runtime Language}
+p\caption{Linklet Runtime Language}
 \label{fig:linklet-runtime}
 \end{figure}
 
@@ -267,14 +272,16 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top\; \ldots) \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{let\dash inst}\; x\; I)\; |\; (\textbf{let\dash inst}\; x\; LI) \\
-    \;          &\;|\; \Phi^V(inst\dash ref\; x) \\
+    \;          &\;|\; \bm{\Phi^V}(inst\dash ref\; x) \\
     V           &::=\; v\; |\; LI \\
     EP          &::=\; [] \\
-    \;          &\;|\; \Phi^I(EP\; inst\dash ref\; \ldots) \\ % resolve the linklet
-    \;          &\;|\; \Phi^I(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots) \\ % resolve the imported instances
-    \;          &\;|\; \Phi^I(EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the linklet
-    \;          &\;|\; \Phi^I(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the imported instances
-    \;          &\;|\; \Phi^V(EP\; x) \\
+    \;          &\;|\; \bm{\Phi^I}(EP\; inst\dash ref\; \ldots) \\ % resolve the linklet
+    \;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots) \\ % resolve the imported instances
+    \;          &\;|\; \bm{\Phi^I}(EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the linklet
+    \;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\ % resolve the imported instances
+    \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; inst\dash ref\; \ldots) \\
+    \;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; inst\dash ref\; \ldots) \\
+    \;          &\;|\; \bm{\Phi^V}(EP\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP) \\
     \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; V\; \ldots\; EP\; p\dash top\; \ldots) \\
   \end{align*}
@@ -288,13 +295,17 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \newcommand{\redinput}[1]{EP\llbracket #1 \rrbracket\; \omega\; \Omega\; \rho\; \sigma\;}
 \newcommand{\redoutput}[5]{EP\llbracket #1 \rrbracket\; #2\; #3\; #4\; #5\;}
 \def\where {\textbf{where}\;}
+\def\rel {&\hookrightarrow_{\beta p}\;}
 
 % \redoutput{}{}{}{}{}
 \begin{figure*}[tbp]
   \begin{align*}
-    \redinput{x} &\hookrightarrow_{\beta p}\; \redoutput{L\dash obj}{\omega}{\Omega}{\rho}{\sigma} \where L\dash obj \; =\; (lookup\; \omega\; x)\\
-    \redinput{x} &\hookrightarrow_{\beta p}\; \redoutput{LI}{\omega}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
-    \redinput{\Phi^V(L\dash obj\; x)} &\hookrightarrow_{\beta p}\; \redoutput{LI}{v}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
+    \redinput{x} \rel \redoutput{L\dash obj}{\omega}{\Omega}{\rho}{\sigma} \where L\dash obj \; =\; (lookup\; \omega\; x)\\
+    \redinput{x} \rel \redoutput{LI}{\omega}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
+    \redinput{\Phi^V(L\dash obj\; x)} \rel \redoutput{v}{\omega}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
+    \redinput{(\textbf{let\dash inst}\; x\; LI)} \rel \redoutput{(void)}{\omega}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
+    \redinput{\Phi^I((L\beta\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\omega}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
+    \redinput{\Phi^I((L\beta\; x\; v\; \ldots)\; LI\; \ldots \textbf{\#:target}\; inst\dash ref)} \rel \redoutput{LI_t}{\omega}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
   \end{align*}
 \caption{Reduction Relation}
 \label{fig:reduction}
