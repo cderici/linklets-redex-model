@@ -30,14 +30,6 @@
           (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test)
           (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...)
           (let-values (((x) e-test) ...) e-test) (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
-
-  [rc-out ::= v stuck]
-  [exp-id ::= x (x x)]
-  [C ::= cell uninit]
-
-  ;#:binding-forms
-  #;(λ (x ...) e #:refers-to (shadow x ...))
-  #;(let-values ([(x) e_x] ...) e_body #:refers-to (shadow x ...))
   )
 
 ; (render-language RC "RC.pdf" #:nts '(e v c n b x p1 p2 o E ρ σ))
@@ -54,8 +46,6 @@
   extend : ((x any) ...)  (x ...) (any ...) -> ((x any) ...)
   [(extend ((x any) ...) (x_1 ...) (any_1 ...))
    ((x_1 any_1) ... (x any) ...)])
-
-
 
 (define-metafunction RC
   lookup : ((x any) ...) x -> any
