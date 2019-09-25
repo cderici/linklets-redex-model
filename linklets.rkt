@@ -103,28 +103,28 @@
 
    (--> [(in-hole EP (define-values (x) e)) ω Ω ρ σ]
         [(in-hole EP (void)) ω Ω ρ_2 σ_2]
-        (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v_1))))
+        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
+        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v))))
         (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell))) "define-values")
    (--> [(in-hole EP e) ω Ω ρ σ]
         [(in-hole EP v) ω Ω ρ_1 σ_1]
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
         (side-condition (not (redex-match? Linklets v (term e)))) "expression")
 
-   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ...)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ...)) ω Ω ρ σ]
         [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ...)) ω Ω_2 ρ_2 σ_1]
         ; set the stage for target/imports/exports
         (where x_target ,(variable-not-in (term Ω) (term x)))
         (where Ω_1 (extend Ω (x_target) ((linklet-instance))))
-        (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
-        (where (Ω_2 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ))
+        (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ))
+        (where (Ω_2 ρ_2 σ_1) (instantiate-exports c-exps x_target Ω_1 ρ_1 σ))
         "set the stage for instantiation")
-   (--> [(in-hole EP (instantiate-linklet (Lα ((imp-obj ...) ...) (exp-obj ...) l-top ...) LI ... #:target inst-ref)) ω Ω ρ σ]
+   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target inst-ref)) ω Ω ρ σ]
         [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) ω Ω_2 ρ_2 σ_1]
         ; set the stage for target/imports/exports
         (where (x_target Ω_1) (prepare-target inst-ref Ω))
-        (where ρ_1 (instantiate-imports ((imp-obj ...) ...) (LI ...) ρ σ))
-        (where (Ω_2 ρ_2 σ_1) (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ))
+        (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ))
+        (where (Ω_2 ρ_2 σ_1) (instantiate-exports c-exps x_target Ω_1 ρ_1 σ))
         "set the stage for evaluation")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -164,7 +164,7 @@
    (where ρ_1 (extend ρ (x_id) (cell_var)))])
 
 (define-metafunction Linklets
-  instantiate-imports : ((imp-obj ...) ...) (LI ...) ρ σ -> ρ
+  instantiate-imports : c-imps (LI ...) ρ σ -> ρ
   [(instantiate-imports () (LI ...) ρ σ) ρ]
   [(instantiate-imports ((imp-obj ...) (imp-obj_rest ...) ...)
                                (LI ...) ρ σ)
@@ -189,7 +189,7 @@
    (where (ρ_1 σ_1) ((extend ρ (x_gen) (cell_new)) (extend σ (cell_new) (uninit))))])
 
 (define-metafunction Linklets
-  instantiate-exports : (exp-obj ...) x Ω ρ σ -> (Ω ρ σ)
+  instantiate-exports : c-exps x Ω ρ σ -> (Ω ρ σ)
   [(instantiate-exports () x Ω ρ σ) (Ω ρ σ)]
   [(instantiate-exports ((Export x_id x_gen x_ext) exp-obj ...) x_target Ω ρ σ)
    (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ_1)
