@@ -241,26 +241,26 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \end{figure}
 
 
-\begin{figure*}[tbp]
+\begin{figure}[tbp]
   \begin{align*}
-    CL             &::= (\textbf{compile\dash linklet} \: L)\\
-    L\dash obj    &::= (\textbf{compiled\dash linklet}\: c\dash imps \: c\dash exps \: l\dash top \ldots)\\
-    c\dash imps    &::= ((imp\dash obj \ldots) \ldots)\\
-    c\dash exps    &::= (exp\dash obj \ldots)\\
-    imp\dash obj   &::= (\textbf{Import}\: n\: x\: x\: x) \tag*{[index id int ext]} \\
-    exp\dash obj   &::= (\textbf{Export}\: x\: x\: x) \tag*{[int id ext]} \\
-    LI             &::= (\textbf{linklet\dash instance}\: (x\: cell)\: \ldots) \\
-    I              &::= (\textbf{instantiate\dash linklet}\: linkl\dash ref\: inst\dash ref\: \ldots) \\
-    \;           &\;|\; (\textbf{instantiate\dash linklet}\: linkl\dash ref\: inst\dash ref\: \ldots\: \textbf{\#:target}\: inst\dash ref) \\
-    linkl\dash ref &::= x\: |\: L\dash obj \\
-    inst\dash ref  &::= x\: |\: LI \\
-    \omega              &::= ((x\: L\dash obj)\: \ldots) \tag*{[linklet environment]} \\
-    \Omega              &::= ((x\: LI)\: \ldots) \tag*{[linklet instance environment]} \\
-    EI             &::= []\: |\: (\textbf{compiled\dash linklet}\: ((imp\dash obj\: \ldots)\: \ldots)\: (exp\dash obj\: \ldots)\: v\: \ldots\: EI\: l\dash top\: \ldots)
+    CL             &::=\; \Phi^C(L)\\
+    L\dash obj     &::= (L\alpha\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; |\; (L\beta\; x\; l\dash top \ldots)\\
+    c\dash imps    &::=\; ((imp\dash obj \ldots) \ldots)\\
+    c\dash exps    &::=\; (exp\dash obj \ldots)\\
+    imp\dash obj   &::=\; (\textbf{Import}\; n\; x\; x\; x) \tag*{[index id int ext]} \\
+    exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[int id ext]} \\
+    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; cell)\; \ldots) \\
+    I              &::=\; \Phi^I(linkl\dash ref\; inst\dash ref\; \ldots) \\
+    \;           &\;|\; \Phi^I(linkl\dash ref\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\
+    linkl\dash ref &::=\; x\; |\; L\dash obj \\
+    inst\dash ref  &::=\; x\; |\; LI \\
+    \omega              &::=\; ((x\; L\dash obj)\; \ldots) \tag*{[linklet environment]} \\
+    \Omega              &::=\; ((x\; LI)\; \ldots) \tag*{[linklet instance environment]} \\
   \end{align*}
+  $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Runtime Language}
 \label{fig:linklet-runtime}
-\end{figure*}
+\end{figure}
 
 \begin{figure*}[tbp]
   \begin{align*}
