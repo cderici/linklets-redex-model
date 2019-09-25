@@ -262,23 +262,26 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \label{fig:linklet-runtime}
 \end{figure}
 
-\begin{figure*}[tbp]
+\begin{figure}[tbp]
   \begin{align*}
     p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top\; \ldots) \\
-    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{let\dash inst}\; x\; I)\; |\; (\textbf{let\dash inst}\; x\; LI)\; |\; (\textbf{instance\dash variable\dash value}\; inst\dash ref\; x) \\
+    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{let\dash inst}\; x\; I)\; |\; (\textbf{let\dash inst}\; x\; LI) \\
+    \;          &\;|\; \Phi^V(inst\dash ref\; x) \\
     V           &::=\; v\; |\; LI \\
     EP          &::=\; [] \\
-    \;          &\;|\; (\textbf{instantiate\dash linklet}\; EP\; inst\dash ref\; \ldots) \\ % resolve the linklet
-    \;          &\;|\; (\textbf{instantiate\dash linklet}\; L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots) \\ % resolve the imported instances
-    \;          &\;|\; (\textbf{instantiate\dash linklet}\; EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the linklet
-    \;          &\;|\; (\textbf{instantiate\dash linklet}\; L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the imported instances
-    \;          &\;|\; (\textbf{instance\dash variable\dash value}\; EP\; x) \\
+    \;          &\;|\; \Phi^I(EP\; inst\dash ref\; \ldots) \\ % resolve the linklet
+    \;          &\;|\; \Phi^I(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots) \\ % resolve the imported instances
+    \;          &\;|\; \Phi^I(EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the linklet
+    \;          &\;|\; \Phi^I(L\dash obj\; LI\; \ldots EP\; inst\dash ref\; \ldots \textbf{\#:target}\; inst\dash ref) \\ % resolve the imported instances
+    \;          &\;|\; \Phi^V(EP\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP) \\
-    \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; V\; \ldots\; EP\; p\dash top\; \ldots)
+    \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; V\; \ldots\; EP\; p\dash top\; \ldots) \\
   \end{align*}
+  $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Programs}
 \label{fig:linklet-program}
-\end{figure*}
+\end{figure}
+
 
 
 \newpage
