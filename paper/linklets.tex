@@ -226,12 +226,12 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     c   &::=\; (closure\; x\; \ldots e\; \rho) \\
     n   &::=\; number \\
     b   &::=\; true\; |\; false \\
-    x\; cell &::=\; variable\dash not\dash otherwise\dash mentioned \\ %;; variables
+    x,\; var &::=\; variable\dash not\dash otherwise\dash mentioned \\ %;; variables
     p1  &::=\; add1 \\
     p2  &::=\; +\; |\; * |\; < \\
     o   &::=\; p1\; |\; p2 \\
-    \rho   &::=\; ((x\; any)\; \ldots) \tag*{[Environment]}\\
-    \sigma   &::=\; ((x\; any)\; \ldots) \tag*{[Store]}\\
+    \rho   &::=\; ((x\; var)\; \ldots) \tag*{[Environment]}\\
+    \sigma   &::=\; ((var\; v)\; \ldots) \tag*{[Store]}\\
     E   &::=\; []\; |\; (v\; \ldots\; E\; e\; \ldots)\; |\; (o\; v\; \ldots\; E\; e\; \ldots)\; \\
     \;  &|\; (\textbf{var\dash set!}\; x\; E)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; E) \\
     \;  &|\; (\textbf{begin}\; v\; \ldots\; E\; e\; \ldots)\; |\; (\textbf{set!}\; x\; E)\; |\; (\textbf{if}\; E\; e\; e)\\
@@ -250,7 +250,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     c\dash exps    &::=\; (exp\dash obj \ldots)\\
     imp\dash obj   &::=\; (\textbf{Import}\; n\; x\; x\; x) \tag*{[index id int ext]} \\
     exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[int id ext]} \\
-    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; cell)\; \ldots) \\
+    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
     I              &::=\; \Phi^I(linkl\dash ref\; inst\dash ref\; \ldots) \\
     \;           &\;|\; \Phi^I(linkl\dash ref\; inst\dash ref\; \ldots\; \textbf{\#:target}\; inst\dash ref) \\
     linkl\dash ref &::=\; x\; |\; L\dash obj \\
@@ -294,7 +294,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     \redinput{x} &\hookrightarrow_{\beta p}\; \redoutput{L\dash obj}{\omega}{\Omega}{\rho}{\sigma} \where L\dash obj \; =\; (lookup\; \omega\; x)\\
     \redinput{x} &\hookrightarrow_{\beta p}\; \redoutput{LI}{\omega}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
-    \redinput{\Phi^V(L\dash obj\; x)} &\hookrightarrow_{\beta p}\; \redoutput{LI}{v}{\Omega}{\rho}{\sigma} \where 
+    \redinput{\Phi^V(L\dash obj\; x)} &\hookrightarrow_{\beta p}\; \redoutput{LI}{v}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
   \end{align*}
 \caption{Reduction Relation}
 \label{fig:reduction}
