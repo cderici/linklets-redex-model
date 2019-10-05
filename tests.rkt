@@ -161,6 +161,9 @@
 ;; compile-linklet
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(test-equal (term (substitute-linklet l1 (Lα () ()) (3) ())) (term (3)))
+(test-equal (term (substitute-linklet l1 (Lα () ()) (3 4) ())) (term (3 4)))
+
 ; get all toplevel variables
 (test-equal (term (all-toplevels () ())) (term ()))
 (test-equal (term (all-toplevels (3 4) ())) (term ()))
@@ -342,10 +345,10 @@
 (test-equal (term (compile-linklet (linklet () ())))
             (term (Lα () ())))
 (test-equal (term (run-prog ((program (use-linklets) 3)
-                             () () () ()))) 3)
+                             () () ()))) 3)
 
 (test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
-                             () () () ()))) 3)
+                             () () ()))) 3)
 (program? (program (use-linklets)
                    (let-inst t1 (linklet-instance))
                    (instantiate-linklet l1 #:target t1)))
@@ -355,11 +358,9 @@
              (term ((program (use-linklets)
                              (void)
                              (instantiate-linklet (Lα () ()) #:target t1))
-                    ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     () ())))
             (term (((program (use-linklets) (void) (instantiate-linklet (Lγ)))
-                    ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     ()
                     ()))))
@@ -367,21 +368,18 @@
 (test-equal (apply-reduction-relation
              -->βp
              (term ((program (use-linklets) (void) (instantiate-linklet (Lγ)))
-                    ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     ()
                     ())))
             (term (((program (use-linklets)
                              (void)
                              (void))
-                    ((l1 (Lα () ())))
                     ((t1 (linklet-instance)))
                     () ()))))
 
 (test-equal (term (run-prog ((program (use-linklets)
                                       (void)
-                                      (instantiate-linklet l1 #:target t1))
-                             ((l1 (Lα () ())))
+                                      (instantiate-linklet (Lα () ()) #:target t1))
                              ((t1 (linklet-instance)))
                              () ())))
             (term (void)))
@@ -422,7 +420,6 @@
   (test-equal (term (eval-prog p)) (term v)))
 
 (linklet-test (program (use-linklets) 3) 3)
-
 
 (linklet-test (program (use-linklets [l1 (linklet () () 2)])
                        3)

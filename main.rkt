@@ -8,21 +8,38 @@
 (provide (all-defined-out))
 
 (define-metafunction Linklets
+  substitute-one : x L-obj p-top -> p-top
+  [(substitute-one x L-obj (instantiate-linklet x inst-ref ...))
+   (instantiate-linklet L-obj inst-ref ...)]
+  [(substitute-one x L-obj (instantiate-linklet x inst-ref ... #:target inst-ref_1))
+   (instantiate-linklet L-obj inst-ref ... #:target inst-ref_1)]
+  [(substitute-one x L-obj (let-inst x_1 I))
+   (let-inst x_1 I_s)
+   (where I_s (substitute-one x L-obj I))]
+  [(substitute-one x L-obj p-top) p-top])
+
+(define-metafunction Linklets
+  [(substitute-linklet x L-obj () (p-top ...)) (p-top ...)]
+  [(substitute-linklet x L-obj (p-top_1 p-top ...) (p-top_new ...))
+   (substitute-linklet x L-obj (p-top ...) (p-top_new ... p-top_new1))
+   (where p-top_new1 (substitute-one x L-obj p-top_1))])
+
+(define-metafunction Linklets
   ;; return
-  [(run-prog ((program (use-linklets) V ... n) ω Ω ρ σ)) n] ;; number
-  [(run-prog ((program (use-linklets) V ... b) ω Ω ρ σ)) b] ;; boolean
-  [(run-prog ((program (use-linklets) V ... (void)) ω Ω ρ σ)) (void)] ;; void
-  [(run-prog ((raises e) ω Ω ρ σ)) stuck] ;; stuck
+  [(run-prog ((program (use-linklets) V ... n) Ω ρ σ)) n] ;; number
+  [(run-prog ((program (use-linklets) V ... b) Ω ρ σ)) b] ;; boolean
+  [(run-prog ((program (use-linklets) V ... (void)) Ω ρ σ)) (void)] ;; void
+  [(run-prog ((raises e) Ω ρ σ)) stuck] ;; stuck
 
   ;; compile and load the linklets
-  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) ω Ω ρ σ))
-   (run-prog ((program (use-linklets (x L) ...) p-top ...)
-              (extend ω (x_1) (L-obj_1)) Ω ρ σ))
-   (where L-obj_1 (compile-linklet L_1))]
+  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) Ω ρ σ))
+   (run-prog ((program (use-linklets (x L) ...) p-top_new ...) Ω ρ σ))
+   (where L-obj_1 (compile-linklet L_1))
+   (where (p-top_new ...) (substitute-linklet x_1 L-obj_1 (p-top ...) ()))]
 
   ;; problem in intermediate steps
-  [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ...)
-              ω Ω ρ σ)) stuck]
+  [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ...) Ω ρ σ))
+   stuck]
 
   ;; reduce
   [(run-prog any_1)
@@ -34,7 +51,7 @@
 (define-metafunction Linklets
   ;eval-prog :Linklets-> v or closure or stuck or void
   [(eval-prog (program (use-linklets (x_L L) ...) p-top ...))
-   (run-prog ((program (use-linklets (x_L L) ...) p-top ...) () () () ()))
+   (run-prog ((program (use-linklets (x_L L) ...) p-top ...) () () ()))
    #;(where ((x_L L-obj) ...) ((x_L (compile-linklet L)) ...))
    #;(side-condition (and (term (check-free-varss L ...))
                         (term (no-exp/imp-duplicates L ...))
