@@ -138,22 +138,22 @@
 (program? (program (use-linklets)))
 (program? (program (use-linklets) 3))
 (program? (program (use-linklets [l1 (linklet () ())])
-                   (let-inst t1 (instantiate l1))
-                   (instantiate l1 #:target t1)))
+                   (let-inst t1 (instantiate-linklet l1))
+                   (instantiate-linklet l1 #:target t1)))
 
 (program? (program (use-linklets)
-                   (let-inst ti (instantiate t))
-                   (instantiate l #:target ti)))
+                   (let-inst ti (instantiate-linklet t))
+                   (instantiate-linklet l #:target ti)))
 (program? (program (use-linklets
                     [l (linklet () () 1)]
                     [t (linklet () ())])
-                   (let-inst ti (instantiate t))
-                   (instantiate l #:target ti)))
+                   (let-inst ti (instantiate-linklet t))
+                   (instantiate-linklet l #:target ti)))
 (program? (program (use-linklets
                     [l1 (linklet () ())]
                     [l2 (linklet () () (define-values (x) 5) x)])
-                   (let-inst t1 (instantiate l1))
-                   (instantiate l2 #:target t1)))
+                   (let-inst t1 (instantiate-linklet l1))
+                   (instantiate-linklet l2 #:target t1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compile-linklet
