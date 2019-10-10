@@ -5,8 +5,7 @@
          "racket-core.rkt"
          "compile-linklets.rkt"
          "main.rkt"
-         syntax/parse/define
-         "test-utils.rkt")
+         syntax/parse/define)
 
 
 
@@ -65,12 +64,6 @@
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; instantiation side tests
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(test-equal (term (get-var-from-instance c (linklet-instance (c cell1)))) (term cell1))
-
 ; put-imported-vars-into-env
 #;(test-equal (term (instantiate-imports () () ())) (term (())))
 #;(test-equal (term (instantiate-imports (((Import 0 c1 c c))) ((linklet-instance (c cell))) () ())) (term (((c1 cell)))))
@@ -94,30 +87,6 @@
 (test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
                              () () ()))) 3)
 
-(test-equal (apply-reduction-relation
-             -->βp
-             (term ((program (use-linklets)
-                             (void)
-                             (instantiate-linklet (Lα () ()) #:target t1))
-                    ((t1 (linklet-instance)))
-                    () ())))
-            (term (((program (use-linklets) (void) (instantiate-linklet (Lγ)))
-                    ((t1 (linklet-instance)))
-                    ()
-                    ()))))
-
-(test-equal (apply-reduction-relation
-             -->βp
-             (term ((program (use-linklets) (void) (instantiate-linklet (Lγ)))
-                    ((t1 (linklet-instance)))
-                    ()
-                    ())))
-            (term (((program (use-linklets)
-                             (void)
-                             (void))
-                    ((t1 (linklet-instance)))
-                    () ()))))
-
 (test-equal (term (run-prog ((program (use-linklets)
                                       (void)
                                       (instantiate-linklet (Lα () ()) #:target t1))
@@ -125,33 +94,7 @@
                              () ())))
             (term (void)))
 
-(test-equal
- (term
-  (instantiate-exports ((Export a a1 a)) target ((target (linklet-instance))) () ()))
- (term (((target (linklet-instance (a cell_1))) (target (linklet-instance)))
-        ((a1 cell_1))
-        ((cell_1 uninit)))))
 ; (term ((linklet-instance (a cell_1)) ((a1 cell_1)) ((cell_1 (variable a uninit))))))
-
-(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () (+ 1 2)) () ())))
-            (term (((Lα () () 3) () ()))))
-
-(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () (define-values (a) 5) a) () ())))
-            (term (((Lα () () (void) a) ((a cell)) ((cell 5))))))
-
-(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () 3 a) ((a cell)) ((cell 5)))))
-            (term (((Lα () () 3 5) ((a cell)) ((cell 5))))))
-
-(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () (void) a) ((a cell)) ((cell 5)))))
-            (term (((Lα () () (void) 5) ((a cell)) ((cell 5))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog main tests
@@ -779,62 +722,3 @@
                        (instantiate-linklet l5 #:target t3)
                        (instance-variable-value t3 y))
               50)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; random testing
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Random Testing for Racket-Core
-
-(eval-rc=racket-core? 1)
-(eval-rc=racket-core? ((lambda (x) x) 1))
-(eval-rc=racket-core? (+ x 1))
-(eval-rc=racket-core? (void))
-(eval-rc=racket-core? (+ 1 (void)))
-(eval-rc=racket-core? (if (< 1 2) 1 2))
-(eval-rc=racket-core? (if (< 1 2) (< 1 2) 2))
-(eval-rc=racket-core? (set! q (void)))
-(eval-rc=racket-core? ((lambda (x) x) (+ a b)))
-(eval-rc=racket-core? (if (void) (void) (void)))
-(eval-rc=racket-core? (if (void) (let-values () (void)) (< qw F)))
-(eval-rc=racket-core? ((lambda () (void))))
-
-#;(redex-check RC e-test (term (eval-rc=racket-core e)) #:attempts 1000)
-
-(eval-prog=racket-linklets? (program (use-linklets) 3))
-(eval-prog=racket-linklets? (program (use-linklets [l1 (linklet () () 2)]) 3))
-(eval-prog=racket-linklets? (program (use-linklets [l1 (linklet () ())])
-                                     (let-inst t1 (instantiate-linklet l1))
-                                     (instantiate-linklet l1 #:target t1)))
-(eval-prog=racket-linklets? (program (use-linklets [l1 (linklet () () 3)])
-                                     (instantiate-linklet l1 #:target (linklet-instance))))
-(eval-prog=racket-linklets? (program (use-linklets [l1 (linklet () () (+ 1 2))])
-                                     (instantiate-linklet l1 #:target (linklet-instance))))
-(eval-prog=racket-linklets? (program (use-linklets
-                                      [l (linklet () () 2 1)]
-                                      [t (linklet () ())])
-                                     (let-inst ti (instantiate-linklet t))
-                                     (instantiate-linklet l #:target ti)))
-(eval-prog=racket-linklets? (program (use-linklets
-                                      [l1 (linklet () ())]
-                                      [l2 (linklet () () (define-values (a) 5) a)])
-                                     (let-inst t1 (instantiate-linklet l1))
-                                     (instantiate-linklet l2 #:target t1)))
-(eval-prog=racket-linklets? (program (use-linklets
-                                      [l2 (linklet () (a) (define-values (a) 5) a)])
-                                     (let-inst t1 (instantiate-linklet l2))
-                                     (instance-variable-value t1 a)))
-
-
-
-(eval-prog=racket-linklets? (program (use-linklets
-                                      [l1 (linklet () ())]
-                                      [l2 (linklet ((b)) () (define-values (a) 5) (+ a b))]
-                                      [l3 (linklet () (b) (define-values (b) 3))])
-                                     (let-inst t1 (instantiate-linklet l1))
-                                     (let-inst t3 (instantiate-linklet l3))
-                                     (instantiate-linklet l2 t3 #:target t1)))
-
-
-;(redex-check Linklets (term (eval-programs=racket-linklets e)) #:attempts 1000)
