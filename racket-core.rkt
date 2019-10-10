@@ -104,38 +104,6 @@
         [(in-hole E e) (extend ρ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
         (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))))
 
-(define -->βss ;; just for pictures (render-reduction-relation)
-  (reduction-relation
-   RC
-   #:domain (e ρ σ)
-   (--> [(in-hole E (raises e)) ρ σ]
-        [(raises e) ρ σ] "error")
-   (--> [(in-hole E x) ρ σ]
-        [(in-hole E (lookup σ x_1)) ρ σ] "lookup"
-        (where x_1 ,(term (lookup ρ x))))
-   (--> [(in-hole E (lambda (x ...) e)) ρ σ]
-        [(in-hole E (closure x ... e ρ)) ρ σ] "closure")
-   (--> [(in-hole E (set! x v)) ρ σ]
-        [(in-hole E (void)) ρ (extend σ (c_1) (v))]
-        (side-condition (term ((lookup ρ x) ≠ (raises x))))
-        (where c_1 ,(term (lookup ρ x))) "set!")
-   (--> [(in-hole E (begin v_1 ... v_n)) ρ σ]
-        [(in-hole E v_n) ρ σ] "begin")
-   (--> [(in-hole E (let-values (((x) v) ...) e)) ρ σ]
-        [(in-hole E e) (extend ρ (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "let"
-        (where (x_2 ...) ,(term (variables-not-in e (x ...)))))
-   (--> [(in-hole E (if v_0 e_1 e_2)) ρ σ]
-        [(in-hole E e_1) ρ σ]
-        (side-condition (term (v_0 ≠ false))) "if-true")
-   (--> [(in-hole E (if false e_1 e_2)) ρ σ]
-        [(in-hole E e_2) ρ σ] "if-false")
-   (--> [(in-hole E (o v_1 v_2 ...)) ρ σ]
-        [(in-hole E (δ (o v_1 v_2 ...))) ρ σ] "δ")
-   (--> [(in-hole E ((closure x ..._n e ρ_1) v ..._n)) ρ_2 σ]
-        [(in-hole E e) (extend ρ_1 (x ...) (c_2 ...)) (extend σ (c_2 ...) (v ...))] "βv"
-        (where (c_2 ...) ,(term (variables-not-in e (x ...)))))))
-
-
 (define-metafunction RC
   eval-rc : e -> v or closure or stuck
   [(eval-rc e) (run-rc (e () ()))])
