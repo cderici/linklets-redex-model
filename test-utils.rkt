@@ -88,10 +88,8 @@
   [(prog-top-to-racket x) x]
   [(prog-top-to-racket v) v]
   ; below are for the linklet body
-  [(prog-top-to-racket (p2 e_1 e_2))
-   (p2 (prog-top-to-racket e_1) (prog-top-to-racket e_2))]
-  [(prog-top-to-racket (p1 e_1))
-   (p1 (prog-top-to-racket e_1))]
+  [(prog-top-to-racket (o e_1 e_2))
+   (o (prog-top-to-racket e_1) (prog-top-to-racket e_2))]
   [(prog-top-to-racket (define-values (x) e))
    (define-values (x) (prog-top-to-racket e))]
   [(prog-top-to-racket (lambda (x ...) e))

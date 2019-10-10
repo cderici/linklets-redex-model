@@ -5,7 +5,7 @@
 (provide (all-defined-out))
 
 (define-language RC
-  [e   ::= x v (e e ...) (if e e e) (p1 e) (p2 e e)
+  [e   ::= x v (e e ...) (if e e e) (o e e)
        (set! x e) (begin e e ...)
        (var-ref x) (var-ref/no-check x) (var-set! x e) (var-set/check-undef! x e)
        (lambda (x_!_ ...) e) (let-values (((x_!_) e) ...) e)
@@ -15,10 +15,8 @@
   [n   ::= number]
   [b   ::= true false]
   [x cell ::= variable-not-otherwise-mentioned] ;; variables
-  [p1  ::= add1]
-  [p2  ::= + * <]
-  [o   ::= p1 p2]
-  [E   ::= hole (v ... E e ...) (o v ... E e ...) (if E e e)
+  [o   ::= + * <]
+  [E   ::= hole (v ... E e ...) (o E e) (o v E) (if E e e)
        (var-set! x E) (var-set/check-undef! x E)
        (begin v ... E e ...) (set! x E)
        (let-values (((x) v) ... ((x) E) ((x) e) ...) e)] ;; eval context
@@ -35,12 +33,12 @@
 ; (render-language RC "RC.pdf" #:nts '(e v c n b x p1 p2 o E ρ σ))
 
 (define-metafunction RC
-  δ : (o any ...) -> v or true or false or (raises e)
-  [(δ (add1 n)) ,(add1 (term n))]
-  [(δ (< n_1 n_2)) ,(if (< (term n_1) (term n_2)) (term true) (term false))]
+  δ : (o any any) -> v or true or false or (raises e)
+  [(δ (< n_1 n_2)) ,(if (< (term n_1) (term n_2))
+                        (term true) (term false))]
   [(δ (+ n_1 n_2)) ,(+ (term n_1) (term n_2))]
   [(δ (* n_1 n_2)) ,(* (term n_1) (term n_2))]
-  [(δ (o any_1 any_2 ...)) (raises (o any_1 any_2 ...))])
+  [(δ (o any_1 any_2)) (raises (o any_1 any_2))])
 
 (define-metafunction RC
   extend : ((x any) ...)  (x ...) (any ...) -> ((x any) ...)

@@ -33,8 +33,8 @@
 (test-predicate RC? (term (func-nullary)))
 (test-predicate RC? (term (if true x y)))
 (test-predicate RC? (term (+ 1 2)))
-(test-predicate RC? (term (add1 x)))
-(test-predicate RC? (term (+ 1 (add1 1))))
+(test-predicate RC? (term (+ x 1)))
+(test-predicate RC? (term (+ 1 (+ 1 1))))
 (test-predicate RC? (term (set! x 42)))
 (test-predicate RC? (term (begin 1)))
 (test-predicate RC? (term (begin x y 3)))
@@ -47,11 +47,9 @@
 (test-predicate not-RC? (term (+)))
 (test-predicate not-RC? (term (+ 1)))
 (test-predicate not-RC? (term (+ 1 2 3)))
-(test-predicate not-RC? (term (add1)))
 (test-predicate not-RC? (term (set! 3 5)))
 
 ;; primitive δ tests
-(test-equal (term (δ (add1 0))) (term 1))
 (test-equal (term (δ (+ 12 8))) (term 20))
 (test-equal (term (δ (* 2 10))) (term 20))
 
@@ -1050,7 +1048,7 @@
 (eval-rc=racket-core? ((lambda (x) x) 1))
 (eval-rc=racket-core? (+ x 1))
 (eval-rc=racket-core? (void))
-(eval-rc=racket-core? (add1 (void)))
+(eval-rc=racket-core? (+ 1 (void)))
 (eval-rc=racket-core? (if (< 1 2) 1 2))
 (eval-rc=racket-core? (if (< 1 2) (< 1 2) 2))
 (eval-rc=racket-core? (set! q (void)))
