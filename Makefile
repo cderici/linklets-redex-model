@@ -3,7 +3,7 @@
 all: test paper
 
 test:
-	raco test tests.rkt
+	$(MAKE) -C test all
 
 paper:
 	$(MAKE) -C paper all
