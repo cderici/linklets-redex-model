@@ -14,41 +14,6 @@
 ;; Racket-Core
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Predicates for testing
-(define RC? (redex-match? RC e))
-(define not-RC? (compose not RC?))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-; Simple Expressions : Values and Vars
-(test-predicate RC? (term 1))
-(test-predicate RC? (term (lambda (x) x)))
-(test-predicate RC? (term (lambda () x)))
-
-(test-predicate not-RC? (term (lambda (x))))
-
-; Basic Core Expressions
-(test-predicate RC? (term (define x 4)))
-(test-predicate RC? (term (func x y z)))
-(test-predicate RC? (term (func-nullary)))
-(test-predicate RC? (term (if true x y)))
-(test-predicate RC? (term (+ 1 2)))
-(test-predicate RC? (term (+ x 1)))
-(test-predicate RC? (term (+ 1 (+ 1 1))))
-(test-predicate RC? (term (set! x 42)))
-(test-predicate RC? (term (begin 1)))
-(test-predicate RC? (term (begin x y 3)))
-(test-predicate RC? (term (begin (begin 1 2) 3))) ; nested begins are possible
-(test-predicate RC? (term (let-values (((x) 1)) x)))
-
-
-(test-predicate not-RC? (term (begin)))
-(test-predicate not-RC? (term (lambda (x) x x)))
-(test-predicate not-RC? (term (+)))
-(test-predicate not-RC? (term (+ 1)))
-(test-predicate not-RC? (term (+ 1 2 3)))
-(test-predicate not-RC? (term (set! 3 5)))
-
 ;; primitive δ tests
 (test-equal (term (δ (+ 12 8))) (term 20))
 (test-equal (term (δ (* 2 10))) (term 20))
@@ -93,67 +58,6 @@
 ;; Linklet Model
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; Predicates and tools for testing
-
-(define-simple-macro (linklet? p)
-  (test-predicate (redex-match? Linklets L) (term p)))
-
-(define L? (redex-match? Linklets L))
-(define not-L? (compose not L?))
-
-(define-simple-macro (program? p)
-  (test-predicate (redex-match? Linklets p) (term p)))
-
-(define not-program? (compose not (redex-match? Linklets p)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(linklet? (linklet () ()))
-(linklet? (linklet () () (define-values (x) 1)))
-(linklet? (linklet () () (define-values (x) 1) (define-values (x) 5)))
-(linklet? (linklet () (x)))
-(linklet? (linklet () (x) (define-values (x) 1)))
-(linklet? (linklet () (x) (define-values (x) 1) (+ x x)))
-(linklet? (linklet (()) (x) (define-values (x) 1)))
-(linklet? (linklet ((a)) (x) (define-values (x) a)))
-(linklet? (linklet ((a)) ((x x1)) (define-values (x) a)))
-
-(test-predicate not-L? (term (linklet ()))) ; no imports (or exports)
-(test-predicate not-L? (term (linklet (x) ()))) ; imports are listof-listof-ids
-
-(linklet? (linklet ((a)) ((x x1)) (define-values (x) a)))
-
-; compiled (linklet () (x) (define-values (x) 4) (+ x x))
-(linklet? (linklet () ((x x1)) (define-values (x) 1) (var-set! x1 x) (+ x x)))
-; compiled (linklet () (x) (define-values (x) 4) (set! x 5) (+ x x))
-(linklet? (linklet () ((x x1))
-                   (define-values (x) 4)
-                   (var-set! x1 x)
-                   (var-set/check-undef! x1 5)
-                   (+ (var-ref x1) (var-ref x1))))
-
-; "program" acts like a begin, the last result is returned, where
-; result is either a linklet instance or a value
-
-(program? (program (use-linklets)))
-(program? (program (use-linklets) 3))
-(program? (program (use-linklets [l1 (linklet () ())])
-                   (let-inst t1 (instantiate-linklet l1))
-                   (instantiate-linklet l1 #:target t1)))
-
-(program? (program (use-linklets)
-                   (let-inst ti (instantiate-linklet t))
-                   (instantiate-linklet l #:target ti)))
-(program? (program (use-linklets
-                    [l (linklet () () 1)]
-                    [t (linklet () ())])
-                   (let-inst ti (instantiate-linklet t))
-                   (instantiate-linklet l #:target ti)))
-(program? (program (use-linklets
-                    [l1 (linklet () ())]
-                    [l2 (linklet () () (define-values (x) 5) x)])
-                   (let-inst t1 (instantiate-linklet l1))
-                   (instantiate-linklet l2 #:target t1)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; compile-linklet
@@ -347,9 +251,6 @@
 
 (test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
                              () () ()))) 3)
-(program? (program (use-linklets)
-                   (let-inst t1 (linklet-instance))
-                   (instantiate-linklet l1 #:target t1)))
 
 (test-equal (apply-reduction-relation
              -->βp
