@@ -8,7 +8,7 @@
   [e   ::= x v (e e ...) (if e e e) (o e e)
        (set! x e) (begin e e ...)
        (var-ref x) (var-ref/no-check x) (var-set! x e) (var-set/check-undef! x e)
-       (lambda (x_!_ ...) e) (let-values (((x_!_) e) ...) e)
+       (lambda (x_!_ ...) e)
        (raises e)] ;; expressiosn
   [v   ::= n b c (void) uninit] ;; values
   [c   ::= (closure x ... e ρ)]
@@ -18,8 +18,7 @@
   [o   ::= + * <]
   [E   ::= hole (v ... E e ...) (o E e) (o v E) (if E e e)
        (var-set! x E) (var-set/check-undef! x E)
-       (begin v ... E e ...) (set! x E)
-       (let-values (((x) v) ... ((x) E) ((x) e) ...) e)] ;; eval context
+       (begin v ... E e ...) (set! x E)] ;; eval context
 
   [ρ   ::= ((x any) ...)] ;; environment
   [σ   ::= ((x any) ...)] ;; store
@@ -27,10 +26,14 @@
   [e-test ::= x n b (void)
           (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test)
           (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...)
-          (let-values (((x) e-test) ...) e-test) (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
+          (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
   )
 
 ; (render-language RC "RC.pdf" #:nts '(e v c n b x p1 p2 o E ρ σ))
+
+(define-metafunction RC
+  [(let-values (((x) e) ...) e_body)
+   ((lambda (x ...) e_body) e ...)])
 
 (define-metafunction RC
   δ : (o any any) -> v or true or false or (raises e)
@@ -90,9 +93,6 @@
         (where x_1 ,(term (lookup ρ x))) "set!")
    (--> [(in-hole E (begin v_1 ... v_n)) ρ σ]
         [(in-hole E v_n) ρ σ] "begin")
-   (--> [(in-hole E (let-values (((x) v) ...) e)) ρ σ]
-        [(in-hole E e) (extend ρ (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "let"
-        (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))
    (--> [(in-hole E (if v_0 e_1 e_2)) ρ σ]
         [(in-hole E e_1) ρ σ]
         (side-condition (not (equal? (term v_0) (term false)))) "if-true")
