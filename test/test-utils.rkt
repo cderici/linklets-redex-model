@@ -1,11 +1,11 @@
 #lang racket
 
 (require redex
-         "racket-core.rkt"
-         "linklets.rkt"
+         "../racket-core.rkt"
+         "../linklets.rkt"
          syntax/parse/define
-         "main.rkt"
-         (prefix-in model: "compile-linklets.rkt"))
+         "../main.rkt"
+         (prefix-in model: "../compile-linklets.rkt"))
 
 (provide (all-defined-out))
 

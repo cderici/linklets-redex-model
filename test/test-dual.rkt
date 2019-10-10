@@ -1,7 +1,7 @@
 #lang racket
 
 (require redex
-         "../test-utils.rkt")
+         "test-utils.rkt")
 
 (eval-rc=racket-core? 1)
 (eval-rc=racket-core? ((lambda (x) x) 1))
