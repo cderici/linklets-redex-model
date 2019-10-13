@@ -3,26 +3,10 @@
 (require redex
          "linklets.rkt"
          "compile-linklets.rkt"
-         "racket-core.rkt")
+         "racket-core.rkt"
+         "util.rkt")
 
 (provide (all-defined-out))
-
-(define-metafunction Linklets
-  substitute-one : x L-obj p-top -> p-top
-  [(substitute-one x L-obj (instantiate-linklet x inst-ref ...))
-   (instantiate-linklet L-obj inst-ref ...)]
-  [(substitute-one x L-obj (instantiate-linklet x inst-ref ... #:target inst-ref_1))
-   (instantiate-linklet L-obj inst-ref ... #:target inst-ref_1)]
-  [(substitute-one x L-obj (let-inst x_1 I))
-   (let-inst x_1 I_s)
-   (where I_s (substitute-one x L-obj I))]
-  [(substitute-one x L-obj p-top) p-top])
-
-(define-metafunction Linklets
-  [(substitute-linklet x L-obj () (p-top ...)) (p-top ...)]
-  [(substitute-linklet x L-obj (p-top_1 p-top ...) (p-top_new ...))
-   (substitute-linklet x L-obj (p-top ...) (p-top_new ... p-top_new1))
-   (where p-top_new1 (substitute-one x L-obj p-top_1))])
 
 (define-metafunction Linklets
   ;; return
