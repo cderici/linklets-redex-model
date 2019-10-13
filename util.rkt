@@ -16,6 +16,9 @@
    (let-inst x_1 I_s p-top_1)
    (where I_s (substitute-one x L-obj I))
    (where p-top_1 (substitute-one x L-obj p-top))]
+  [(substitute-one x L-obj (let-inst x_1 LI p-top))
+   (let-inst x_1 LI p-top_1)
+   (where p-top_1 (substitute-one x L-obj p-top))]
   [(substitute-one x L-obj p-top) p-top])
 
 (define-metafunction Linklets
@@ -37,7 +40,9 @@
   [(substitute-instance x LI (let-inst x_1 I p-top))
    (let-inst x_1 I_s p-top_1)
    (where I_s (substitute-instance x LI I))
-   (where p-top_1 (substitute-one x L-obj p-top))]
+   (where p-top_1 (substitute-instance x LI p-top))]
+  [(substitute-instance x LI (instance-variable-value x x_var))
+   (instance-variable-value LI x_var)]
   [(substitute-instance x LI p-top) p-top])
 
 (define-metafunction Linklets
