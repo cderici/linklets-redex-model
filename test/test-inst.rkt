@@ -1,8 +1,8 @@
 #lang racket
 
 (require redex
-         "../linklets.rkt"
-         "../racket-core.rkt")
+         "../lang.rkt"
+         "../linklets.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; instantiation side tests
@@ -40,6 +40,17 @@
                              (void))
                     ((t1 (linklet-instance)))
                     () ()))))
+
+
+(test-equal (apply-reduction-relation
+             -->βp
+             (term ((program (use-linklets)
+                             (let-inst t1 (linklet-instance)
+                                       (instantiate-linklet (Lα () ()) #:target t1)))
+                    () () ())))
+            (term (((program (use-linklets)
+                             (instantiate-linklet (Lα () ()) #:target (linklet-instance)))
+                    () () ()))))
 
 
 

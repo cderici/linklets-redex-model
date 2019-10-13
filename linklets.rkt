@@ -23,8 +23,9 @@
         "instance variable value")
    (--> [(in-hole EP (instance-variable-value L-obj x)) Ω ρ σ]
         [(raises instance-expected) Ω ρ σ] "instance variable value error")
-   (--> [(in-hole EP (let-inst x LI)) Ω ρ σ]
-        [(in-hole EP (void)) (extend Ω (x) (LI)) ρ σ] "let-inst")
+   (--> [(in-hole EP (let-inst x LI p-top)) Ω ρ σ]
+        [(in-hole EP p-top) (extend Ω (x) (LI)) ρ σ]
+        "let-inst")
 
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ...) LI ...)) Ω ρ σ]
         [(in-hole EP (lookup Ω x_target)) Ω ρ σ] "return instance")

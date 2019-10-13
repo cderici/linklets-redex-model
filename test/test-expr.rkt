@@ -89,22 +89,22 @@
  program? (term (program (use-linklets) 3)))
 (test-predicate
  program? (term (program (use-linklets [l1 (linklet () ())])
-                         (let-inst t1 (instantiate-linklet l1))
-                         (instantiate-linklet l1 #:target t1))))
+                         (let-inst t1 (instantiate-linklet l1)
+                                   (instantiate-linklet l1 #:target t1)))))
 
 (test-predicate
  program? (term (program (use-linklets)
-                         (let-inst ti (instantiate-linklet t))
-                         (instantiate-linklet l #:target ti))))
+                         (let-inst ti (instantiate-linklet t)
+                                   (instantiate-linklet l #:target ti)))))
 (test-predicate
  program? (term (program (use-linklets
                           [l (linklet () () 1)]
                           [t (linklet () ())])
-                         (let-inst ti (instantiate-linklet t))
-                         (instantiate-linklet l #:target ti))))
+                         (let-inst ti (instantiate-linklet t)
+                                   (instantiate-linklet l #:target ti)))))
 (test-predicate
  program? (term (program (use-linklets
                           [l1 (linklet () ())]
                           [l2 (linklet () () (define-values (x) 5) x)])
-                         (let-inst t1 (instantiate-linklet l1))
-                         (instantiate-linklet l2 #:target t1))))
+                         (let-inst t1 (instantiate-linklet l1)
+                                   (instantiate-linklet l2 #:target t1)))))
