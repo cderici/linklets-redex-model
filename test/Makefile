@@ -1,7 +1,10 @@
-.PHONY: test-expr test-compile test-inst test-dual test-main
+.PHONY: test-utils test-expr test-compile test-inst test-dual test-main
 
-all: test-expr test-compile test-inst test-dual test-main
+all: test-utils test-expr test-compile test-inst test-dual test-main
 
+
+test-utils:
+	raco test test-utils.rkt
 test-expr:
 	raco test test-expr.rkt
 test-compile:

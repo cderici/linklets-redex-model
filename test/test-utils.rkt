@@ -1,10 +1,12 @@
 #lang racket
 
 (require redex
+         "../lang.rkt"
          "../racket-core.rkt"
          "../linklets.rkt"
          syntax/parse/define
          "../main.rkt"
+         "../util.rkt"
          (prefix-in model: "../compile-linklets.rkt"))
 
 (provide (all-defined-out))
@@ -140,3 +142,15 @@
 
 (define-simple-macro (eval-prog=racket-linklets? e)
   (test-equal (term (eval-prog=racket-linklets e)) #true))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Also serves as a testing for the utilities themselves
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(test-equal
+ (term
+  (substitute-instance t1 (linklet-instance)
+                       (instantiate-linklet (Lα () ()) #:target t1)))
+ (term
+  (instantiate-linklet (Lα () ()) #:target (linklet-instance))))
