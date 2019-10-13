@@ -1,9 +1,10 @@
 #lang racket/base
 
 (require redex
+         "lang.rkt"
          "linklets.rkt"
          "compile-linklets.rkt"
-         "racket-core.rkt"
+         #;"racket-core.rkt"
          "util.rkt")
 
 (provide (all-defined-out))
