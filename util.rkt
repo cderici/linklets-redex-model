@@ -33,7 +33,7 @@
   [(substitute-instance x LI (instantiate-linklet linkl-ref inst-ref_bef ... x inst-ref_aft ... #:target inst-ref_tar))
    (instantiate-linklet linkl-ref inst-ref_bef ... LI inst-ref_aft ... #:target inst-ref_tar)]
   [(substitute-instance x LI (instantiate-linklet linkl-ref inst-ref ... #:target x))
-   (instantiate-linklet LI inst-ref ... #:target LI)]
+   (instantiate-linklet linkl-ref inst-ref ... #:target LI)]
   [(substitute-instance x LI (let-inst x_1 I p-top))
    (let-inst x_1 I_s p-top_1)
    (where I_s (substitute-instance x LI I))
