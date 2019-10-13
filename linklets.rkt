@@ -7,15 +7,6 @@
 
 (provide (all-defined-out))
 
-(define-extended-language LinkletProgramTest Linklets
-  [p-test ::= (program (use-linklets (x_!_ L) ...) p-top-test ...)]
-  [p-top-test ::= (instantiate-linklet x x ... #:target I-test)
-                  (let-inst x (instantiate-linklet x x ...))
-                  (instance-variable-value inst-ref x)
-                  v-test]
-  [I-test ::= x (linklet-instance)]
-  [v-test ::= n b (void)])
-
 (define -->βp
   (reduction-relation
    Linklets

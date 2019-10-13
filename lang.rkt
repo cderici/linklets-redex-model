@@ -93,9 +93,18 @@
 
           (instance-variable-value EP x)
           (let-inst x EP p-top)
-          (let-inst x LI EP)
 
           (program (use-linklets) V ... EP p-top ...)]
   ;; evaluation-context for the linklet body
   [EI ::= hole (Lα ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
   )
+
+(define-extended-language LinkletProgramTest Linklets
+  [p-test ::= (program (use-linklets (x_!_ L) ...) p-top-test ...)]
+  [p-top-test ::= (instantiate-linklet x x ... #:target I-test)
+                  (instantiate-linklet x x ...)
+                  (let-inst x (instantiate-linklet x x ...) p-top-test)
+                  (instance-variable-value inst-ref x)
+                  v-test]
+  [I-test ::= x (linklet-instance)]
+  [v-test ::= n b (void)])
