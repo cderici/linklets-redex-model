@@ -1,33 +1,8 @@
 #lang racket
 
-(require redex)
+(require redex "lang.rkt")
 
 (provide (all-defined-out))
-
-(define-language RC
-  [e   ::= x v (e e ...) (if e e e) (o e e)
-       (set! x e) (begin e e ...)
-       (var-ref x) (var-ref/no-check x) (var-set! x e) (var-set/check-undef! x e)
-       (lambda (x_!_ ...) e)
-       (raises e)] ;; expressiosn
-  [v   ::= n b c (void) uninit] ;; values
-  [c   ::= (closure x ... e ρ)]
-  [n   ::= number]
-  [b   ::= true false]
-  [x cell ::= variable-not-otherwise-mentioned] ;; variables
-  [o   ::= + * <]
-  [EL   ::= hole (v ... EL e ...) (o EL e) (o v EL) (if EL e e)
-       (var-set! x EL) (var-set/check-undef! x EL)
-       (begin v ... EL e ...) (set! x EL)] ;; eval context
-
-  [ρ   ::= ((x any) ...)] ;; environment
-  [σ   ::= ((x any) ...)] ;; store
-
-  [e-test ::= x n b (void)
-          (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test)
-          (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...)
-          (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
-  )
 
 ; (render-language RC "RC.pdf" #:nts '(e v c n b x p1 p2 o EL ρ σ))
 

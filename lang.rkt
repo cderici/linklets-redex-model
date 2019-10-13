@@ -1,0 +1,101 @@
+#lang racket/base
+
+;; Language Grammars
+
+(require redex)
+
+(provide (all-defined-out))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Racket Core
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-language RC
+  [e   ::= x v (e e ...) (if e e e) (o e e)
+       (set! x e) (begin e e ...)
+       (var-ref x) (var-ref/no-check x) (var-set! x e) (var-set/check-undef! x e)
+       (lambda (x_!_ ...) e)
+       (raises e)] ;; expressiosn
+  [v   ::= n b c (void) uninit] ;; values
+  [c   ::= (closure x ... e ρ)]
+  [n   ::= number]
+  [b   ::= true false]
+  [x cell ::= variable-not-otherwise-mentioned] ;; variables
+  [o   ::= + * <]
+  [EL   ::= hole (v ... EL e ...) (o EL e) (o v EL) (if EL e e)
+       (var-set! x EL) (var-set/check-undef! x EL)
+       (begin v ... EL e ...) (set! x EL)] ;; eval context
+
+  [ρ   ::= ((x any) ...)] ;; environment
+  [σ   ::= ((x any) ...)] ;; store
+
+  [e-test ::= x n b (void)
+          (e-test e-test ...) (lambda (x_!_ ...) e-test) (if e-test e-test e-test)
+          (p2 e-test e-test) (p1 e-test) (set! x e-test) (begin e-test e-test ...)
+          (raises e-test)] ;; to be used to generate test cases (i.e. exclude closures)
+  )
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Linklet Source
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-extended-language LinkletSource RC
+  [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ...)]
+
+  [l-top ::= d e] ; linklet body expressions
+  [d ::= (define-values (x) e)]
+
+  ;; (external-imported-id internal-imported-id)
+  [imp-id ::= x (x x)]
+  ;; (internal-exported-id external-exported-id)
+  [exp-id ::= x (x x)])
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Linklets
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-extended-language Linklets LinkletSource
+  ;; compile
+  [CL ::= (compile-linklet L)]
+  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...) (Lγ l-top ...)]
+  [c-imps ::= ((imp-obj ...) ...)]
+  [c-exps ::= (exp-obj ...)]
+  ;; import & export objects
+  [imp-obj ::= (Import n x x x)] ; group-index id(<-gensymed) int_id ext_id
+  [exp-obj ::= (Export x x x)] ; int_id int_gensymed ext_id
+
+  ;; instantiate
+  [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
+  [I ::= (instantiate-linklet linkl-ref inst-ref ...)
+         (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
+
+  [linkl-ref ::= x L-obj (raises e)]
+  [inst-ref ::= x LI (raises e)]
+
+  ;; program-stuff
+  [p ::= (program (use-linklets (x_!_ L) ...) p-top ...)]
+  [p-top ::= v LI I (let-inst x I p-top) (let-inst x LI p-top)
+             (instance-variable-value inst-ref x)]
+
+  [Ω   ::= ((x LI) ...)] ; instance env
+
+  [V ::= v LI]
+
+  ;; evaluation-context for the programs
+  [EP ::= hole
+          (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
+          (instantiate-linklet L-obj LI ... EP inst-ref ...) ;; resolve the imported instances
+          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
+          (instantiate-linklet (Lγ v ... EP l-top ...) inst-ref ...) ;; evaluate
+
+          (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
+          (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
+
+          (instance-variable-value EP x)
+          (let-inst x EP p-top)
+          (let-inst x LI EP)
+
+          (program (use-linklets) V ... EP p-top ...)]
+  ;; evaluation-context for the linklet body
+  [EI ::= hole (Lα ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
+  )

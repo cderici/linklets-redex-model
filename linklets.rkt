@@ -1,64 +1,11 @@
 #lang racket
 
 (require redex
-         "racket-core.rkt")
+         "racket-core.rkt"
+         "lang.rkt"
+         "util.rkt")
 
 (provide (all-defined-out))
-
-(define-extended-language LinkletSource RC
-  [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ...)]
-
-  [l-top ::= d e] ; linklet body expressions
-  [d ::= (define-values (x) e)]
-
-  ;; (external-imported-id internal-imported-id)
-  [imp-id ::= x (x x)]
-  ;; (internal-exported-id external-exported-id)
-  [exp-id ::= x (x x)])
-
-(define-extended-language Linklets LinkletSource
-  ;; compile
-  [CL ::= (compile-linklet L)]
-  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...) (Lγ l-top ...)]
-  [c-imps ::= ((imp-obj ...) ...)]
-  [c-exps ::= (exp-obj ...)]
-  ;; import & export objects
-  [imp-obj ::= (Import n x x x)] ; group-index id(<-gensymed) int_id ext_id
-  [exp-obj ::= (Export x x x)] ; int_id int_gensymed ext_id
-
-  ;; instantiate
-  [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
-  [I ::= (instantiate-linklet linkl-ref inst-ref ...)
-         (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
-
-  [linkl-ref ::= x L-obj (raises e)]
-  [inst-ref ::= x LI (raises e)]
-
-  ;; program-stuff
-  [p ::= (program (use-linklets (x_!_ L) ...) p-top ...)]
-  [p-top ::= v LI I (let-inst x I) (let-inst x LI) (instance-variable-value inst-ref x)]
-
-  [Ω   ::= ((x LI) ...)] ; instance env
-
-  [V ::= v LI]
-
-  ;; evaluation-context for the programs
-  [EP ::= hole
-          (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EP inst-ref ...) ;; resolve the imported instances
-          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
-          (instantiate-linklet (Lγ v ... EP l-top ...) inst-ref ...) ;; evaluate
-
-          (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
-
-          (instance-variable-value EP x)
-          (let-inst x EP)
-
-          (program (use-linklets) V ... EP p-top ...)]
-  ;; evaluation-context for the linklet body
-  [EI ::= hole (Lα ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
-  )
 
 (define-extended-language LinkletProgramTest Linklets
   [p-test ::= (program (use-linklets (x_!_ L) ...) p-top-test ...)]

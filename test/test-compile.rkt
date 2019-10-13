@@ -1,8 +1,7 @@
 #lang racket
 
 (require redex
-         "../linklets.rkt"
-         "../racket-core.rkt"
+         "../lang.rkt"
          "../compile-linklets.rkt")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

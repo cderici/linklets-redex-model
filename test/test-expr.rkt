@@ -1,8 +1,6 @@
 #lang racket
 
-(require redex
-         "../linklets.rkt"
-         "../racket-core.rkt")
+(require redex "../lang.rkt")
 
 ;; Source Language Expression Validity Tests
 

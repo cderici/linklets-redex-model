@@ -1,7 +1,6 @@
 #lang racket
 
-(require redex
-         "linklets.rkt")
+(require redex "lang.rkt")
 
 (provide (all-defined-out))
 
