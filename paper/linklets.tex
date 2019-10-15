@@ -266,9 +266,9 @@ p\caption{Linklet Runtime Language}
 
 \begin{figure}[h!]
   \begin{align*}
-    p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top\; \ldots) \\
-    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{let\dash inst}\; x\; I)\; |\; (\textbf{let\dash inst}\; x\; LI) \\
-    \;          &\;|\; \bm{\Phi^V}(i\dash ref\; x) \\
+    p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top) \\
+    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(i\dash ref\; x) \\
+    \;          &\;|\; (\textbf{let\dash inst}\; x\; I\;p\dash top\; \ldots)\; |\; (\textbf{let\dash inst}\; x\; LI\;p\dash top\; \ldots) \\
     V           &::=\; v\; |\; LI \\
     EP          &::=\; [] \\
     \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots) \\ % resolve the linklet
@@ -278,8 +278,8 @@ p\caption{Linklet Runtime Language}
     \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     \;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     \;          &\;|\; \bm{\Phi^V}(EP\; x) \\
-    \;          &\;|\; (\textbf{let\dash inst}\; x\; EP) \\
-    \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; V\; \ldots\; EP\; p\dash top\; \ldots) \\
+    \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top\; \ldots)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
+    \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; EP) \\
   \end{align*}
   $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Programs}
