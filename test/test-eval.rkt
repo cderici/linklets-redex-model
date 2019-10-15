@@ -59,8 +59,7 @@
 
 
 
-(test-equal (term (substitute-linklet l1 (Lα () ()) (3) ())) (term (3)))
-(test-equal (term (substitute-linklet l1 (Lα () ()) (3 4) ())) (term (3 4)))
+
 
 
 
@@ -109,8 +108,8 @@
                        3)
               3)
 (linklet-test (program (use-linklets [l1 (linklet () ())])
-                                      (let-inst t1 (instantiate-linklet l1))
-                                      (instantiate-linklet l1 #:target t1))
+                                      (let-inst t1 (instantiate-linklet l1)
+                                                (instantiate-linklet l1 #:target t1)))
               (void))
 
 (linklet-test (program (use-linklets [l1 (linklet () () 3)])
@@ -124,30 +123,30 @@
 (linklet-test (program (use-linklets
                         [l (linklet () () 2 1)]
                         [t (linklet () ())])
-                       (let-inst ti (instantiate-linklet t))
-                       (instantiate-linklet l #:target ti))
+                       (let-inst ti (instantiate-linklet t)
+                                 (instantiate-linklet l #:target ti)))
               1)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () ())]
                         [l2 (linklet () () (define-values (a) 5) a)])
-                       (let-inst t1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 #:target t1))
+                       (let-inst t1 (instantiate-linklet l1)
+                                 (instantiate-linklet l2 #:target t1)))
               5)
 
 (linklet-test (program (use-linklets
                         [l2 (linklet () (a) (define-values (a) 5) a)])
-                       (let-inst t1 (instantiate-linklet l2))
-                       (instance-variable-value t1 a))
+                       (let-inst t1 (instantiate-linklet l2)
+                                 (instance-variable-value t1 a)))
               5)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () ())]
                         [l2 (linklet ((b)) () (define-values (a) 5) (+ a b))]
                         [l3 (linklet () (b) (define-values (b) 3))])
-                       (let-inst t1 (instantiate-linklet l1))
-                       (let-inst t3 (instantiate-linklet l3))
-                       (instantiate-linklet l2 t3 #:target t1))
+                       (let-inst t1 (instantiate-linklet l1)
+                                 (let-inst t3 (instantiate-linklet l3)
+                                           (instantiate-linklet l2 t3 #:target t1))))
               8)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -162,8 +161,8 @@
 (linklet-test (program (use-linklets
                         [l (linklet () (x) (define-values (x) 4) (+ x x))]
                         [t (linklet () () (define-values (x) 1) (define-values (y) 2))])
-                       (let-inst t1 (instantiate-linklet t))
-                       (instantiate-linklet l #:target t1))
+                       (let-inst t1 (instantiate-linklet t)
+                                 (instantiate-linklet l #:target t1)))
               8)
 
 
@@ -181,12 +180,22 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+
+;; NO SUBSTITUTE - WE NEED SHARING (for target instance)
+#;(linklet-test (program (use-linklets
+                        [l (linklet () (y) (define-values (y) 10) (set! y 50))])
+                       (let-inst t (linklet-instance)
+                                 (let-inst li (instantiate-linklet l #:target t)
+                                           (instance-variable-value t y))))
+                50)
 (linklet-test (program (use-linklets
                         [l (linklet () (y) (define-values (y) 10) (set! y 50))])
-                       (let-inst t (linklet-instance))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t y))
+                       (let-inst t (linklet-instance)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t y)))
               50)
+
+;#|
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; target_def_overwrite
@@ -195,9 +204,9 @@
 (linklet-test (program (use-linklets
                         [l (linklet () (x) (define-values (x) 4) (+ x x))]
                         [tl (linklet () (x) (define-values (x) 1))])
-                       (let-inst t (instantiate-linklet tl))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet tl)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x)))
               4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -219,9 +228,9 @@
 (linklet-test (program (use-linklets
                         [l (linklet () () (define-values (x) 4) (+ x x))]
                         [tl (linklet () (x) (define-values (x) 1))])
-                       (let-inst t (instantiate-linklet tl))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet tl)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x)))
               1)
 
 ; "use the local var, don't change target's var if you don't export"
@@ -229,16 +238,16 @@
 (linklet-test (program (use-linklets
                         [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
                         [tl (linklet () (x) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet tl))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet tl)
+                                 (instantiate-linklet l #:target t)))
               8)
 
 (linklet-test (program (use-linklets
                         [l (linklet () () (define-values (x) 4) (+ x x))]
                         [tl (linklet () (x) (define-values (x) 10))]); <------------|
-                       (let-inst t (instantiate-linklet tl));                       |
-                       (instantiate-linklet l #:target t);                          |
-                       (instance-variable-value t x));                              |
+                       (let-inst t (instantiate-linklet tl);                        |
+                                 (instantiate-linklet l #:target t);                |
+                                 (instance-variable-value t x)));                   |
               10);                                                                  |
 ; t1  exports here   >--------------------------------------------------------------|
 
@@ -247,18 +256,18 @@
 (linklet-test (program (use-linklets
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet ((x)) () (+ x x))])
-                       (let-inst li-1 (instantiate-linklet l1))
-                       (let-inst t1 (linklet-instance))
-                       (instantiate-linklet l2 li-1 #:target t1))
+                       (let-inst li-1 (instantiate-linklet l1)
+                                 (let-inst t1 (linklet-instance)
+                                           (instantiate-linklet l2 li-1 #:target t1))))
               8) ; t1 doesn't have x
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet ((x)) () (+ x x))]
                         [tl-2 (linklet () (x) (define-values (x) 1))])
-                       (let-inst li-1 (instantiate-linklet l1))
-                       (let-inst t2 (instantiate-linklet tl-2))
-                       (instantiate-linklet l2 li-1 #:target t2)
+                       (let-inst li-1 (instantiate-linklet l1)
+                                 (let-inst t2 (instantiate-linklet tl-2)
+                                           (instantiate-linklet l2 li-1 #:target t2)))
                        (instance-variable-value t2 x))
               1)
 
@@ -269,16 +278,16 @@
 
 (linklet-test (program (use-linklets
                         [l (linklet () ((x x15)) (define-values (x) 4))])
-                       (let-inst i (instantiate-linklet l))
-                       (instance-variable-value i x15))
+                       (let-inst i (instantiate-linklet l)
+                                 (instance-variable-value i x15)))
               4)
 
 ; "LinkletVars will be referred by the external name (e.g. (+ x15 x15)"
 (linklet-test (program (use-linklets
                         [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))])
-                       (let-inst t (linklet-instance))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x15)) ; t doesn't have x
+                       (let-inst t (linklet-instance)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x15))) ; t doesn't have x
               4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -289,8 +298,8 @@
                         [l (linklet () ((x x15))
                                     (define-values (x) 4)
                                     (define-values (x15) 75))])
-                       (let-inst i (instantiate-linklet l))
-                       (instance-variable-value i x15))
+                       (let-inst i (instantiate-linklet l)
+                                 (instance-variable-value i x15)))
               4) ; not 75
 
 (linklet-test (program (use-linklets
@@ -298,9 +307,9 @@
                                     (define-values (x) 4)
                                     (define-values (x15) 75)
                                     (define-values (k) x15))])
-                       (let-inst i (instantiate-linklet l))
-                       (instance-variable-value i x15)
-                       (instance-variable-value i k))
+                       (let-inst i (instantiate-linklet l)
+                                 (instance-variable-value i x15)
+                                 (instance-variable-value i k)))
               75) ; not 4
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -310,8 +319,8 @@
 (linklet-test (program (use-linklets
                         [l (linklet () (x) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)))
               20)
 
 ; "use linklet's definition if both linklet and target have it"
@@ -320,16 +329,16 @@
 (linklet-test (program (use-linklets
                         [l (linklet () () (define-values (x) 4) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)))
               8)
 
 (linklet-test (program (use-linklets
                         [l (linklet () () (define-values (x) 4) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x)))
               10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -339,25 +348,25 @@
 (linklet-test (program (use-linklets
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet ((x)) () (+ x x))])
-                       (let-inst t (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst t (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (instantiate-linklet l2 L1 #:target t))))
               8)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet (((x x2))) () (+ x2 x2))])
-                       (let-inst t (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst t (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (instantiate-linklet l2 L1 #:target t))))
               8)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet ((x)) (y) (define-values (y) (+ x x)) (+ y y))])
-                       (let-inst t (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst t (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (instantiate-linklet l2 L1 #:target t))))
               16)
 
 ; "target's defs are overwritten only if the linklet has a definition not with an imported variable"
@@ -367,11 +376,10 @@
                         [l2 (linklet ((x)) (x) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 1000))])
 
-                       (let-inst L1 (instantiate-linklet l1)) ; x 4
-                       (let-inst t (instantiate-linklet t-l)) ; x 1000
-
-                       (instantiate-linklet l2 L1 #:target t)
-                       (instance-variable-value t x))
+                       (let-inst L1 (instantiate-linklet l1) ; x 4
+                                 (let-inst t (instantiate-linklet t-l) ; x 1000
+                                           (instantiate-linklet l2 L1 #:target t)
+                                           (instance-variable-value t x))))
               1000)
 
 ; "same thing with the import renaming"
@@ -380,11 +388,10 @@
                         [l2 (linklet (((x x2))) () (+ x2 x2))]
                         [t-l (linklet () (x2) (define-values (x) 1000) (define-values (x2) 2000))])
 
-                       (let-inst L1 (instantiate-linklet l1)) ; x 4
-                       (let-inst t (instantiate-linklet t-l)) ; x 1000
-
-                       (instantiate-linklet l2 L1 #:target t)
-                       (instance-variable-value t x2))
+                       (let-inst L1 (instantiate-linklet l1) ; x 4
+                                 (let-inst t (instantiate-linklet t-l) ; x 1000
+                                           (instantiate-linklet l2 L1 #:target t)
+                                           (instance-variable-value t x2))))
               2000)
 ;;;; FIXME : create a way to check multiple things at once
 (linklet-test (program (use-linklets
@@ -392,11 +399,10 @@
                         [l2 (linklet (((x x2))) () (+ x2 x2))]
                         [t-l (linklet () (x) (define-values (x) 1000) (define-values (x2) 2000))])
 
-                       (let-inst L1 (instantiate-linklet l1)) ; x 4
-                       (let-inst t (instantiate-linklet t-l)) ; x 1000
-
-                       (instantiate-linklet l2 L1 #:target t)
-                       (instance-variable-value t x))
+                       (let-inst L1 (instantiate-linklet l1) ; x 4
+                                 (let-inst t (instantiate-linklet t-l) ; x 1000
+                                           (instantiate-linklet l2 L1 #:target t)
+                                           (instance-variable-value t x))))
               1000)
 
 ; "slightly trickier"
@@ -405,54 +411,53 @@
                         [l2 (linklet (((x x2))) () (define-values (x) 14) (+ x2 x))]
                         [t-l (linklet () (x x2) (define-values (x) 1000) (define-values (x2) 2000))])
 
-                       (let-inst L1 (instantiate-linklet l1)) ; x 4
-                       (let-inst t (instantiate-linklet t-l)) ; x 1000
-
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst L1 (instantiate-linklet l1) ; x 4
+                                 (let-inst t (instantiate-linklet t-l) ; x 1000
+                                           (instantiate-linklet l2 L1 #:target t))))
               18)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () (a) (define-values (a) 4))]
                         [l2 (linklet ((a)) () (+ a a))])
-                       (let-inst t (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst t (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (instantiate-linklet l2 L1 #:target t))))
               8)
 ; "export-rename"
 (linklet-test (program (use-linklets
                         [l1 (linklet () ((a1 a)) (define-values (a1) 4))]
                         [l2 (linklet ((a)) () (+ a a))])
-                       (let-inst t (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst t (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (instantiate-linklet l2 L1 #:target t))))
               8)
 
 ; these may be redundant
 (linklet-test (program (use-linklets
                         [l1 (linklet () ((x1 x)) (define-values (x1) 4))]
                         [l2 (linklet ((x)) ((y1 y)) (define-values (y1) x) (+ x y1))])
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst t (linklet-instance))
-                       (instantiate-linklet l2 L1 #:target t))
+                       (let-inst L1 (instantiate-linklet l1)
+                                 (let-inst t (linklet-instance)
+                                           (instantiate-linklet l2 L1 #:target t))))
               8)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () ((x1 x)) (define-values (x1) 4))]
                         [l2 (linklet ((x)) ((y1 y)) (define-values (y1) x) (+ x y1))])
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst t (linklet-instance))
-                       (instantiate-linklet l2 L1 #:target t)
-                       (instance-variable-value t y))
+                       (let-inst L1 (instantiate-linklet l1)
+                                 (let-inst t (linklet-instance)
+                                           (instantiate-linklet l2 L1 #:target t)
+                                           (instance-variable-value t y))))
               4)
 
 (linklet-test (program (use-linklets
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet () (x) (define-values (x) 10))]
                         [l3 (linklet (((x x1))((x x2))) () (+ x1 x2))])
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst L2 (instantiate-linklet l2))
-                       (let-inst t (linklet-instance))
-                       (instantiate-linklet l3 L1 L2 #:target t))
+                       (let-inst L1 (instantiate-linklet l1)
+                                 (let-inst L2 (instantiate-linklet l2)
+                                           (let-inst t (linklet-instance)
+                                                     (instantiate-linklet l3 L1 L2 #:target t)))))
               14)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -463,34 +468,34 @@
 (linklet-test (program (use-linklets
                         [l (linklet () (x))]
                         [t-l (linklet () (x) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x)))
               10)
 
 (linklet-test (program (use-linklets
                         [l (linklet () (x) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 30))]
                         [k (linklet () (x) (define-values (x) 20))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet k)
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (let-inst ki (instantiate-linklet k)
+                                           (instantiate-linklet l #:target t))))
               60)
 
 ; "target exports the same var with another external name"
 (linklet-test (program (use-linklets
                         [l (linklet () (x2) (+ x2 x2))]
                         [t-l (linklet () ((x x2)) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)))
               20)
 
 (linklet-test (program (use-linklets
                         [l (linklet () (x2) (+ x2 x2))]
                         [t-l (linklet () ((x x2)) (define-values (x) 10))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x2))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x2)))
               10)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -500,25 +505,25 @@
 (linklet-test (program (use-linklets
                         [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
                         [t-l (linklet () ((x x16)) (define-values (x) 1000))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)))
               8)
 
 ; these two below are actually an export rename test
 (linklet-test (program (use-linklets
                         [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
                         [t-l (linklet () ((x x16)) (define-values (x) 1000))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x15))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x15)))
               4)
 
 (linklet-test (program (use-linklets
                         [l (linklet () ((x x15)) (define-values (x) 4) (+ x x))]
                         [t-l (linklet () ((x x16)) (define-values (x) 1000))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x16))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x16)))
               1000)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -530,10 +535,10 @@
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet ((x)) (g) (define-values (g) (lambda (y) x)))]
                         [l3 (linklet () (g) (g 5))])
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst t (linklet-instance))
-                       (instantiate-linklet l2 L1 #:target t)
-                       (instantiate-linklet l3 #:target t))
+                       (let-inst L1 (instantiate-linklet l1)
+                                 (let-inst t (linklet-instance)
+                                           (instantiate-linklet l2 L1 #:target t)
+                                           (instantiate-linklet l3 #:target t))))
               4)
 
 ; import the closure and apply it
@@ -541,10 +546,10 @@
                         [l1 (linklet () (x) (define-values (x) 4))]
                         [l2 (linklet ((x)) (g) (define-values (g) (lambda (y) x)))]
                         [l4 (linklet ((g)) () (g 3))])
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst t (linklet-instance))
-                       (let-inst L5 (instantiate-linklet l2 L1))
-                       (instantiate-linklet l4 L5 #:target t))
+                       (let-inst L1 (instantiate-linklet l1)
+                                 (let-inst t (linklet-instance)
+                                           (let-inst L5 (instantiate-linklet l2 L1)
+                                                     (instantiate-linklet l4 L5 #:target t)))))
               4)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -554,32 +559,32 @@
 (linklet-test (program (use-linklets
                         [l (linklet () () (define-values (x) 3) (set! x 5) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 6))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)))
               10)
 
 (linklet-test (program (use-linklets
                         [l (linklet () () (define-values (x) 3) (set! x 5) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 6))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x)))
               6)
 
 (linklet-test (program (use-linklets
                         [l (linklet () (x) (set! x 5) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 3))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)))
               10)
 
 ; the real thing is this one below
 (linklet-test (program (use-linklets
                         [l (linklet () (x) (set! x 5) (+ x x))]
                         [t-l (linklet () (x) (define-values (x) 3))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (instantiate-linklet l #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (instantiate-linklet l #:target t)
+                                 (instance-variable-value t x)))
               5)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -591,10 +596,10 @@
                         [l2 (linklet ((x)) (g) (define-values (g) (lambda (p) x)))]
                         [l3 (linklet ((g)) (x) (set! x 5) (g 1000))]
                         [t-l (linklet () (x) (define-values (x) 2000))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst L2 (instantiate-linklet l2 L1))
-                       (instantiate-linklet l3 L2 #:target t))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (let-inst L2 (instantiate-linklet l2 L1)
+                                                     (instantiate-linklet l3 L2 #:target t)))))
               -1)
 
 (linklet-test (program (use-linklets
@@ -602,11 +607,11 @@
                         [l2 (linklet ((x)) (g) (define-values (g) (lambda (p) x)))]
                         [l3 (linklet ((g)) (x) (set! x 5) (g 1000))]
                         [t-l (linklet () (x) (define-values (x) 2000))])
-                       (let-inst t (instantiate-linklet t-l))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst L2 (instantiate-linklet l2 L1))
-                       (instantiate-linklet l3 L2 #:target t)
-                       (instance-variable-value t x))
+                       (let-inst t (instantiate-linklet t-l)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (let-inst L2 (instantiate-linklet l2 L1)
+                                                     (instantiate-linklet l3 L2 #:target t)
+                                                     (instance-variable-value t x)))))
               5)
 
 (linklet-test (program (use-linklets
@@ -616,10 +621,10 @@
                                      (define-values (g) (lambda (p) (+ x y)))
                                      (set! y 71))]
                         [l3 (linklet ((g)) () (g -1))])
-                       (let-inst t (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (let-inst L2 (instantiate-linklet l2 L1))
-                       (instantiate-linklet l3 L2 #:target t))
+                       (let-inst t (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           (let-inst L2 (instantiate-linklet l2 L1)
+                                                     (instantiate-linklet l3 L2 #:target t)))))
               60)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -637,10 +642,11 @@
                         [l3 (linklet () (y g)
                                      (set! y 200)
                                      (g -1))])
-                       (let-inst t1 (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t1) ; fill in the target
-                       (instantiate-linklet l3 #:target t1))
+                       (let-inst t1 (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                            ; fill in the target
+                                           (instantiate-linklet l2 L1 #:target t1)
+                                           (instantiate-linklet l3 #:target t1))))
               201)
 
 (linklet-test (program (use-linklets
@@ -650,11 +656,12 @@
                                      (define-values (g) (lambda (p) (+ x y)))
                                      (set! y 50))]
                         [l3 (linklet () (y g) (set! y 200) (g -1))])
-                       (let-inst t1 (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t1) ; fill in the target
-                       (instantiate-linklet l3 #:target t1)
-                       (instance-variable-value t1 y))
+                       (let-inst t1 (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           ; fill in the target
+                                           (instantiate-linklet l2 L1 #:target t1)
+                                           (instantiate-linklet l3 #:target t1)
+                                           (instance-variable-value t1 y))))
               200)
 ;; 3 --- 2
 
@@ -668,10 +675,11 @@
                                      (set! y 200)
                                      (define-values (y) 90)
                                      (g -1))])
-                       (let-inst t2 (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t2) ; fill in the target
-                       (instantiate-linklet l4 #:target t2))
+                       (let-inst t2 (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           ; fill in the target
+                                           (instantiate-linklet l2 L1 #:target t2)
+                                           (instantiate-linklet l4 #:target t2))))
               91)
 
 (linklet-test (program (use-linklets
@@ -684,11 +692,12 @@
                                      (set! y 200)
                                      (define-values (y) 90)
                                      (g -1))])
-                       (let-inst t2 (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t2) ; fill in the target
-                       (instantiate-linklet l4 #:target t2)
-                       (instance-variable-value t2 y))
+                       (let-inst t2 (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           ; fill in the target
+                                           (instantiate-linklet l2 L1 #:target t2)
+                                           (instantiate-linklet l4 #:target t2)
+                                           (instance-variable-value t2 y))))
               90)
 
 ;; 3 --- 3
@@ -701,10 +710,11 @@
                         [l5 (linklet () (g)
                                      (define-values (y) 90)
                                      (+ y (g -1)))])
-                       (let-inst t3 (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t3) ; fill in the target
-                       (instantiate-linklet l5 #:target t3))
+                       (let-inst t3 (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           ; fill in the target
+                                           (instantiate-linklet l2 L1 #:target t3)
+                                           (instantiate-linklet l5 #:target t3))))
               141)
 
 (linklet-test (program (use-linklets
@@ -716,9 +726,12 @@
                         [l5 (linklet () (g)
                                      (define-values (y) 90)
                                      (+ y (g -1)))])
-                       (let-inst t3 (linklet-instance))
-                       (let-inst L1 (instantiate-linklet l1))
-                       (instantiate-linklet l2 L1 #:target t3) ; fill in the target
-                       (instantiate-linklet l5 #:target t3)
-                       (instance-variable-value t3 y))
+                       (let-inst t3 (linklet-instance)
+                                 (let-inst L1 (instantiate-linklet l1)
+                                           ; fill in the target
+                                           (instantiate-linklet l2 L1 #:target t3)
+                                           (instantiate-linklet l5 #:target t3)
+                                           (instance-variable-value t3 y))))
               50)
+
+;|#

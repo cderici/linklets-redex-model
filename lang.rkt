@@ -74,7 +74,7 @@
 
   ;; program-stuff
   [p ::= (program (use-linklets (x_!_ L) ...) p-top ...)]
-  [p-top ::= v LI I (let-inst x I p-top) (let-inst x LI p-top)
+  [p-top ::= v LI I (let-inst x I p-top ...) (let-inst x LI p-top ...) (seq p-top ...)
              (instance-variable-value inst-ref x)]
 
   [Ω   ::= ((x LI) ...)] ; instance env
@@ -92,7 +92,8 @@
           (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
 
           (instance-variable-value EP x)
-          (let-inst x EP p-top)
+          (let-inst x EP p-top p-top ...)
+          (seq v ... EP p-top ...)
 
           (program (use-linklets) V ... EP p-top ...)]
   ;; evaluation-context for the linklet body

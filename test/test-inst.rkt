@@ -49,8 +49,8 @@
                                        (instantiate-linklet (Lα () ()) #:target t1)))
                     () () ())))
             (term (((program (use-linklets)
-                             (instantiate-linklet (Lα () ()) #:target (linklet-instance)))
-                    () () ()))))
+                             (seq (instantiate-linklet (Lα () ()) #:target t1)))
+                    ((t1 (linklet-instance))) () ()))))
 
 
 
