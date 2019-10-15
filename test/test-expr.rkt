@@ -83,7 +83,7 @@
 (define program? (redex-match? Linklets p))
 (define not-program? (compose not program?))
 
-(test-predicate
+#;(test-predicate
  program? (term (program (use-linklets))))
 (test-predicate
  program? (term (program (use-linklets) 3)))

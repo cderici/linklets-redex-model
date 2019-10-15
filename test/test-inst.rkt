@@ -20,24 +20,21 @@
 (test-equal (apply-reduction-relation
              -->βp
              (term ((program (use-linklets)
-                             (void)
                              (instantiate-linklet (Lα () ()) #:target t1))
                     ((t1 (linklet-instance)))
                     () ())))
-            (term (((program (use-linklets) (void) (instantiate-linklet (Lγ)))
+            (term (((program (use-linklets) (instantiate-linklet (Lγ)))
                     ((t1 (linklet-instance)))
                     ()
                     ()))))
 
 (test-equal (apply-reduction-relation
              -->βp
-             (term ((program (use-linklets) (void) (instantiate-linklet (Lγ)))
+             (term ((program (use-linklets) (instantiate-linklet (Lγ)))
                     ((t1 (linklet-instance)))
                     ()
                     ())))
-            (term (((program (use-linklets)
-                             (void)
-                             (void))
+            (term (((program (use-linklets) (void))
                     ((t1 (linklet-instance)))
                     () ()))))
 

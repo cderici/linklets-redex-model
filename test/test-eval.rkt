@@ -87,7 +87,6 @@
                              () () ()))) 3)
 
 (test-equal (term (run-prog ((program (use-linklets)
-                                      (void)
                                       (instantiate-linklet (Lα () ()) #:target t1))
                              ((t1 (linklet-instance)))
                              () ())))
@@ -267,8 +266,8 @@
                         [tl-2 (linklet () (x) (define-values (x) 1))])
                        (let-inst li-1 (instantiate-linklet l1)
                                  (let-inst t2 (instantiate-linklet tl-2)
-                                           (instantiate-linklet l2 li-1 #:target t2)))
-                       (instance-variable-value t2 x))
+                                           (instantiate-linklet l2 li-1 #:target t2)
+                                           (instance-variable-value t2 x))))
               1)
 
 

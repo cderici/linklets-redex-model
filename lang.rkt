@@ -73,7 +73,7 @@
   [inst-ref ::= x LI (raises e)]
 
   ;; program-stuff
-  [p ::= (program (use-linklets (x_!_ L) ...) p-top ...)]
+  [p ::= (program (use-linklets (x_!_ L) ...) p-top)]
   [p-top ::= v LI I (let-inst x I p-top ...) (let-inst x LI p-top ...) (seq p-top ...)
              (instance-variable-value inst-ref x)]
 
@@ -95,7 +95,7 @@
           (let-inst x EP p-top p-top ...)
           (seq v ... EP p-top ...)
 
-          (program (use-linklets) V ... EP p-top ...)]
+          (program (use-linklets) EP)]
   ;; evaluation-context for the linklet body
   [EI ::= hole (Lα ((imp-obj ...) ...) (exp-obj ...) v ... EI l-top ...)]
   )
