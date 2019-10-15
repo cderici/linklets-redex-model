@@ -149,8 +149,8 @@
 ;; Also serves as a testing for the utilities themselves
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(test-equal (term (substitute-linklet l1 (Lα () ()) (3) ())) (term (3)))
-(test-equal (term (substitute-linklet l1 (Lα () ()) (3 4) ())) (term (3 4)))
+(test-equal (term (substitute-linklet l1 (Lα () ()) (3))) (term (3)))
+(test-equal (term (substitute-linklet l1 (Lα () ()) (3 4))) (term (3 4)))
 
 (test-equal
  (term
@@ -181,19 +181,17 @@
                         (var-set! y1 y)
                         (var-set/check-undef! y1 50))
                   (let-inst t (linklet-instance)
-                            (let-inst li (instantiate-linklet l #:target t)
-                                      (instance-variable-value t y)))))
+                            (instantiate-linklet l #:target t)
+                            (instance-variable-value t y))))
  (term
   (let-inst t (linklet-instance)
-            (let-inst
-             li
-             (instantiate-linklet (Lα () ((Export y y1 y))
-                                      (define-values (y) 10)
-                                      (var-set! y1 y)
-                                      (var-set/check-undef! y1 50)) #:target t)
-             (instance-variable-value t y)))))
+            (instantiate-linklet (Lα () ((Export y y1 y))
+                                     (define-values (y) 10)
+                                     (var-set! y1 y)
+                                     (var-set/check-undef! y1 50)) #:target t)
+            (instance-variable-value t y))))
 
-(test-equal
+#;(test-equal
  (term
   (substitute-instance t1 (linklet-instance)
                        (instantiate-linklet (Lα () ()) #:target t1)))

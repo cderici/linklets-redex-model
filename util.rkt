@@ -12,24 +12,23 @@
    (instantiate-linklet L-obj inst-ref ...)]
   [(substitute-one x L-obj (instantiate-linklet x inst-ref ... #:target inst-ref_1))
    (instantiate-linklet L-obj inst-ref ... #:target inst-ref_1)]
-  [(substitute-one x L-obj (let-inst x_1 I p-top))
-   (let-inst x_1 I_s p-top_1)
+  [(substitute-one x L-obj (let-inst x_1 I p-top ...))
+   (let-inst x_1 I_s p-top_new ...)
    (where I_s (substitute-one x L-obj I))
-   (where p-top_1 (substitute-one x L-obj p-top))]
-  [(substitute-one x L-obj (let-inst x_1 LI p-top))
-   (let-inst x_1 LI p-top_1)
-   (where p-top_1 (substitute-one x L-obj p-top))]
+   (where (p-top_new ...) ((substitute-one x L-obj p-top) ...))]
+  [(substitute-one x L-obj (let-inst x_1 LI p-top ...))
+   (let-inst x_1 LI p-top_new ...)
+   (where (p-top_new ...) ((substitute-one x L-obj p-top) ...))]
   [(substitute-one x L-obj p-top) p-top])
 
 (define-metafunction Linklets
-  [(substitute-linklet x L-obj () (p-top ...)) (p-top ...)]
-  [(substitute-linklet x L-obj (p-top_1 p-top ...) (p-top_new ...))
-   (substitute-linklet x L-obj (p-top ...) (p-top_new ... p-top_new1))
-   (where p-top_new1 (substitute-one x L-obj p-top_1))])
+  [(substitute-linklet x L-obj (p-top ...))
+   (p-top_new ...)
+   (where (p-top_new ...) ((substitute-one x L-obj p-top) ...))])
 
 ;; substitute instance
 
-(define-metafunction Linklets
+#;(define-metafunction Linklets
   substitute-instance : x LI p-top -> p-top
   [(substitute-instance x LI (instantiate-linklet linkl-ref inst-ref_bef ... x inst-ref_aft ...))
    (instantiate-linklet linkl-ref inst-ref_bef ... LI inst-ref_aft ...)]
@@ -45,7 +44,7 @@
    (instance-variable-value LI x_var)]
   [(substitute-instance x LI p-top) p-top])
 
-(define-metafunction Linklets
+#;(define-metafunction Linklets
   [(substitute-instance-multi x LI () (p-top ...)) (p-top ...)]
   [(substitute-instance-multi x LI (p-top_1 p-top ...) (p-top_new ...))
    (substitute-instance-multi x LI (p-top ...) (p-top_new ... p-top_new1))

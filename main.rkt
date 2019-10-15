@@ -20,7 +20,7 @@
   [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top ...) Ω ρ σ))
    (run-prog ((program (use-linklets (x L) ...) p-top_new ...) Ω ρ σ))
    (where L-obj_1 (compile-linklet L_1))
-   (where (p-top_new ...) (substitute-linklet x_1 L-obj_1 (p-top ...) ()))]
+   (where (p-top_new ...) (substitute-linklet x_1 L-obj_1 (p-top ...)))]
 
   ;; problem in intermediate steps
   [(run-prog ((program (use-linklets (x L) ...) p-top_1 ... stuck p-top_2 ...) Ω ρ σ))
