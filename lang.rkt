@@ -22,9 +22,9 @@
   [b   ::= true false]
   [x cell ::= variable-not-otherwise-mentioned] ;; variables
   [o   ::= + * <]
-  [EL   ::= hole (v ... EL e ...) (o EL e) (o v EL)
-       (var-set! x EL) (var-set/check-undef! x EL)
-       (begin v ... EL e ...) (set! x EL) (if EL e e)] ;; eval context
+  [E   ::= hole (v ... E e ...) (o E e) (o v E)
+       (var-set! x E) (var-set/check-undef! x E)
+       (begin v ... E e ...) (set! x E) (if E e e)] ;; eval context
 
   [ρ   ::= ((x any) ...)] ;; environment
   [σ   ::= ((x any) ...)] ;; store
