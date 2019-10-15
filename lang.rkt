@@ -12,19 +12,19 @@
 
 (define-language RC
   [e   ::= x v (e e ...) (if e e e) (o e e)
-       (set! x e) (begin e e ...)
-       (var-ref x) (var-ref/no-check x) (var-set! x e) (var-set/check-undef! x e)
-       (lambda (x_!_ ...) e)
-       (raises e)] ;; expressiosn
+       (begin e e ...) (lambda (x_!_ ...) e)
+       (raises e) (set! x e)
+       (var-ref x) (var-ref/no-check x)
+       (var-set! x e) (var-set/check-undef! x e)] ;; expressiosn
   [v   ::= n b c (void) uninit] ;; values
   [c   ::= (closure x ... e ρ)]
   [n   ::= number]
   [b   ::= true false]
   [x cell ::= variable-not-otherwise-mentioned] ;; variables
   [o   ::= + * <]
-  [EL   ::= hole (v ... EL e ...) (o EL e) (o v EL) (if EL e e)
+  [EL   ::= hole (v ... EL e ...) (o EL e) (o v EL)
        (var-set! x EL) (var-set/check-undef! x EL)
-       (begin v ... EL e ...) (set! x EL)] ;; eval context
+       (begin v ... EL e ...) (set! x EL) (if EL e e)] ;; eval context
 
   [ρ   ::= ((x any) ...)] ;; environment
   [σ   ::= ((x any) ...)] ;; store
