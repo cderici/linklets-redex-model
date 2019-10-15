@@ -298,7 +298,8 @@ p\caption{Linklet Runtime Language}
   \begin{align*}
     \redinput{x} \rel \redoutput{LI}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
     \redinput{\bm{\Phi^V}(L\dash obj\; x)} \rel \redoutput{v}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
-    \redinput{(\textbf{let\dash inst}\; x\; LI)} \rel \redoutput{(void)}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
+    \redinput{(\textbf{let\dash inst}\; x\; LI\; p\dash top\; \ldots)} \rel \redoutput{(\textbf{seq}\; p\dash top\; \ldots)}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
+    \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\Omega}{\rho}{\sigma} \\
     \redinput{\bm{\Phi^I}((\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
     \redinput{\bm{\Phi^I}((\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\Omega}{\rho}{\sigma} \\
     \redinput{\bm{\Phi^I}((\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\Omega}{\rho}{\sigma} \\
