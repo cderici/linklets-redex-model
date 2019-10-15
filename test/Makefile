@@ -13,5 +13,5 @@ test-inst:
 	raco test test-inst.rkt
 test-dual:
 	raco test test-dual.rkt
-test-eval:
+test-main:
 	raco test test-eval.rkt
