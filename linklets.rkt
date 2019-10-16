@@ -12,7 +12,9 @@
    Linklets
    #:domain (p Ω ρ σ)
    #;(--> [(in-hole EP (raises e)) ω Ω ρ σ]
-        [(raises e) ω Ω ρ σ] "error")
+          [(raises e) ω Ω ρ σ] "error")
+   (--> [(in-hole EP (program (use-linklets) v)) Ω ρ σ]
+        [(in-hole EP v) Ω ρ σ] "return")
    (--> [(in-hole EP x) Ω ρ σ]
         [(in-hole EP LI_found) Ω ρ σ]
         (where LI_found (lookup Ω x))
@@ -38,8 +40,8 @@
    (--> [(in-hole EP (define-values (x) e)) Ω ρ σ]
         [(in-hole EP (void)) Ω ρ_2 σ_2]
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v))))
-        (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell))) "define-values")
+        (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell_1)))
+        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v))))  "define-values")
    (--> [(in-hole EP e) Ω ρ σ]
         [(in-hole EP v) Ω ρ_1 σ_1]
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
@@ -56,7 +58,7 @@
    (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target inst-ref)) Ω ρ σ]
         [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) Ω_2 ρ_2 σ_1]
         ; set the stage for target/imports/exports
-        (where (x_target Ω_1) (prepare-target inst-ref Ω))
+        (where (x_target Ω_1) (prepare-target inst-ref Ω ρ σ))
         (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ))
         (where (Ω_2 ρ_2 σ_1) (instantiate-exports c-exps x_target Ω_1 ρ_1 σ))
         "set the stage for evaluation")))
@@ -66,12 +68,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-metafunction Linklets
-  prepare-target : inst-ref Ω -> (x Ω)
-  [(prepare-target x Ω) (x Ω)]
-  [(prepare-target LI Ω)
-   (x_target Ω_1)
-   (where Ω_1 (extend Ω (x_target) (LI)))
-   (where x_target ,(variable-not-in (term Ω) (term x)))])
+  prepare-target : inst-ref Ω ρ σ -> (x Ω)
+  [(prepare-target x Ω ρ σ) (x Ω)]
+  [(prepare-target LI Ω ρ σ)
+   (t Ω_1)
+   (where Ω_1 (extend Ω (t) (LI)))
+   (where t ,(variable-not-in (term (Ω ρ σ)) (term t)))])
 
 
 ; Utils for Imports

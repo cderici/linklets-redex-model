@@ -73,7 +73,7 @@
   [inst-ref ::= x LI (raises e)]
 
   ;; program-stuff
-  [p ::= (program (use-linklets (x_!_ L) ...) p-top)]
+  [p ::= (program (use-linklets (x_!_ L) ...) p-top) v]
   [p-top ::= v LI I (let-inst x I p-top ...) (let-inst x LI p-top ...) (seq p-top ...)
              (instance-variable-value inst-ref x)]
 
