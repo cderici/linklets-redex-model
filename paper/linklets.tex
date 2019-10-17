@@ -291,7 +291,7 @@ p\caption{Linklet Runtime Language}
 \newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \Omega, \rho, \sigma\;}
 \newcommand{\redoutput}[4]{EP\;\llbracket #1 \rrbracket, #2, #3, #4\;}
 \def\where {\textbf{where}\;}
-\def\rel {&\hookrightarrow_{\beta p}\;}
+\def\rel {&\longrightarrow_{\beta p}\;}
 
 % \redoutput{}{}{}{}{}
 \begin{figure*}[tbp]
@@ -323,17 +323,18 @@ p\caption{Linklet Runtime Language}
 
 \newcommand{\runio}[1]{run\dash prog(#1, \Omega, \rho, \sigma)\;}
 \newcommand{\prog}[2]{(\textbf{program}\; (\textbf{use\dash linklets}\;#1 )\;#2)}
+\def\transrel {&\twoheadrightarrow_{p}\;}
 
 \begin{figure*}[tbp]
   \begin{align*}
-    \runio{(\textbf{program}\; ()\;v)} &=\; v \\
-    \runio{(\textbf{program}\; ((x_1\;L_1),(x\;L)\;\ldots)\;p\dash top)} &=\; \runio{(\textbf{program}\; ((x\;L)\;\ldots)\;p\dash top_1)} \\
-    \;          &\;\; \where L\dash obj\;=\;\bm{\Phi^C}(L_1) \\
-    \;          &\;\; p\dash top_1\; =\; substitute\dash linklet(x_1,L\dash obj,p\dash top) \\
-    run\dash prog(p, \Omega, \rho, \sigma)\; &=\; run\dash prog(p_1, \Omega_1, \rho_1, \sigma_1)\; \\
-    \;          &\;\; \where (p, \Omega, \rho, \sigma) \hookrightarrow_{\beta p}\; (p_1, \Omega_1, \rho_1, \sigma_1)  \\
+    (\textbf{program}\; ()\;v), \Omega, \rho, \sigma \transrel v \\
+    (\textbf{program}\; ((x_1\;L_1),(x\;L)\;\ldots)\;p\dash top), \Omega, \rho, \sigma \transrel (\textbf{program}\; ((x\;L)\;\ldots)\;p\dash top_1 ), \Omega, \rho, \sigma \\
+    \;          &\;\; \where p\dash top_1\; =\; p\dash top[x_1 := L\dash obj], L\dash obj\;=\;\bm{\Phi^C}(L_1) \\
+    p, \Omega, \rho, \sigma \transrel p_1, \Omega_1, \rho_1, \sigma_1 \\
+    \;          &\;\; \where (p, \Omega, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \Omega_1, \rho_1, \sigma_1)  \\ \\
+    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), (), () \twoheadrightarrow_p\; v
   \end{align*}
-  $\Phi^C : \textbf{compile\dash linklet}$
+  $\Phi^C : \textbf{compile\dash linklet}\:,\: :=\:\: : \textbf{substitute}$
 \caption{Evaluate Linklet Program}
 \label{fig:main}
 \end{figure*}
