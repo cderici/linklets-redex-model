@@ -43,6 +43,7 @@
 
 \usepackage{float}
 \usepackage{bm}
+\usepackage{mathtools}
 % \usepackage{multicol}
 \floatstyle{boxed}
 \restylefloat{figure}
@@ -300,23 +301,23 @@ p\caption{Linklet Runtime Language}
     \redinput{\bm{\Phi^V}(L\dash obj\; x)} \rel \redoutput{v}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
     \redinput{(\textbf{let\dash inst}\; x\; LI\; p\dash top\; \ldots)} \rel \redoutput{(\textbf{seq}\; p\dash top\; \ldots)}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\Omega}{\rho}{\sigma} \\
-    \redinput{\bm{\Phi^I}((\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
-    \redinput{\bm{\Phi^I}((\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\Omega}{\rho}{\sigma} \\
-    \redinput{\bm{\Phi^I}((\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\Omega}{\rho}{\sigma} \\
+    \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
+    \redinput{(\bm{\Phi^I}\; (\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\Omega}{\rho}{\sigma} \\
+    \redinput{(\bm{\Phi^I}\; (\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\Omega}{\rho}{\sigma} \\
     \redinput{(\textbf{define\dash values}\; (x)\; e)} \rel \redoutput{(void)}{\Omega}{\rho_2}{\sigma_2} \\
     \;          &\;\; \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
     \;          &\;\; \rho_2 = \rho_1[x\rightarrow cell],\; \sigma_2 = \sigma_1[cell\rightarrow v]  \\
     \redinput{e} \rel \redoutput{v}{\Omega}{\rho_1}{\sigma_1} \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
-    \redinput{\bm{\Phi^I}((\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{\bm{\Phi^I}((\lb\; x_t\; l\dash top\; \ldots)\; LI\; \ldots)}{\Omega_2}{\rho_2}{\sigma_1} \\
+    \redinput{(\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}\; (\lb\; x_t\; l\dash top\; \ldots)\; LI\; \ldots)}{\Omega_2}{\rho_2}{\sigma_1} \\
     \;          &\;\; \where x_t = (gensym),  \Omega_1 = \Omega[x_t\rightarrow \textbf{(linklet-instance)}] \\
-    \;          &\;\; \rho_1 = (instantiate\dash imports\; c\dash imps\; (LI\; \ldots)\; \rho\; \sigma) \\
-    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = (instantiate\dash exports\; c\dash exps\; x_t\; \Omega_1\; \rho_1\; \sigma) \\
-    EP\;\llbracket \bm{\Phi^I}((\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{\bm{\Phi^I}((\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\Omega_2}{\rho_2}{\sigma_1} \\
-    \Omega, \rho, \sigma\; &\;\; \where (x_t, \Omega_1) = (prepare\dash target\; i\dash ref\; \Omega) \\
-    \;          &\;\; \rho_1 = (instantiate\dash imports\; c\dash imps\; (LI\; \ldots)\; \rho\; \sigma) \\
-    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = (instantiate\dash exports\; c\dash exps\; x_t\; \Omega_1\; \rho_1\; \sigma) \\
+    \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
+    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \Omega_1, \rho_1, \sigma) \\
+    EP\;\llbracket (\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{(\bm{\Phi^I}\; (\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\Omega_2}{\rho_2}{\sigma_1} \\
+    \Omega, \rho, \sigma\; &\;\; \where (x_t, \Omega_1) = prepare\dash target(i\dash ref, \Omega) \\
+    \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
+    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \Omega_1, \rho_1, \sigma) \\
   \end{align*}
-  $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
+  $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
 \caption{Reduction Relation}
 \label{fig:reduction}
 \end{figure*}
@@ -343,15 +344,29 @@ p\caption{Linklet Runtime Language}
   \begin{align*}
     prepare\dash target(x, \Omega, \rho, \sigma)\; &=\; (x, \Omega) \\
     prepare\dash target(LI, \Omega, \rho, \sigma)\; &=\; (x, \Omega[x\rightarrow LI])\; \where x = (gensym) \\ \\
-    instantiate\dash imports : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
-    instantiate\dash imports((), (LI\;\ldots), \rho, \sigma) &= \rho \\
-    instantiate\dash imports((\ldots\;((Import\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho, \sigma) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
-    instantiate\dash exports : c\dash exps \times x \Omega \times \rho \times \sigma &\longrightarrow \Omega \times \rho \times \sigma \\
+    \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
+    \mathit{V}^I((), (LI\;\ldots), \rho, \sigma) &= \rho \\
+    \mathit{V}^I((\ldots\;((Import\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho, \sigma) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
+    p((Export\;x_{id}\;x_{gen}\;x_{ext}), x_t, \Omega, \rho, \sigma) &= \begin{cases*}
+      \Omega, \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
+      \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
+      \;        &\; $\rho_1 = \rho[x_{gen}\rightarrow LI_t[x_{ext}]$ \\
+        \Omega_1, \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
+        \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
+        \;        &\; $\Omega_1 = \Omega[x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]$ \\
+        \;        &\; $\rho_1 = \rho[x_{gen}\rightarrow var_{new}]$ \\
+        \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit]$ \\
+    \end{cases*} \\ \\
+    \mathit{V}^E : c\dash exps \times x \times \Omega \times \rho \times \sigma &\longrightarrow \Omega \times \rho \times \sigma \\
+    \mathit{V}^E((), x_t, \Omega, \rho, \sigma) &=\; (\Omega, \rho, \sigma) \\
+    \mathit{V}^E((), x_t, \Omega, \rho, \sigma) &=\; (\Omega, \rho, \sigma) \\
+    \mathit{V}^E((exp\dash obj\;\ldots), x_t, \Omega, \rho, \sigma) &= (\Omega_1, \rho_1, \sigma_1)\\
+    \;        &\; \where (\Omega_1, \rho_1, \sigma_1) = p(exp\dash obj, x_t, \Omega, \rho, \sigma) \\
   \end{align*}
+  $\mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
 \caption{Instantiation Utilities}
 \label{fig:inst-utils}
 \end{figure*}
-
 
 %\newpage
 
