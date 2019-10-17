@@ -266,7 +266,7 @@ p\caption{Linklet Runtime Language}
 
 \begin{figure}[h!]
   \begin{align*}
-    p           &::=\; (\textbf{program}\; (\textbf{use\dash linklets}\; (x_{\_!\_}\; L)\; \ldots)\; p\dash top) \\
+    p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top) \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(i\dash ref\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; I\;p\dash top\; \ldots)\; |\; (\textbf{let\dash inst}\; x\; LI\;p\dash top\; \ldots) \\
     V           &::=\; v\; |\; LI \\
@@ -279,7 +279,7 @@ p\caption{Linklet Runtime Language}
     \;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     \;          &\;|\; \bm{\Phi^V}(EP\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top\; \ldots)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
-    \;          &\;|\; (\textbf{program}\; (\textbf{use\dash linklets})\; EP) \\
+    \;          &\;|\; (\textbf{program}\; ()\; EP) \\
   \end{align*}
   $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Programs}
@@ -319,6 +319,23 @@ p\caption{Linklet Runtime Language}
   $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Reduction Relation}
 \label{fig:reduction}
+\end{figure*}
+
+\newcommand{\runio}[1]{run\dash prog(#1, \Omega, \rho, \sigma)\;}
+\newcommand{\prog}[2]{(\textbf{program}\; (\textbf{use\dash linklets}\;#1 )\;#2)}
+
+\begin{figure*}[tbp]
+  \begin{align*}
+    \runio{(\textbf{program}\; ()\;v)} &=\; v \\
+    \runio{(\textbf{program}\; ((x_1\;L_1),(x\;L)\;\ldots)\;p\dash top)} &=\; \runio{(\textbf{program}\; ((x\;L)\;\ldots)\;p\dash top_1)} \\
+    \;          &\;\; \where L\dash obj\;=\;\bm{\Phi^C}(L_1) \\
+    \;          &\;\; p\dash top_1\; =\; substitute\dash linklet(x_1,L\dash obj,p\dash top) \\
+    run\dash prog(p, \Omega, \rho, \sigma)\; &=\; run\dash prog(p_1, \Omega_1, \rho_1, \sigma_1)\; \\
+    \;          &\;\; \where (p, \Omega, \rho, \sigma) \hookrightarrow_{\beta p}\; (p_1, \Omega_1, \rho_1, \sigma_1)  \\
+  \end{align*}
+  $\Phi^C : \textbf{compile\dash linklet}$
+\caption{Evaluate Linklet Program}
+\label{fig:main}
 \end{figure*}
 
 %\newpage
