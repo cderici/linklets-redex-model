@@ -252,7 +252,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     c\dash imps    &::=\; ((imp\dash obj\; \ldots)\; \ldots)\\
     c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
     imp\dash obj   &::=\; (\textbf{Import}\; x\; x\; x) \tag*{[id int ext]} \\
-    exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[int id ext]} \\
+    exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[id int ext]} \\
     LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
     I              &::=\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots) \\
     \;           &\;|\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots\; \textbf{\#:t}\; i\dash ref) \\
@@ -347,18 +347,17 @@ p\caption{Linklet Runtime Language}
     \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
     \mathit{V}^I((), (LI\;\ldots), \rho, \sigma) &= \rho \\
     \mathit{V}^I((\ldots\;((Import\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho, \sigma) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
-    p((Export\;x_{id}\;x_{gen}\;x_{ext}), x_t, \Omega, \rho, \sigma) &= \begin{cases*}
+    p((Export\;x_{id}\;x_{int}\;x_{ext}), x_t, \Omega, \rho, \sigma) &= \begin{cases*}
       \Omega, \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
       \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
-      \;        &\; $\rho_1 = \rho[x_{gen}\rightarrow LI_t[x_{ext}]$ \\
+      \;        &\; $\rho_1 = \rho[x_{id}\rightarrow LI_t[x_{ext}]$ \\
         \Omega_1, \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
         \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
         \;        &\; $\Omega_1 = \Omega[x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]$ \\
-        \;        &\; $\rho_1 = \rho[x_{gen}\rightarrow var_{new}]$ \\
+        \;        &\; $\rho_1 = \rho[x_{id}\rightarrow var_{new}]$ \\
         \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit]$ \\
     \end{cases*} \\ \\
     \mathit{V}^E : c\dash exps \times x \times \Omega \times \rho \times \sigma &\longrightarrow \Omega \times \rho \times \sigma \\
-    \mathit{V}^E((), x_t, \Omega, \rho, \sigma) &=\; (\Omega, \rho, \sigma) \\
     \mathit{V}^E((), x_t, \Omega, \rho, \sigma) &=\; (\Omega, \rho, \sigma) \\
     \mathit{V}^E((exp\dash obj\;\ldots), x_t, \Omega, \rho, \sigma) &= (\Omega_1, \rho_1, \sigma_1)\\
     \;        &\; \where (\Omega_1, \rho_1, \sigma_1) = p(exp\dash obj, x_t, \Omega, \rho, \sigma) \\
