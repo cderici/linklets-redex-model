@@ -12,7 +12,7 @@
 
 (test-equal
  (term
-  (instantiate-exports ((Export a a1 a)) target ((target (linklet-instance))) () ()))
+  (instantiate-exports ((Export a1 a a)) target ((target (linklet-instance))) () ()))
  (term (((target (linklet-instance (a cell_1))) (target (linklet-instance)))
         ((a1 cell_1))
         ((cell_1 uninit)))))
@@ -56,7 +56,7 @@
 (test-equal (apply-reduction-relation
              -->βp
              (term ((program (use-linklets)
-                             (let-inst t (instantiate-linklet (Lα () ((Export y y1 y))
+                             (let-inst t (instantiate-linklet (Lα () ((Export y1 y y))
                                                                   (define-values (y) 10)
                                                                   (var-set! y1 y)
                                                                   (var-set/check-undef! y1 50)))
@@ -204,7 +204,7 @@
 (test-equal (apply-reduction-relation
              -->βp
              (term ((program (use-linklets)
-                             (instantiate-linklet (Lα () ((Export x x1 x))
+                             (instantiate-linklet (Lα () ((Export x1 x x))
                                                       (define-values (x) 5)
                                                       (var-set! x1 x)
                                                       (var-set/check-undef! x1 6)
@@ -326,7 +326,7 @@
              -->βp
              (term ((program (use-linklets)
                              (let-inst t (linklet-instance)
-                                       (instantiate-linklet (Lα () ((Export x x1 x))
+                                       (instantiate-linklet (Lα () ((Export x1 x x))
                                                                 (define-values (x) 5)
                                                                 (var-set! x1 x)
                                                                 (var-set/check-undef! x1 6)
@@ -336,7 +336,7 @@
                     () () ())))
             (term (((program (use-linklets)
                              (seq
-                              (instantiate-linklet (Lα () ((Export x x1 x))
+                              (instantiate-linklet (Lα () ((Export x1 x x))
                                                        (define-values (x) 5)
                                                        (var-set! x1 x)
                                                        (var-set/check-undef! x1 6)
@@ -349,7 +349,7 @@
              -->βp
              (term ((program (use-linklets)
                              (seq
-                              (instantiate-linklet (Lα () ((Export x x1 x))
+                              (instantiate-linklet (Lα () ((Export x1 x x))
                                                        (define-values (x) 5)
                                                        (var-set! x1 x)
                                                        (var-set/check-undef! x1 6)

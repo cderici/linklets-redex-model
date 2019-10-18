@@ -57,10 +57,10 @@
 ; process exports
 (test-equal (term (process-exports () ())) (term ()))
 (test-equal (term (process-exports (a) ()))
-            (term ((Export a a1 a))))
+            (term ((Export a1 a a))))
 (test-equal (term (process-exports ((a-int a-ext) b) ()))
-            (term ((Export a-int x a-ext)
-                   (Export b b1 b))))
+            (term ((Export x a-int a-ext)
+                   (Export b1 b b))))
 
 ; compile-pre-tests
 (test-equal (term (process-importss 0 () ())) (term ()))
@@ -122,7 +122,7 @@
                             cc
                             (lambda (p) w)
                             )))
-            (term (Lα (((Import 0 cc1 cc cc))) ((Export w w1 w))
+            (term (Lα (((Import 0 cc1 cc cc))) ((Export w1 w w))
                                     (var-ref/no-check cc1)
                                     (lambda (p) (var-ref w1)))))
 ; slightly more realistic lambda
@@ -138,7 +138,7 @@
 ; create a variable for export
 (test-equal (term (compile-linklet
                    (linklet () (x) (define-values (x) 5) (+ x x))))
-            (term (Lα () ((Export x x1 x))
+            (term (Lα () ((Export x1 x x))
                                     (define-values (x) 5)
                                     (var-set! x1 x)
                                     (+ x x))))
@@ -157,7 +157,7 @@
                    (linklet () (x)
                             (define-values (x) 5)
                             (set! x 6) (+ x x))))
-            (term (Lα () ((Export x x1 x))
+            (term (Lα () ((Export x1 x x))
                                     (define-values (x) 5)
                                     (var-set! x1 x)
                                     (var-set/check-undef! x1 6)

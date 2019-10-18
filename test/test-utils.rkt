@@ -154,13 +154,13 @@
 
 (test-equal
  (term
-  (substitute-one l (Lα () ((Export y y1 y))
+  (substitute-one l (Lα () ((Export y1 y y))
                         (define-values (y) 10)
                         (var-set! y1 y)
                         (var-set/check-undef! y1 50))
                   (instantiate-linklet l #:target t)))
  (term
-  (instantiate-linklet (Lα () ((Export y y1 y))
+  (instantiate-linklet (Lα () ((Export y1 y y))
                            (define-values (y) 10)
                            (var-set! y1 y)
                            (var-set/check-undef! y1 50)) #:target t)))
@@ -176,7 +176,7 @@
 
 (test-equal
  (term
-  (substitute-one l (Lα () ((Export y y1 y))
+  (substitute-one l (Lα () ((Export y1 y y))
                         (define-values (y) 10)
                         (var-set! y1 y)
                         (var-set/check-undef! y1 50))
@@ -185,7 +185,7 @@
                             (instance-variable-value t y))))
  (term
   (let-inst t (linklet-instance)
-            (instantiate-linklet (Lα () ((Export y y1 y))
+            (instantiate-linklet (Lα () ((Export y1 y y))
                                      (define-values (y) 10)
                                      (var-set! y1 y)
                                      (var-set/check-undef! y1 50)) #:target t)
