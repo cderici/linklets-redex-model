@@ -111,13 +111,13 @@
 (define-metafunction Linklets
   process-one-export : exp-obj x Ω ρ σ -> (Ω ρ σ)
   ; target has it
-  [(process-one-export (Export x_id x_gen x_ext) x_target Ω ρ σ)
+  [(process-one-export (Export x_gen x_id x_ext) x_target Ω ρ σ)
    (Ω ρ_1 σ) ; <- same store (σ) and instances (Ω), i.e. don't create new variable
    (where (linklet-instance (x_bef cell_bef) ... (x_ext cell) (x_aft cell_aft) ...)
           (lookup Ω x_target))
    (where ρ_1 (extend ρ (x_gen) (cell)))]
   ; target doesn't have it
-  [(process-one-export (Export x_id x_gen x_ext) x_target Ω ρ σ)
+  [(process-one-export (Export x_gen x_id x_ext) x_target Ω ρ σ)
    ((extend Ω (x_target) ((linklet-instance (x cell) ... (x_ext cell_new)))) ρ_1 σ_1)
    ; create a new variable and put a reference to it within the target
    (where (linklet-instance (x cell) ...) (lookup Ω x_target))
@@ -127,9 +127,9 @@
 (define-metafunction Linklets
   instantiate-exports : c-exps x Ω ρ σ -> (Ω ρ σ)
   [(instantiate-exports () x Ω ρ σ) (Ω ρ σ)]
-  [(instantiate-exports ((Export x_id x_gen x_ext) exp-obj ...) x_target Ω ρ σ)
+  [(instantiate-exports ((Export x_gen x_id x_ext) exp-obj ...) x_target Ω ρ σ)
    (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ_1)
-   (where (Ω_1 ρ_1 σ_1) (process-one-export (Export x_id x_gen x_ext) x_target Ω ρ σ))])
+   (where (Ω_1 ρ_1 σ_1) (process-one-export (Export x_gen x_id x_ext) x_target Ω ρ σ))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Instantiation

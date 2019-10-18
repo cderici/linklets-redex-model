@@ -59,10 +59,10 @@
   process-exports : (exp-id ...) (exp-obj ...) -> (exp-obj ...)
   [(process-exports () (exp-obj ...)) (exp-obj ...)]
   [(process-exports (x exp-id ...) (exp-obj ...))
-   (process-exports (exp-id ...) (exp-obj ... (Export x x_gen x)))
+   (process-exports (exp-id ...) (exp-obj ... (Export x_gen x x)))
    (where x_gen ,(variable-not-in (term (x exp-id ...)) (term x)))]
   [(process-exports ((x_int x_ext) exp-id ...) (exp-obj ...))
-   (process-exports (exp-id ...) (exp-obj ... (Export x_int x_gen x_ext)))
+   (process-exports (exp-id ...) (exp-obj ... (Export x_gen x_int x_ext)))
    (where x_gen ,(variable-not-in (term ((x_int x_ext) exp-id ...)) (term x)))])
 
 #|
@@ -74,7 +74,7 @@ we create the variable with the exports internal gensym.
 |#
 (define-metafunction LinkletsCompile
   c-def-val : x e c-exps  -> exprs
-  [(c-def-val x e_body (exp-obj_before ... (Export x x_gen x_int) exp-obj_after ...))
+  [(c-def-val x e_body (exp-obj_before ... (Export x_gen x x_ext) exp-obj_after ...))
    ((define-values (x) e_body) (var-set! x_gen x))]
   [(c-def-val x e_body c-exps)
    ((define-values (x) e_body))])
@@ -98,17 +98,17 @@ or a primitive (op)(which is handled in a separate case below)
    (var-ref/no-check x_gen_cur)]
   ; 2-a) if it's one of exports, and it is mutated
   [(c-symbol x_current mut-ids top-ids c-imps
-             ((Export x_int_bef x_gen_bef x_ext_bef) ...
-              (Export x_current x_gen_cur x_ext_cur)
-              (Export x_int_aft x_gen_aft x_ext_aft) ...))
+             ((Export x_gen_bef x_int_bef x_ext_bef) ...
+              (Export x_gen_cur x_current x_ext_cur)
+              (Export x_gen_aft x_int_aft x_ext_aft) ...))
    (var-ref x_gen_cur)
    (side-condition (member (term x_current) (term mut-ids)))]
   ; 2-b) if it's one of exports, and not defined in the toplevel
   ; (within the linklet)
   [(c-symbol x_current mut-ids top-ids c-imps
-             ((Export x_int_bef x_gen_bef x_ext_bef) ...
-              (Export x_current x_gen_cur x_ext_cur)
-              (Export x_int_aft x_gen_aft x_ext_aft) ...))
+             ((Export x_gen_bef x_int_bef x_ext_bef) ...
+              (Export x_gen_cur x_current x_ext_cur)
+              (Export x_gen_aft x_int_aft x_ext_aft) ...))
    (var-ref x_gen_cur)
    (side-condition (not (member (term x_current) (term top-ids))))]
   ; 3) symbol is neither import nor export, treat normal
@@ -117,9 +117,9 @@ or a primitive (op)(which is handled in a separate case below)
 ;; ----  Set!
 (define-metafunction LinkletsCompile
   c-set-bang : x c-exps e -> l-top
-  [(c-set-bang x ((Export x_int_bef x_gen_bef x_ext_bef) ...
-                  (Export x x_gen_cur x_ext_cur)
-                  (Export x_int_aft x_gen_aft x_ext_aft) ...)
+  [(c-set-bang x ((Export x_gen_bef x_int_bef x_ext_bef) ...
+                  (Export x_gen_cur x x_ext_cur)
+                  (Export x_gen_aft x_int_aft x_ext_aft) ...)
                e_rhs)
    (var-set/check-undef! x_gen_cur e_rhs)]
   [(c-set-bang x c-exps e_rhs) (set! x e_rhs)])

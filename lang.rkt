@@ -62,7 +62,7 @@
   [c-exps ::= (exp-obj ...)]
   ;; import & export objects
   [imp-obj ::= (Import n x x x)] ; group-index id(<-gensymed) int_id ext_id
-  [exp-obj ::= (Export x x x)] ; int_id int_gensymed ext_id
+  [exp-obj ::= (Export x x x)] ; int_gensymed int_id ext_id
 
   ;; instantiate
   [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
