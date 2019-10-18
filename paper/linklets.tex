@@ -394,10 +394,11 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 %%%
 
 \begin{figure*}[tbp]
+  \small
   \begin{align*}
     \Phi^C : L &\longrightarrow L\dash obj \\
     \Phi^C((\textbf{linklet}\; ((imp\; \ldots)\; \ldots)\; (exp\; \ldots)\; l\dash top\; \ldots))\; &=\; (\la\; c\dash imps\; c\dash exps\; l\dash top_1\; \ldots) \\
-    \;        &\; \where l\dash top_1\; \ldots\; =\; \Phi^C_{\textbf{e}}(l\dash top\; \ldots,(),(x_M\;\ldots),(x_T\;\ldots)) \\
+    \;        &\; \where l\dash top_1\; \ldots\; =\; \Phi^C_{\textbf{e}}(l\dash top,(),(x_M\;\ldots),(x_T\;\ldots))\; \ldots \\
     \;        &\; c\dash imps = \mathit{A}^I(((imp\; \ldots)\; \ldots)) \\
     \;        &\; c\dash exps = \mathit{A}^E((exp\; \ldots)) \\
     \;        &\; (x_T\;\ldots) = toplevel\dash ids(l\dash top\; \ldots) \\
@@ -414,6 +415,20 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
       (\textbf{Export}\;(gensym)\;x\;x) & if $exp_n = x$ \\
       (\textbf{Export}\;(gensym)\;x_{int}\;x_{ext}) & if $exp_n = (x_{int}\;x_{ext})$ \\
     \end{cases*} \\ \\
+    %\Phi^C_{\textbf{e}} : l\dash top \times (c\dash imps\;\ldots) \times (c\dash exps\;\ldots) \times (x\;\ldots) \times (x\;\ldots) \times (x\;\ldots) &\longrightarrow l\dash top\; \ldots \\
+    \Phi^C_{\textbf{e}} : l\dash top \times \mathit{C_I} \times \mathit{C_E} \times \mathit{X_L} \times\mathit{X_M} \times\mathit{X_T} &\longrightarrow l\dash top\; \ldots \\
+    \;          &\;\; \where \mathit{C_I} : (c\dash imps\;\ldots), \mathit{C_E} : (c\dash exps\;\ldots) \\
+    \;          &\;\; \mathit{X_L} : (x\;\ldots), \mathit{X_M} : (x\;\ldots), \mathit{X_T} : (x\;\ldots) \\
+    \Phi^C_{\textbf{e}}((\textbf{define\dash values}\:(x)\:e),\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
+      (\textbf{define\dash values}\:(x)\:e), (var\dash set!\; x_{gen}\; x) \\
+      \hspace{3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E} \\
+      (\textbf{define\dash values}\:(x)\:e)\;\;\; otherwise
+    \end{cases*} \\
+    \Phi^C_{\textbf{e}}((\textbf{set!}\; x\; e),\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
+      (\textbf{var\dash set/check\dash undef!}\; x_{gen}\; e)\\
+      \hspace{3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E} \\
+      (\textbf{set!}\; x\; e) \hspace{1.8cm} otherwise
+    \end{cases*} \\
   \end{align*}
   \hfill \footnotesize $\mathit{A}^I : \textbf{create import objects},\: \mathit{A}^E : \textbf{create exports objects}$
 \caption{Compile Linklet}
