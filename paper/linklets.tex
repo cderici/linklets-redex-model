@@ -369,9 +369,60 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \mathit{V}^E((exp\dash obj\;\ldots), x_t, \Omega, \rho, \sigma) &= (\Omega_1, \rho_1, \sigma_1)\\
     \;        &\; \where (\Omega_1, \rho_1, \sigma_1) = p(exp\dash obj, x_t, \Omega, \rho, \sigma) \\
   \end{align*}
-  $\mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
+  \hfill \footnotesize $\mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
 \caption{Instantiation Utilities}
 \label{fig:inst-utils}
+\end{figure*}
+
+%%%
+% compile-main
+
+% c-body ------------ define-values | symbols | set! | others (?)
+
+% c-def-val
+% c-symbol
+% c-set-bang
+
+% --------- utils ---------
+% LinkletsCompile (?)
+% process-import
+% process-export
+
+% get-all-mutated-vars
+% all-toplevels
+
+%%%
+
+\begin{figure*}[tbp]
+  \begin{align*}
+    prepare\dash target(x, \Omega, \rho, \sigma)\; &=\; (x, \Omega) \\
+    prepare\dash target(LI, \Omega, \rho, \sigma)\; &=\; (x, \Omega[x\rightarrow LI])\; \where x = (gensym) \\ \\
+    \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
+    \mathit{V}^I((), (LI\;\ldots), \rho, \sigma) &= \rho \\
+    \mathit{V}^I((\ldots\;((Import\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho, \sigma) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
+    p((Export\;x_{id}\;x_{int}\;x_{ext}), x_t, \Omega, \rho, \sigma) &= \begin{cases*}
+      \Omega, \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
+      \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
+      \;        &\; $\rho_1 = \rho[x_{id}\rightarrow LI_t[x_{ext}]$ \\
+        \Omega_1, \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
+        \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
+        \;        &\; $\Omega_1 = \Omega[x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]$ \\
+        \;        &\; $\rho_1 = \rho[x_{id}\rightarrow var_{new}]$ \\
+        \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit]$ \\
+    \end{cases*} \\ \\
+    \Phi^C : L &\longrightarrow L\dash obj \\
+    \Phi^C((\textbf{linklet}\; ((imp\; \ldots)\; \ldots)\; (exp\; \ldots)\; l\dash top\; \ldots))\; &=\; (\la\; c\dash imps\; c\dash exps\; l\dash top_1\; \ldots) \\
+    \;        &\; \where l\dash top_1\; \ldots\; =\; \Phi^C_{\textbf{e}}(l\dash top\; \ldots) \\
+    \;        &\; c\dash imps =  \\
+    \;        &\; c\dash exps =  \\
+    \mathit{V}^E : c\dash exps \times x \times \Omega \times \rho \times \sigma &\longrightarrow \Omega \times \rho \times \sigma \\
+    \mathit{V}^E((), x_t, \Omega, \rho, \sigma) &=\; (\Omega, \rho, \sigma) \\
+    \mathit{V}^E((exp\dash obj\;\ldots), x_t, \Omega, \rho, \sigma) &= (\Omega_1, \rho_1, \sigma_1)\\
+    \;        &\; \where (\Omega_1, \rho_1, \sigma_1) = p(exp\dash obj, x_t, \Omega, \rho, \sigma) \\
+  \end{align*}
+  \hfill \footnotesize $\mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
+\caption{Compile Linklet}
+\label{fig:compile}
 \end{figure*}
 
 %\newpage
