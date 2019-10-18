@@ -244,6 +244,13 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \def\lb {\bm{L_\beta}}
 \def\lc {\bm{L_\gamma}}
 
+%% math mode font fize
+
+%% displaystyle: $ {\displaystyle x^2 + 2xy + y^2} $\\
+%% scriptstyle: $ {\scriptstyle x^2 + 2xy + y^2} $\\
+%% scriptscriptstyle: $ {\scriptscriptstyle x^2 + 2xy + y^2} $\\
+%% textstyle: $ {\textstyle x^2 + 2xy + y^2} $
+
 \begin{figure}[tbp]
   \begin{align*}
     CL             &::=\; \bm{\Phi^C}(L)\\
@@ -260,8 +267,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     i\dash ref  &::=\; x\; |\; LI \\
     \Omega              &::=\; ((x\; LI)\; \ldots) \tag*{[linklet instance environment]} \\
   \end{align*}
-  $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
-p\caption{Linklet Runtime Language}
+  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
+\caption{Linklet Runtime Language}
 \label{fig:linklet-runtime}
 \end{figure}
 
@@ -282,7 +289,7 @@ p\caption{Linklet Runtime Language}
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top\; \ldots)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
     \;          &\;|\; (\textbf{program}\; ()\; EP) \\
   \end{align*}
-  $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
+  \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Programs}
 \label{fig:linklet-program}
 \end{figure}
@@ -317,7 +324,7 @@ p\caption{Linklet Runtime Language}
     \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
     \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \Omega_1, \rho_1, \sigma) \\
   \end{align*}
-  $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
+  \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get\dash import\dash vars},\: \mathit{V}^E : \textbf{make\dash exports\dash vars}$
 \caption{Reduction Relation}
 \label{fig:reduction}
 \end{figure*}
@@ -335,7 +342,7 @@ p\caption{Linklet Runtime Language}
     \;          &\;\; \where (p, \Omega, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \Omega_1, \rho_1, \sigma_1)  \\ \\
     eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), (), () \twoheadrightarrow_p\; v
   \end{align*}
-  $\Phi^C : \textbf{compile\dash linklet}\:,\: :=\:\: : \textbf{substitute}$
+  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: :=\:\: : \textbf{substitute}$
 \caption{Evaluate Linklet Program}
 \label{fig:main}
 \end{figure*}
