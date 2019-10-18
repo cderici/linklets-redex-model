@@ -420,14 +420,18 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \;          &\;\; \where \mathit{C_I} : (c\dash imps\;\ldots), \mathit{C_E} : (c\dash exps\;\ldots) \\
     \;          &\;\; \mathit{X_L} : (x\;\ldots), \mathit{X_M} : (x\;\ldots), \mathit{X_T} : (x\;\ldots) \\
     \Phi^C_{\textbf{e}}((\textbf{define\dash values}\:(x)\:e),\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
-      (\textbf{define\dash values}\:(x)\:e), (var\dash set!\; x_{gen}\; x) \\
-      \hspace{3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E} \\
-      (\textbf{define\dash values}\:(x)\:e)\;\;\; otherwise
+      (\textbf{define\dash values}\:(x)\:e), (var\dash set!\; x_{gen}\; x)\;\; \;\; if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E} \\
+      (\textbf{define\dash values}\:(x)\:e) \hspace{2.5cm} \;\; otherwise
     \end{cases*} \\
     \Phi^C_{\textbf{e}}((\textbf{set!}\; x\; e),\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
-      (\textbf{var\dash set/check\dash undef!}\; x_{gen}\; e)\\
-      \hspace{3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E} \\
-      (\textbf{set!}\; x\; e) \hspace{1.8cm} otherwise
+      (\textbf{var\dash set/check\dash undef!}\; x_{gen}\; e) \hspace{1.4cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\\
+      (\textbf{set!}\; x\; e) \hspace{4.3cm} otherwise
+    \end{cases*} \\
+    \Phi^C_{\textbf{e}}(x,\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
+      (\textbf{var\dash ref/no\dash check}\; x_{gen}) \hspace{1.5cm} if\; (\textbf{Import}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_I} \\
+      (\textbf{var\dash ref}\; x) \hspace{3.3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\;\; \&\;\; x\in \mathit{X_M} \\
+      (\textbf{var\dash ref}\; x) \hspace{3.3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\;\; \&\;\; x\notin \mathit{X_T} \\
+      x \hspace{4.6cm} otherwise
     \end{cases*} \\
   \end{align*}
   \hfill \footnotesize $\mathit{A}^I : \textbf{create import objects},\: \mathit{A}^E : \textbf{create exports objects}$
