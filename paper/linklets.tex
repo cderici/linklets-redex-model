@@ -314,7 +314,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \;          &\;\; \rho_2 = \rho_1[x\rightarrow cell],\; \sigma_2 = \sigma_1[cell\rightarrow v]  \\
     \redinput{e} \rel \redoutput{v}{\rho_1}{\sigma_1} \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
     \redinput{(\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}\; (\lb\; x_t\; l\dash top\; \ldots)\; LI\; \ldots)}{\rho_2}{\sigma_2} \\
-    \;          &\;\; \where x_t = (gensym),  \sigma_1 = \sigma[x_t\rightarrow \textbf{(linklet-instance)}] \\
+    \;          &\;\; \where (x_t, \sigma_1) = prepare\dash target(\sigma) \\
     \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma_1) \\
     \;          &\;\; (\rho_2, \sigma_2) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma_1) \\
     EP\;\llbracket (\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{(\bm{\Phi^I}\; (\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\rho_2}{\sigma_2} \\
@@ -345,6 +345,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure*}[tbp]
   \begin{align*}
+    prepare\dash target(\sigma)\; &=\; (x, \sigma[x\rightarrow \textbf{(linklet-instance)}])\; \where x = (gensym) \\
     prepare\dash target(x, \rho, \sigma)\; &=\; (x, \sigma) \\
     prepare\dash target(LI, \rho, \sigma)\; &=\; (x, \sigma[x\rightarrow LI])\; \where x = (gensym) \\ \\
     \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
