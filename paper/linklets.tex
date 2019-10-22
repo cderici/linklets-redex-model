@@ -255,7 +255,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     CL             &::=\; \bm{\Phi^C}(L)\\
     L\dash obj     &::= (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\\
-    \;           &\;|\; (\lb\; x\; l\dash top\; \ldots) |\; (\lc\; l\dash top\; \ldots) \\
+    \;           &\;|\; (\lb\; x\; l\dash top\; \ldots)\; |\; (\lc\; l\dash top\; \ldots) \\
     c\dash imps    &::=\; ((imp\dash obj\; \ldots)\; \ldots)\\
     c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
     imp\dash obj   &::=\; (\textbf{Import}\; x\; x\; x) \tag*{[id int ext]} \\
@@ -336,8 +336,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \begin{figure*}[tbp]
   \begin{align*}
     (\textbf{program}\; ()\;v), \Omega, \rho, \sigma \transrel v \\
-    (\textbf{program}\; ((x_1\;L_1),(x\;L)\;\ldots)\;p\dash top), \Omega, \rho, \sigma \transrel (\textbf{program}\; ((x\;L)\;\ldots)\;p\dash top_1 ), \Omega, \rho, \sigma \\
-    \;          &\;\; \where p\dash top_1\; =\; p\dash top[x_1 := L\dash obj], L\dash obj\;=\;\bm{\Phi^C}(L_1) \\
+    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \Omega, \rho, \sigma \transrel (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top_1 ), \Omega, \rho, \sigma \\
+    \;          &\;\; \where p\dash top_1\; =\; p\dash top[x := L\dash obj], L\dash obj\;=\;\bm{\Phi^C}(L) \\
     p, \Omega, \rho, \sigma \transrel p_1, \Omega_1, \rho_1, \sigma_1 \\
     \;          &\;\; \where (p, \Omega, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \Omega_1, \rho_1, \sigma_1)  \\ \\
     eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), (), () \twoheadrightarrow_p\; v
