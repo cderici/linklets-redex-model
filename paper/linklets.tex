@@ -333,12 +333,10 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure*}[tbp]
   \begin{align*}
-    (\textbf{program}\; ()\;v), \rho, \sigma \transrel v \\
-    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma \transrel (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top_1 ), \rho, \sigma \\
-    \;          &\;\; \where p\dash top_1\; =\; p\dash top[x := L\dash obj], L\dash obj\;=\;\bm{\Phi^C}(L) \\
+    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma \transrel (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\
     p, \rho, \sigma \transrel p_1, \rho_1, \sigma_1 \\
-    \;          &\;\; \where (p, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \rho_1, \sigma_1)  \\ \\
-    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_p\; v
+    \;          &\;\; \where (p, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \rho_1, \sigma_1)  \\
+    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{p\cup\beta p} \; (\textbf{program}\; ()\;v)
   \end{align*}
   \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: :=\:\: : \textbf{substitute}$
 \caption{Evaluate Linklet Program}
