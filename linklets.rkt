@@ -49,8 +49,7 @@
    (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ...)) ρ σ]
         [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ...)) ρ_2 σ_2]
         ; set the stage for target/imports/exports
-        (where x_target ,(variable-not-in (term σ) (term x)))
-        (where σ_1 (extend σ (x_target) ((linklet-instance))))
+        (where (x_target σ_1) (prepare-target σ))
         (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ_1))
         (where (ρ_2 σ_2) (instantiate-exports c-exps x_target ρ_1 σ_1))
         "set the stage for instantiation")
@@ -67,7 +66,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-metafunction Linklets
-  prepare-target : inst-ref ρ σ -> (x σ)
+  ;prepare-target : inst-ref ρ σ -> (x σ)
+  [(prepare-target σ)
+   (x_target σ_1)
+   (where x_target ,(variable-not-in (term σ) (term x)))
+   (where σ_1 (extend σ (x_target) ((linklet-instance))))]
   [(prepare-target x ρ σ) (x σ)]
   [(prepare-target LI ρ σ)
    (t σ_1)
