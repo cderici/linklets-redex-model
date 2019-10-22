@@ -76,8 +76,6 @@
   [p-top ::= v LI I (let-inst x I p-top) (let-inst x LI p-top) (seq p-top ...)
              (instance-variable-value inst-ref x)]
 
-  [Ω   ::= ((x LI) ...)] ; instance env
-
   [V ::= v LI]
 
   ;; evaluation-context for the programs

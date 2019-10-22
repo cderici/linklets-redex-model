@@ -10,56 +10,56 @@
 (define -->βp
   (reduction-relation
    Linklets
-   #:domain (p Ω ρ σ)
+   #:domain (p ρ σ)
    #;(--> [(in-hole EP (raises e)) ω Ω ρ σ]
           [(raises e) ω Ω ρ σ] "error")
-   (--> [(in-hole EP (program (use-linklets) v)) Ω ρ σ]
-        [(in-hole EP v) Ω ρ σ] "return")
-   (--> [(in-hole EP x) Ω ρ σ]
-        [(in-hole EP LI_found) Ω ρ σ]
+   (--> [(in-hole EP (program (use-linklets) v)) ρ σ]
+        [(in-hole EP v) ρ σ] "return")
+   (--> [(in-hole EP x) ρ σ]
+        [(in-hole EP LI_found) ρ σ]
         (where LI_found (lookup σ x))
         "instance-lookup")
-   (--> [(in-hole EP (instance-variable-value LI x)) Ω ρ σ]
-        [(in-hole EP v) Ω ρ σ]
+   (--> [(in-hole EP (instance-variable-value LI x)) ρ σ]
+        [(in-hole EP v) ρ σ]
         (where v (lookup σ (get-var-from-instance x LI)))
         "instance variable value")
-   (--> [(in-hole EP (instance-variable-value L-obj x)) Ω ρ σ]
-        [(raises instance-expected) Ω ρ σ] "instance variable value error")
-   (--> [(in-hole EP (let-inst x LI p-top)) Ω ρ σ]
-        [(in-hole EP p-top) Ω ρ (extend σ (x) (LI))] "let-inst")
-   (--> [(in-hole EP (seq v_1 ... v_n)) Ω ρ σ]
-        [(in-hole EP v_n) Ω ρ σ] "seq")
-   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ...) LI ...)) Ω ρ σ]
-        [(in-hole EP (lookup σ x_target)) Ω ρ σ] "return instance")
-   (--> [(in-hole EP (instantiate-linklet (Lγ) LI ...)) Ω ρ σ]
-        [(in-hole EP (void)) Ω ρ σ] "return no value")
-   (--> [(in-hole EP (instantiate-linklet (Lγ v ... v_last) LI ...)) Ω ρ σ]
-        [(in-hole EP v_last) Ω ρ σ] "return value")
+   (--> [(in-hole EP (instance-variable-value L-obj x)) ρ σ]
+        [(raises instance-expected) ρ σ] "instance variable value error")
+   (--> [(in-hole EP (let-inst x LI p-top)) ρ σ]
+        [(in-hole EP p-top) ρ (extend σ (x) (LI))] "let-inst")
+   (--> [(in-hole EP (seq v_1 ... v_n)) ρ σ]
+        [(in-hole EP v_n) ρ σ] "seq")
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ...) LI ...)) ρ σ]
+        [(in-hole EP (lookup σ x_target)) ρ σ] "return instance")
+   (--> [(in-hole EP (instantiate-linklet (Lγ) LI ...)) ρ σ]
+        [(in-hole EP (void)) ρ σ] "return no value")
+   (--> [(in-hole EP (instantiate-linklet (Lγ v ... v_last) LI ...)) ρ σ]
+        [(in-hole EP v_last) ρ σ] "return value")
 
-   (--> [(in-hole EP (define-values (x) e)) Ω ρ σ]
-        [(in-hole EP (void)) Ω ρ_2 σ_2]
+   (--> [(in-hole EP (define-values (x) e)) ρ σ]
+        [(in-hole EP (void)) ρ_2 σ_2]
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
         (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell_1)))
         (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v))))  "define-values")
-   (--> [(in-hole EP e) Ω ρ σ]
-        [(in-hole EP v) Ω ρ_1 σ_1]
+   (--> [(in-hole EP e) ρ σ]
+        [(in-hole EP v) ρ_1 σ_1]
         (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
         (side-condition (not (redex-match? Linklets v (term e)))) "expression")
 
-   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ...)) Ω ρ σ]
-        [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ...)) Ω_1 ρ_2 σ_2]
+   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ...)) ρ σ]
+        [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...) LI ...)) ρ_2 σ_2]
         ; set the stage for target/imports/exports
-        (where x_target ,(variable-not-in (term Ω) (term x)))
+        (where x_target ,(variable-not-in (term σ) (term x)))
         (where σ_1 (extend σ (x_target) ((linklet-instance))))
         (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ_1))
-        (where (Ω_1 ρ_2 σ_2) (instantiate-exports c-exps x_target Ω ρ_1 σ_1))
+        (where (ρ_2 σ_2) (instantiate-exports c-exps x_target ρ_1 σ_1))
         "set the stage for instantiation")
-   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target inst-ref)) Ω ρ σ]
-        [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) Ω_1 ρ_2 σ_2]
+   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target inst-ref)) ρ σ]
+        [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) ρ_2 σ_2]
         ; set the stage for target/imports/exports
-        (where (x_target σ_1) (prepare-target inst-ref Ω ρ σ))
+        (where (x_target σ_1) (prepare-target inst-ref ρ σ))
         (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ_1))
-        (where (Ω_1 ρ_2 σ_2) (instantiate-exports c-exps x_target Ω ρ_1 σ_1))
+        (where (ρ_2 σ_2) (instantiate-exports c-exps x_target ρ_1 σ_1))
         "set the stage for evaluation")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -67,9 +67,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-metafunction Linklets
-  prepare-target : inst-ref Ω ρ σ -> (x σ)
-  [(prepare-target x Ω ρ σ) (x σ)]
-  [(prepare-target LI Ω ρ σ)
+  prepare-target : inst-ref ρ σ -> (x σ)
+  [(prepare-target x ρ σ) (x σ)]
+  [(prepare-target LI ρ σ)
    (t σ_1)
    (where σ_1 (extend σ (t) (LI)))
    (where t ,(variable-not-in (term (ρ σ)) (term t)))])
@@ -108,27 +108,27 @@
 
 ; Utils for Exports
 (define-metafunction Linklets
-  process-one-export : exp-obj x Ω ρ σ -> (Ω ρ σ)
+  process-one-export : exp-obj x ρ σ -> (ρ σ)
   ; target has it
-  [(process-one-export (Export x_gen x_id x_ext) x_target Ω ρ σ)
-   (Ω ρ_1 σ) ; <- same store (σ) and instances (Ω), i.e. don't create new variable
+  [(process-one-export (Export x_gen x_id x_ext) x_target ρ σ)
+   (ρ_1 σ) ; <- same store (σ) and instances (Ω), i.e. don't create new variable
    (where (linklet-instance (x_bef cell_bef) ... (x_ext cell) (x_aft cell_aft) ...)
           (lookup σ x_target))
    (where ρ_1 (extend ρ (x_gen) (cell)))]
   ; target doesn't have it
-  [(process-one-export (Export x_gen x_id x_ext) x_target Ω ρ σ)
-   (Ω ρ_1 (extend σ_1 (x_target) ((linklet-instance (x cell) ... (x_ext cell_new)))))
+  [(process-one-export (Export x_gen x_id x_ext) x_target ρ σ)
+   (ρ_1 (extend σ_1 (x_target) ((linklet-instance (x cell) ... (x_ext cell_new)))))
    ; create a new variable and put a reference to it within the target
    (where (linklet-instance (x cell) ...) (lookup σ x_target))
    (where cell_new ,(variable-not-in (term (ρ σ x ... cell ...)) (term cell_1)))
    (where (ρ_1 σ_1) ((extend ρ (x_gen) (cell_new)) (extend σ (cell_new) (uninit))))])
 
 (define-metafunction Linklets
-  instantiate-exports : c-exps x Ω ρ σ -> (Ω ρ σ)
-  [(instantiate-exports () x Ω ρ σ) (Ω ρ σ)]
-  [(instantiate-exports ((Export x_gen x_id x_ext) exp-obj ...) x_target Ω ρ σ)
-   (instantiate-exports (exp-obj ...) x_target Ω_1 ρ_1 σ_1)
-   (where (Ω_1 ρ_1 σ_1) (process-one-export (Export x_gen x_id x_ext) x_target Ω ρ σ))])
+  instantiate-exports : c-exps x ρ σ -> (ρ σ)
+  [(instantiate-exports () x ρ σ) (ρ σ)]
+  [(instantiate-exports ((Export x_gen x_id x_ext) exp-obj ...) x_target ρ σ)
+   (instantiate-exports (exp-obj ...) x_target ρ_1 σ_1)
+   (where (ρ_1 σ_1) (process-one-export (Export x_gen x_id x_ext) x_target ρ σ))])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Instantiation

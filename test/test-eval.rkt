@@ -80,16 +80,13 @@
 ;; eval-prog/run-prog side tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(test-equal (term (run-prog ((program (use-linklets) 3)
-                             () () ()))) 3)
+(test-equal (term (run-prog ((program (use-linklets) 3) () ()))) 3)
 
-(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3)
-                             () () ()))) 3)
+(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3) () ()))) 3)
 
 (test-equal (term (run-prog ((program (use-linklets)
                                       (instantiate-linklet (Lα () ()) #:target t1))
-                             ((t1 (linklet-instance)))
-                             () ())))
+                             () ((t1 (linklet-instance))))))
             (term (void)))
 
 ; (term ((linklet-instance (a cell_1)) ((a1 cell_1)) ((cell_1 (variable a uninit))))))
