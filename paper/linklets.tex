@@ -264,7 +264,6 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \;           &\;|\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots\; \textbf{\#:t}\; i\dash ref) \\
     l\dash ref &::=\; x\; |\; L\dash obj \\
     i\dash ref  &::=\; x\; |\; LI \\
-    \Omega              &::=\; ((x\; LI)\; \ldots) \tag*{[linklet instance environment]} \\
   \end{align*}
   \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Runtime Language}
@@ -295,51 +294,51 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 %\onecolumn
 %\newpage
-\newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \Omega, \rho, \sigma\;}
-\newcommand{\redoutput}[4]{EP\;\llbracket #1 \rrbracket, #2, #3, #4\;}
+\newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \rho, \sigma\;}
+\newcommand{\redoutput}[3]{EP\;\llbracket #1 \rrbracket, #2, #3\;}
 \def\where {\textbf{where}\;}
 \def\rel {&\longrightarrow_{\beta p}\;}
 
 % \redoutput{}{}{}{}{}
 \begin{figure*}[tbp]
   \begin{align*}
-    \redinput{x} \rel \redoutput{LI}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
-    \redinput{\bm{\Phi^V}(L\dash obj\; x)} \rel \redoutput{v}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
-    \redinput{(\textbf{let\dash inst}\; x\; LI\; p\dash top)} \rel \redoutput{p\dash top}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
-    \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\Omega}{\rho}{\sigma} \\
-    \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
-    \redinput{(\bm{\Phi^I}\; (\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\Omega}{\rho}{\sigma} \\
-    \redinput{(\bm{\Phi^I}\; (\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\Omega}{\rho}{\sigma} \\
-    \redinput{(\textbf{define\dash values}\; (x)\; e)} \rel \redoutput{(void)}{\Omega}{\rho_2}{\sigma_2} \\
+    \redinput{x} \rel \redoutput{LI}{\rho}{\sigma} \where LI \; =\; (lookup\; \sigma\; x) \\
+    \redinput{\bm{\Phi^V}(L\dash obj\; x)} \rel \redoutput{v}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
+    \redinput{(\textbf{let\dash inst}\; x\; LI\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow LI] \\
+    \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\rho}{\sigma} \\
+    \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\rho}{\sigma} \where LI_t = (lookup\; \sigma\; x) \\
+    \redinput{(\bm{\Phi^I}\; (\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\rho}{\sigma} \\
+    \redinput{(\bm{\Phi^I}\; (\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\rho}{\sigma} \\
+    \redinput{(\textbf{define\dash values}\; (x)\; e)} \rel \redoutput{(void)}{\rho_2}{\sigma_2} \\
     \;          &\;\; \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
     \;          &\;\; \rho_2 = \rho_1[x\rightarrow cell],\; \sigma_2 = \sigma_1[cell\rightarrow v]  \\
-    \redinput{e} \rel \redoutput{v}{\Omega}{\rho_1}{\sigma_1} \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
-    \redinput{(\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}\; (\lb\; x_t\; l\dash top\; \ldots)\; LI\; \ldots)}{\Omega_2}{\rho_2}{\sigma_1} \\
-    \;          &\;\; \where x_t = (gensym),  \Omega_1 = \Omega[x_t\rightarrow \textbf{(linklet-instance)}] \\
-    \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
-    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \Omega_1, \rho_1, \sigma) \\
-    EP\;\llbracket (\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{(\bm{\Phi^I}\; (\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\Omega_2}{\rho_2}{\sigma_1} \\
-    \Omega, \rho, \sigma\; &\;\; \where (x_t, \Omega_1) = prepare\dash target(i\dash ref, \Omega) \\
-    \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
-    \;          &\;\; (\Omega_2, \rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \Omega_1, \rho_1, \sigma) \\
+    \redinput{e} \rel \redoutput{v}{\rho_1}{\sigma_1} \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
+    \redinput{(\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}\; (\lb\; x_t\; l\dash top\; \ldots)\; LI\; \ldots)}{\rho_2}{\sigma_2} \\
+    \;          &\;\; \where x_t = (gensym),  \sigma_1 = \sigma[x_t\rightarrow \textbf{(linklet-instance)}] \\
+    \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma_1) \\
+    \;          &\;\; (\rho_2, \sigma_2) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma_1) \\
+    EP\;\llbracket (\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{(\bm{\Phi^I}\; (\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\rho_2}{\sigma_2} \\
+    \rho, \sigma\; &\;\; \where (x_t, \sigma_1) = prepare\dash target(i\dash ref, \sigma) \\
+    \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma_1) \\
+    \;          &\;\; (\rho_2, \sigma_2) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma_1) \\
   \end{align*}
   \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Reduction Relation}
 \label{fig:reduction}
 \end{figure*}
 
-\newcommand{\runio}[1]{run\dash prog(#1, \Omega, \rho, \sigma)\;}
+\newcommand{\runio}[1]{run\dash prog(#1, \rho, \sigma)\;}
 \newcommand{\prog}[2]{(\textbf{program}\; (\textbf{use\dash linklets}\;#1 )\;#2)}
 \def\transrel {&\twoheadrightarrow_{p}\;}
 
 \begin{figure*}[tbp]
   \begin{align*}
-    (\textbf{program}\; ()\;v), \Omega, \rho, \sigma \transrel v \\
-    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \Omega, \rho, \sigma \transrel (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top_1 ), \Omega, \rho, \sigma \\
+    (\textbf{program}\; ()\;v), \rho, \sigma \transrel v \\
+    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma \transrel (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top_1 ), \rho, \sigma \\
     \;          &\;\; \where p\dash top_1\; =\; p\dash top[x := L\dash obj], L\dash obj\;=\;\bm{\Phi^C}(L) \\
-    p, \Omega, \rho, \sigma \transrel p_1, \Omega_1, \rho_1, \sigma_1 \\
-    \;          &\;\; \where (p, \Omega, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \Omega_1, \rho_1, \sigma_1)  \\ \\
-    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), (), () \twoheadrightarrow_p\; v
+    p, \rho, \sigma \transrel p_1, \rho_1, \sigma_1 \\
+    \;          &\;\; \where (p, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \rho_1, \sigma_1)  \\ \\
+    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_p\; v
   \end{align*}
   \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: :=\:\: : \textbf{substitute}$
 \caption{Evaluate Linklet Program}
@@ -348,25 +347,25 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure*}[tbp]
   \begin{align*}
-    prepare\dash target(x, \Omega, \rho, \sigma)\; &=\; (x, \Omega) \\
-    prepare\dash target(LI, \Omega, \rho, \sigma)\; &=\; (x, \Omega[x\rightarrow LI])\; \where x = (gensym) \\ \\
+    prepare\dash target(x, \rho, \sigma)\; &=\; (x, \sigma) \\
+    prepare\dash target(LI, \rho, \sigma)\; &=\; (x, \sigma[x\rightarrow LI])\; \where x = (gensym) \\ \\
     \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
     \mathit{V}^I((), (LI\;\ldots), \rho, \sigma) &= \rho \\
     \mathit{V}^I((\ldots\;((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho, \sigma) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
-    p((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \Omega, \rho, \sigma) &= \begin{cases*}
-      \Omega, \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
-      \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
+    p((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \begin{cases*}
+      \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
+      \;        &\; \where $LI_t = (lookup\; \sigma\; x_t)$ \\
       \;        &\; $\rho_1 = \rho[x_{id}\rightarrow LI_t[x_{ext}]]$ \\
-        \Omega_1, \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
-        \;        &\; \where $LI_t = (lookup\; \Omega\; x_t)$ \\
-        \;        &\; $\Omega_1 = \Omega[x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]$ \\
+        \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
+        \;        &\; \where $LI_t = (lookup\; \sigma\; x_t)$ \\
         \;        &\; $\rho_1 = \rho[x_{id}\rightarrow var_{new}]$ \\
-        \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit]$ \\
+        \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit,$ \\
+        \;        &\; \hspace{1.7cm} $x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]]$ \\
     \end{cases*} \\ \\
-    \mathit{V}^E : c\dash exps \times x \times \Omega \times \rho \times \sigma &\longrightarrow \Omega \times \rho \times \sigma \\
-    \mathit{V}^E((), x_t, \Omega, \rho, \sigma) &=\; (\Omega, \rho, \sigma) \\
-    \mathit{V}^E((exp\dash obj\;\ldots), x_t, \Omega, \rho, \sigma) &= (\Omega_1, \rho_1, \sigma_1)\\
-    \;        &\; \where (\Omega_1, \rho_1, \sigma_1) = p(exp\dash obj, x_t, \Omega, \rho, \sigma) \\
+    \mathit{V}^E : c\dash exps \times x \times \rho \times \sigma &\longrightarrow \rho \times \sigma \\
+    \mathit{V}^E((), x_t, \rho, \sigma) &=\; (\rho, \sigma) \\
+    \mathit{V}^E((exp\dash obj\;\ldots), x_t, \rho, \sigma) &= (\rho_1, \sigma_1)\\
+    \;        &\; \where (\rho_1, \sigma_1) = p(exp\dash obj, x_t, \rho, \sigma) \\
   \end{align*}
   \hfill \footnotesize $\mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Instantiation Utilities}
