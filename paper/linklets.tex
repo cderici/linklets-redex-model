@@ -275,7 +275,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top) \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(i\dash ref\; x) \\
-    \;          &\;|\; (\textbf{let\dash inst}\; x\; I\;p\dash top\; \ldots)\; |\; (\textbf{let\dash inst}\; x\; LI\;p\dash top\; \ldots) \\
+    \;          &\;|\; (\textbf{let\dash inst}\; x\; I\;p\dash top)\; |\; (\textbf{let\dash inst}\; x\; LI\;p\dash top) \\
     V           &::=\; v\; |\; LI \\
     EP          &::=\; [] \\
     \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots) \\ % resolve the linklet
@@ -285,7 +285,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     \;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     \;          &\;|\; \bm{\Phi^V}(EP\; x) \\
-    \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top\; \ldots)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
+    \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
     \;          &\;|\; (\textbf{program}\; ()\; EP) \\
   \end{align*}
   \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
@@ -305,7 +305,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     \redinput{x} \rel \redoutput{LI}{\Omega}{\rho}{\sigma} \where LI \; =\; (lookup\; \Omega\; x) \\
     \redinput{\bm{\Phi^V}(L\dash obj\; x)} \rel \redoutput{v}{\Omega}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; LI[x]) \\
-    \redinput{(\textbf{let\dash inst}\; x\; LI\; p\dash top\; \ldots)} \rel \redoutput{(\textbf{seq}\; p\dash top\; \ldots)}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
+    \redinput{(\textbf{let\dash inst}\; x\; LI\; p\dash top)} \rel \redoutput{p\dash top}{\Omega_1}{\rho}{\sigma} \where \Omega_1 = \Omega[x\rightarrow LI] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\Omega}{\rho}{\sigma} \\
     \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots)\; LI\; \ldots)} \rel \redoutput{LI_t}{\Omega}{\rho}{\sigma} \where LI_t = (lookup\; \Omega\; x) \\
     \redinput{(\bm{\Phi^I}\; (\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\Omega}{\rho}{\sigma} \\
