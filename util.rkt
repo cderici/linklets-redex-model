@@ -12,12 +12,15 @@
    (instantiate-linklet L-obj inst-ref ...)]
   [(substitute-one x L-obj (instantiate-linklet x inst-ref ... #:target inst-ref_1))
    (instantiate-linklet L-obj inst-ref ... #:target inst-ref_1)]
-  [(substitute-one x L-obj (let-inst x_1 I p-top ...))
-   (let-inst x_1 I_s p-top_new ...)
+  [(substitute-one x L-obj (let-inst x_1 I p-top))
+   (let-inst x_1 I_s p-top_new)
    (where I_s (substitute-one x L-obj I))
-   (where (p-top_new ...) ((substitute-one x L-obj p-top) ...))]
-  [(substitute-one x L-obj (let-inst x_1 LI p-top ...))
-   (let-inst x_1 LI p-top_new ...)
+   (where p-top_new (substitute-one x L-obj p-top))]
+  [(substitute-one x L-obj (let-inst x_1 LI p-top))
+   (let-inst x_1 LI p-top_new)
+   (where p-top_new (substitute-one x L-obj p-top))]
+  [(substitute-one x L-obj (seq p-top ...))
+   (seq p-top_new ...)
    (where (p-top_new ...) ((substitute-one x L-obj p-top) ...))]
   [(substitute-one x L-obj p-top) p-top])
 

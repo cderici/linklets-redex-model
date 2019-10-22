@@ -181,15 +181,17 @@
                         (var-set! y1 y)
                         (var-set/check-undef! y1 50))
                   (let-inst t (linklet-instance)
-                            (instantiate-linklet l #:target t)
-                            (instance-variable-value t y))))
+                            (seq
+                             (instantiate-linklet l #:target t)
+                             (instance-variable-value t y)))))
  (term
   (let-inst t (linklet-instance)
-            (instantiate-linklet (Lα () ((Export y1 y y))
-                                     (define-values (y) 10)
-                                     (var-set! y1 y)
-                                     (var-set/check-undef! y1 50)) #:target t)
-            (instance-variable-value t y))))
+            (seq
+             (instantiate-linklet (Lα () ((Export y1 y y))
+                                      (define-values (y) 10)
+                                      (var-set! y1 y)
+                                      (var-set/check-undef! y1 50)) #:target t)
+             (instance-variable-value t y)))))
 
 #;(test-equal
  (term
