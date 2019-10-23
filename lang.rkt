@@ -17,7 +17,7 @@
        (var-ref x) (var-ref/no-check x)
        (var-set! x e) (var-set/check-undef! x e)] ;; expressiosn
   [v   ::= n b c (void) uninit] ;; values
-  [c   ::= (closure x ... e ρ)]
+  [c   ::= (closure (x ...) e ρ)]
   [n   ::= number]
   [b   ::= true false]
   [x cell ::= variable-not-otherwise-mentioned] ;; variables

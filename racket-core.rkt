@@ -61,7 +61,7 @@
         "var-set/check-undef!") ; for now the same with var-set!
 
    (--> [(in-hole E (lambda (x ...) e)) ρ σ]
-        [(in-hole E (closure x ... e ρ)) ρ σ] "closure")
+        [(in-hole E (closure (x ...) e ρ)) ρ σ] "closure")
    (--> [(in-hole E (set! x v)) ρ σ]
         [(in-hole E (void)) ρ (extend σ (x_1) (v))]
         (side-condition (not (equal? (term (raises ,(term x))) (term (lookup ρ x)))))
@@ -75,7 +75,7 @@
         [(in-hole E e_2) ρ σ] "if-false")
    (--> [(in-hole E (o v_1 v_2 ...)) ρ σ]
         [(in-hole E (δ (o v_1 v_2 ...))) ρ σ] "δ")
-   (--> [(in-hole E ((closure x ..._n e ρ_1) v ..._n)) ρ_2 σ]
+   (--> [(in-hole E ((closure (x ..._n) e ρ_1) v ..._n)) ρ_2 σ]
         [(in-hole E e) (extend ρ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
         (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))))
 
