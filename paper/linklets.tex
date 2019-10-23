@@ -320,7 +320,9 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     EP\;\llbracket (\bm{\Phi^I}\; (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; i\dash ref) \rrbracket, \rel \redoutput{(\bm{\Phi^I}\; (\lc\; l\dash top\; \ldots)\; LI\; \ldots)}{\rho_2}{\sigma_2} \\
     \rho, \sigma\; &\;\; \where (x_t, \sigma_1) = prepare\dash target(i\dash ref, \sigma) \\
     \;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma_1) \\
-    \;          &\;\; (\rho_2, \sigma_2) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma_1) \\
+    \;          &\;\; (\rho_2, \sigma_2) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma_1) \\ \\
+    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma &\twoheadrightarrow_{p}\; (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\
+    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{p\cup\beta p} \; (\textbf{program}\; ()\;v) \\
   \end{align*}
   \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Reduction Relation}
@@ -330,18 +332,6 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \newcommand{\runio}[1]{run\dash prog(#1, \rho, \sigma)\;}
 \newcommand{\prog}[2]{(\textbf{program}\; (\textbf{use\dash linklets}\;#1 )\;#2)}
 \def\transrel {&\twoheadrightarrow_{p}\;}
-
-\begin{figure*}[tbp]
-  \begin{align*}
-    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma \transrel (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\
-    p, \rho, \sigma \transrel p_1, \rho_1, \sigma_1 \\
-    \;          &\;\; \where (p, \rho, \sigma) \longrightarrow_{\beta p}\; (p_1, \rho_1, \sigma_1)  \\
-    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{p\cup\beta p} \; (\textbf{program}\; ()\;v)
-  \end{align*}
-  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: :=\:\: : \textbf{substitute}$
-\caption{Evaluate Linklet Program}
-\label{fig:main}
-\end{figure*}
 
 \begin{figure*}[tbp]
   \begin{align*}
