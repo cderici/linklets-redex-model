@@ -15,22 +15,24 @@
           [(raises e) ω Ω ρ σ] "error")
    (--> [(in-hole EP (program (use-linklets) v)) ρ σ]
         [(in-hole EP v) ρ σ] "return")
-   (--> [(in-hole EP x) ρ σ]
-        [(in-hole EP LI_found) ρ σ]
-        (where LI_found (lookup σ x))
-        "instance-lookup")
-   (--> [(in-hole EP (instance-variable-value LI x)) ρ σ]
+   (--> [(in-hole EP (make-instance)) ρ σ]
+        [(in-hole EP x_li) ρ σ_1]
+        (where x_li ,(variable-not-in (term σ) (term li)))
+        (where σ_1 (extend σ (x_li) ((linklet-instance))))
+        "make-instance")
+   (--> [(in-hole EP (instance-variable-value x_li x)) ρ σ]
         [(in-hole EP v) ρ σ]
-        (where v (lookup σ (get-var-from-instance x LI)))
+        (where v (lookup σ (get-var-from-instance x x_li σ)))
         "instance variable value")
-   (--> [(in-hole EP (instance-variable-value L-obj x)) ρ σ]
-        [(raises instance-expected) ρ σ] "instance variable value error")
-   (--> [(in-hole EP (let-inst x LI p-top)) ρ σ]
-        [(in-hole EP p-top) ρ (extend σ (x) (LI))] "let-inst")
+   (--> [(in-hole EP (let-inst x x_i p-top)) ρ σ]
+        [(in-hole EP p-top) ρ (extend σ (x) (LI))]
+        (where LI (lookup σ x_i)) "let-inst")
+
    (--> [(in-hole EP (seq v_1 ... v_n)) ρ σ]
         [(in-hole EP v_n) ρ σ] "seq")
+
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ...) LI ...)) ρ σ]
-        [(in-hole EP (lookup σ x_target)) ρ σ] "return instance")
+        [(in-hole EP x_target) ρ σ] "return instance")
    (--> [(in-hole EP (instantiate-linklet (Lγ) LI ...)) ρ σ]
         [(in-hole EP (void)) ρ σ] "return no value")
    (--> [(in-hole EP (instantiate-linklet (Lγ v ... v_last) LI ...)) ρ σ]
@@ -53,12 +55,12 @@
         (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ_1))
         (where (ρ_2 σ_2) (instantiate-exports c-exps x_target ρ_1 σ_1))
         "set the stage for instantiation")
-   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target inst-ref)) ρ σ]
-        [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) ρ_2 σ_2]
+   (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target x_target)) ρ σ]
+        [(in-hole EP (instantiate-linklet (Lγ l-top ...) LI ...)) ρ_2 σ_1]
         ; set the stage for target/imports/exports
-        (where (x_target σ_1) (prepare-target inst-ref ρ σ))
-        (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ_1))
-        (where (ρ_2 σ_2) (instantiate-exports c-exps x_target ρ_1 σ_1))
+        #;(where (x_target σ_1) (prepare-target inst-ref ρ σ))
+        (where ρ_1 (instantiate-imports c-imps (LI ...) ρ σ))
+        (where (ρ_2 σ_1) (instantiate-exports c-exps x_target ρ_1 σ))
         "set the stage for evaluation")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -69,7 +71,7 @@
   ;prepare-target : inst-ref ρ σ -> (x σ)
   [(prepare-target σ)
    (x_target σ_1)
-   (where x_target ,(variable-not-in (term σ) (term x)))
+   (where x_target ,(variable-not-in (term σ) (term li)))
    (where σ_1 (extend σ (x_target) ((linklet-instance))))]
   [(prepare-target x ρ σ) (x σ)]
   [(prepare-target LI ρ σ)
@@ -80,10 +82,12 @@
 
 ; Utils for Imports
 (define-metafunction Linklets
-  get-var-from-instance : x LI -> cell
-  [(get-var-from-instance
-    x (linklet-instance (x_bef cell_bef) ... (x cell) (x_aft cell_aft) ...)) cell]
-  [(get-var-from-instance x LI) (raises not-found)])
+  get-var-from-instance : x x σ -> cell
+  [(get-var-from-instance x x_li σ)
+   cell
+   (where (linklet-instance (x_bef cell_bef) ... (x cell) (x_aft cell_aft) ...)
+          (lookup σ x_li))]
+  [(get-var-from-instance x LI σ) (raises not-found)])
 
 (define-metafunction Linklets
   get-instance : n n (LI ...) -> LI
@@ -98,7 +102,7 @@
                              (LI ...) ρ σ)
    (process-import-group (imp-obj_rest ...) (LI ...) ρ_1 σ)
    (where LI_inst (get-instance 0 n (LI ...)))
-   (where cell_var (get-var-from-instance x_ext LI_inst))
+   (where cell_var (get-var-from-instance x_ext LI_inst σ))
    (where ρ_1 (extend ρ (x_id) (cell_var)))])
 
 (define-metafunction Linklets

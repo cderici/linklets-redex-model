@@ -64,7 +64,7 @@
   [exp-obj ::= (Export x x x)] ; int_gensymed int_id ext_id
 
   ;; instantiate
-  [LI ::= (linklet-instance (x cell) ...)] ;; note that an instance have no exports
+  [LI ::= x (make-instance) (linklet-instance (x cell) ...)] ;; note that an instance have no exports
   [I ::= (instantiate-linklet linkl-ref inst-ref ...)
          (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
 
@@ -87,6 +87,7 @@
 
           (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
           (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
+          (instantiate-linklet L-obj LI ... #:target EP) ;; resolve the target
 
           (instance-variable-value EP x)
           (let-inst x EP p-top)
