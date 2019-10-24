@@ -57,12 +57,6 @@
 ;; Linklet Model
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
-
-
-
 ; put-imported-vars-into-env
 #;(test-equal (term (instantiate-imports () () ())) (term (())))
 #;(test-equal (term (instantiate-imports (((Import 0 c1 c c))) ((linklet-instance (c cell))) () ())) (term (((c1 cell)))))
@@ -80,16 +74,6 @@
 ;; eval-prog/run-prog side tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#;(test-equal (term (run-prog ((program (use-linklets) 3) () ()))) 3)
-
-#;(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3) () ()))) 3)
-
-#;(test-equal (term (run-prog ((program (use-linklets)
-                                      (instantiate-linklet (Lα () ()) #:target t1))
-                             () ((t1 (linklet-instance))))))
-            (term (void)))
-
-; (term ((linklet-instance (a cell_1)) ((a1 cell_1)) ((cell_1 (variable a uninit))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; eval-prog main tests
@@ -97,16 +81,6 @@
 
 (define-simple-macro (linklet-test p v)
   (test-equal (term (eval-prog p)) (term v)))
-
-#;(linklet-test (program (use-linklets) 3) 3)
-
-#;(linklet-test (program (use-linklets [l1 (linklet () () 2)])
-                       3)
-              3)
-#;(linklet-test (program (use-linklets [l1 (linklet () ())])
-                                      (let-inst t1 (instantiate-linklet l1)
-                                                (instantiate-linklet l1 #:target t1)))
-              (void))
 
 (linklet-test (program (use-linklets [l1 (linklet () () 3)])
                        (let-inst t1 (make-instance)
