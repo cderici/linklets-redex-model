@@ -109,11 +109,13 @@
               (void))
 
 (linklet-test (program (use-linklets [l1 (linklet () () 3)])
-                       (instantiate-linklet l1 #:target (make-instance)))
+                       (let-inst t1 (make-instance)
+                                 (instantiate-linklet l1 #:target t1)))
               3)
 
 (linklet-test (program (use-linklets [l1 (linklet () () (+ 1 2))])
-                       (instantiate-linklet l1 #:target (make-instance)))
+                       (let-inst t1 (make-instance)
+                                 (instantiate-linklet l1 #:target t1)))
               3)
 
 (linklet-test (program (use-linklets
