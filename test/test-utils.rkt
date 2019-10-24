@@ -149,48 +149,30 @@
 ;; Also serves as a testing for the utilities themselves
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(test-equal (term (substitute-linklet l1 (Lα () ()) (3))) (term (3)))
-(test-equal (term (substitute-linklet l1 (Lα () ()) (3 4))) (term (3 4)))
+(test-equal (term (substitute-linklet l1 (Lα () () 1) (3))) (term (3)))
+(test-equal (term (substitute-linklet l1 (Lα () () 1) (3 4))) (term (3 4)))
 
 (test-equal
  (term
-  (substitute-one l (Lα () ((Export y1 y y))
-                        (define-values (y) 10)
-                        (var-set! y1 y)
-                        (var-set/check-undef! y1 50))
+  (substitute-one l (Lα () ((Export y1 y y)) (define-values (y) 10) (var-set! y1 y) (var-set/check-undef! y1 50))
                   (instantiate-linklet l #:target t)))
  (term
-  (instantiate-linklet (Lα () ((Export y1 y y))
-                           (define-values (y) 10)
-                           (var-set! y1 y)
-                           (var-set/check-undef! y1 50)) #:target t)))
+  (instantiate-linklet (Lα () ((Export y1 y y)) (define-values (y) 10) (var-set! y1 y) (var-set/check-undef! y1 50)) #:target t)))
 
 (test-equal
  (term
-  (substitute-one l (Lα () ())
-                  (let-inst t (linklet-instance)
-                            (instantiate-linklet l #:target t))))
+  (substitute-one l (Lα () () 1) (let-inst t (make-instance) (instantiate-linklet l #:target t))))
  (term
-  (let-inst t (linklet-instance)
-            (instantiate-linklet (Lα () ()) #:target t))))
+  (let-inst t (make-instance) (instantiate-linklet (Lα () () 1) #:target t))))
 
 (test-equal
  (term
-  (substitute-one l (Lα () ((Export y1 y y))
-                        (define-values (y) 10)
-                        (var-set! y1 y)
-                        (var-set/check-undef! y1 50))
-                  (let-inst t (linklet-instance)
-                            (seq
-                             (instantiate-linklet l #:target t)
-                             (instance-variable-value t y)))))
+  (substitute-one l (Lα () ((Export y1 y y)) (define-values (y) 10) (var-set! y1 y) (var-set/check-undef! y1 50))
+                  (let-inst t (make-instance) (seq (instantiate-linklet l #:target t) (instance-variable-value t y)))))
  (term
-  (let-inst t (linklet-instance)
+  (let-inst t (make-instance)
             (seq
-             (instantiate-linklet (Lα () ((Export y1 y y))
-                                      (define-values (y) 10)
-                                      (var-set! y1 y)
-                                      (var-set/check-undef! y1 50)) #:target t)
+             (instantiate-linklet (Lα () ((Export y1 y y)) (define-values (y) 10) (var-set! y1 y) (var-set/check-undef! y1 50)) #:target t)
              (instance-variable-value t y)))))
 
 #;(test-equal

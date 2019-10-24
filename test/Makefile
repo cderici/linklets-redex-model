@@ -11,7 +11,7 @@ test-compile:
 	raco test test-compile.rkt
 test-inst:
 	raco test test-inst.rkt
-test-dual:
-	raco test test-dual.rkt
+#test-dual:
+#	raco test test-dual.rkt
 test-main:
 	raco test test-eval.rkt

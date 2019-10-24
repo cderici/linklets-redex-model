@@ -69,8 +69,6 @@
 (test-equal (term (all-toplevels () ())) (term ()))
 (test-equal (term (c-body () () () () () () ())) (term ()))
 ; compile tests
-(test-equal (term (compile-linklet (linklet () ())))
-            (term (Lα () ())))
 (test-equal (term (compile-linklet (linklet () () 3 4)))
             (term (Lα () () 3 4)))
 (test-equal (term (compile-linklet (linklet () () (begin 3 4))))

@@ -51,10 +51,10 @@
 (define not-L? (compose not L?))
 
 
-(test-predicate L? (term (linklet () ())))
+(test-predicate L? (term (linklet () () 1)))
 (test-predicate L? (term (linklet () () (define-values (x) 1))))
 (test-predicate L? (term (linklet () () (define-values (x) 1) (define-values (x) 5))))
-(test-predicate L? (term (linklet () (x))))
+(test-predicate L? (term (linklet () (x) 13)))
 (test-predicate L? (term (linklet () (x) (define-values (x) 1))))
 (test-predicate L? (term (linklet () (x) (define-values (x) 1) (+ x x))))
 (test-predicate L? (term (linklet (()) (x) (define-values (x) 1))))
@@ -83,12 +83,8 @@
 (define program? (redex-match? Linklets p))
 (define not-program? (compose not program?))
 
-#;(test-predicate
- program? (term (program (use-linklets))))
 (test-predicate
- program? (term (program (use-linklets) 3)))
-(test-predicate
- program? (term (program (use-linklets [l1 (linklet () ())])
+ program? (term (program (use-linklets [l1 (linklet () () 1)])
                          (let-inst t1 (instantiate-linklet l1)
                                    (instantiate-linklet l1 #:target t1)))))
 
@@ -98,13 +94,11 @@
                                    (instantiate-linklet l #:target ti)))))
 (test-predicate
  program? (term (program (use-linklets
-                          [l (linklet () () 1)]
-                          [t (linklet () ())])
-                         (let-inst ti (instantiate-linklet t)
+                          [l (linklet () () 1)])
+                         (let-inst ti (make-instance)
                                    (instantiate-linklet l #:target ti)))))
 (test-predicate
  program? (term (program (use-linklets
-                          [l1 (linklet () ())]
                           [l2 (linklet () () (define-values (x) 5) x)])
-                         (let-inst t1 (instantiate-linklet l1)
+                         (let-inst t1 (make-instance)
                                    (instantiate-linklet l2 #:target t1)))))
