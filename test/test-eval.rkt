@@ -80,9 +80,9 @@
 ;; eval-prog/run-prog side tests
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(test-equal (term (run-prog ((program (use-linklets) 3) () ()))) 3)
+#;(test-equal (term (run-prog ((program (use-linklets) 3) () ()))) 3)
 
-(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3) () ()))) 3)
+#;(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3) () ()))) 3)
 
 (test-equal (term (run-prog ((program (use-linklets)
                                       (instantiate-linklet (Lα () ()) #:target t1))
@@ -98,9 +98,9 @@
 (define-simple-macro (linklet-test p v)
   (test-equal (term (eval-prog p)) (term v)))
 
-(linklet-test (program (use-linklets) 3) 3)
+#;(linklet-test (program (use-linklets) 3) 3)
 
-(linklet-test (program (use-linklets [l1 (linklet () () 2)])
+#;(linklet-test (program (use-linklets [l1 (linklet () () 2)])
                        3)
               3)
 (linklet-test (program (use-linklets [l1 (linklet () ())])

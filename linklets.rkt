@@ -13,15 +13,15 @@
    #:domain (p ρ σ)
    #;(--> [(in-hole EP (raises e)) ω Ω ρ σ]
           [(raises e) ω Ω ρ σ] "error")
-   (--> [(in-hole EP (program (use-linklets) v)) ρ σ]
-        [(in-hole EP (v i)) ρ σ] "return")
+   (--> [(in-hole EP (program (use-linklets) (v x))) ρ σ]
+        [(in-hole EP v) ρ σ] "return")
    (--> [(in-hole EP (make-instance)) ρ σ]
         [(in-hole EP ((void) x_li)) ρ σ_1]
         (where x_li ,(variable-not-in (term σ) (term li)))
         (where σ_1 (extend σ (x_li) ((linklet-instance))))
         "make-instance")
    (--> [(in-hole EP (instance-variable-value x_li x)) ρ σ]
-        [(in-hole EP v) ρ σ]
+        [(in-hole EP (v x_li)) ρ σ]
         (where v (lookup σ (get-var-from-instance x x_li σ)))
         "instance variable value")
    (--> [(in-hole EP (let-inst x (v x_i) p-top)) ρ σ]

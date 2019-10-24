@@ -82,9 +82,8 @@
   ;; evaluation-context for the programs
   [EP ::= hole
           (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
-          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
-
           (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
+          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
 
           (let-inst x EP p-top)
           (seq v ... EP p-top ...)
