@@ -13,8 +13,6 @@
    #:domain (p ρ σ)
    #;(--> [(in-hole EP (raises e)) ω Ω ρ σ]
           [(raises e) ω Ω ρ σ] "error")
-   (--> [(in-hole EP (program (use-linklets) (v x))) ρ σ]
-        [(in-hole EP v) ρ σ] "return")
    (--> [(in-hole EP (make-instance)) ρ σ]
         [(in-hole EP ((void) x_li)) ρ σ_1]
         (where x_li ,(variable-not-in (term σ) (term li)))
