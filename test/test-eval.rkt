@@ -84,7 +84,7 @@
 
 #;(test-equal (term (run-prog ((program (use-linklets (l1 (linklet () ()))) 3) () ()))) 3)
 
-(test-equal (term (run-prog ((program (use-linklets)
+#;(test-equal (term (run-prog ((program (use-linklets)
                                       (instantiate-linklet (Lα () ()) #:target t1))
                              () ((t1 (linklet-instance))))))
             (term (void)))
@@ -103,7 +103,7 @@
 #;(linklet-test (program (use-linklets [l1 (linklet () () 2)])
                        3)
               3)
-(linklet-test (program (use-linklets [l1 (linklet () ())])
+#;(linklet-test (program (use-linklets [l1 (linklet () ())])
                                       (let-inst t1 (instantiate-linklet l1)
                                                 (instantiate-linklet l1 #:target t1)))
               (void))
@@ -119,16 +119,14 @@
               3)
 
 (linklet-test (program (use-linklets
-                        [l (linklet () () 2 1)]
-                        [t (linklet () ())])
-                       (let-inst ti (instantiate-linklet t)
+                        [l (linklet () () 2 1)])
+                       (let-inst ti (make-instance)
                                  (instantiate-linklet l #:target ti)))
               1)
 
 (linklet-test (program (use-linklets
-                        [l1 (linklet () ())]
                         [l2 (linklet () () (define-values (a) 5) a)])
-                       (let-inst t1 (instantiate-linklet l1)
+                       (let-inst t1 (make-instance)
                                  (instantiate-linklet l2 #:target t1)))
               5)
 
@@ -139,10 +137,9 @@
               5)
 
 (linklet-test (program (use-linklets
-                        [l1 (linklet () ())]
                         [l2 (linklet ((b)) () (define-values (a) 5) (+ a b))]
                         [l3 (linklet () (b) (define-values (b) 3))])
-                       (let-inst t1 (instantiate-linklet l1)
+                       (let-inst t1 (make-instance)
                                  (let-inst t3 (instantiate-linklet l3)
                                            (instantiate-linklet l2 t3 #:target t1))))
               8)
@@ -474,7 +471,7 @@
 
 ; "don't touch if target has it"
 (linklet-test (program (use-linklets
-                        [l (linklet () (x))]
+                        [l (linklet () (x) x)]
                         [t-l (linklet () (x) (define-values (x) 10))])
                        (let-inst t (instantiate-linklet t-l)
                                  (seq

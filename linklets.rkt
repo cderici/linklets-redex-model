@@ -31,8 +31,6 @@
 
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last) LI ...)) ρ σ]
         [(in-hole EP (v_last x_target)) ρ σ] "return instance/value")
-   (--> [(in-hole EP (instantiate-linklet (Lβ x_target) LI ...)) ρ σ]
-        [(in-hole EP ((void) x_target)) ρ σ] "return instance/no-value")
 
    (--> [(in-hole EP (define-values (x) e)) ρ σ]
         [(in-hole EP (void)) ρ_2 σ_2]
