@@ -17,10 +17,10 @@
 (test-equal (term (δ (+ 12 8))) (term 20))
 (test-equal (term (δ (* 2 10))) (term 20))
 
-;; testing the transitive closure of -->βs
-;; (testing the single-step -->βs would require to write down all possible results)
-(test-->> -->βs (term ((if true 2 3) () ())) (term (2 () ())))
-(test-->> -->βs (term ((if false -1 (* 21 2)) () ())) (term (42 () ())))
+;; testing the transitive closure of -->βr
+;; (testing the single-step -->βr would require to write down all possible results)
+(test-->> -->βr (term ((if true 2 3) () ())) (term (2 () ())))
+(test-->> -->βr (term ((if false -1 (* 21 2)) () ())) (term (42 () ())))
 
 ;; evaluation tests
 

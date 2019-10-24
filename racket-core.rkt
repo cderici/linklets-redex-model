@@ -32,7 +32,7 @@
    (raises any_1)])
 
 ;; standard reduction
-(define -->βs
+(define -->βr
   (reduction-relation
    RC
    #:domain (e ρ σ)
@@ -92,7 +92,7 @@
   [(run-rc ((raises e) ρ σ)) stuck]
   [(run-rc any_1)
    (run-rc any_again)
-   (where (any_again) ,(apply-reduction-relation -->βs (term any_1)))]
+   (where (any_again) ,(apply-reduction-relation -->βr (term any_1)))]
   [(run-rc any_1) stuck])
 
 (define-metafunction RC
@@ -104,5 +104,5 @@
   [(rc-api ((raises e) ρ σ)) ((raises e) ρ σ)]
   [(rc-api any_1)
    (rc-api any_again)
-   (where (any_again) ,(apply-reduction-relation -->βs (term any_1)))]
+   (where (any_again) ,(apply-reduction-relation -->βr (term any_1)))]
   [(rc-api (any_e any_ρ any_σ)) ((raises any_e) any_ρ any_σ)])
