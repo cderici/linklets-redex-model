@@ -56,7 +56,7 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...) (Lγ l-top ...)]
+  [L-obj ::= (Lα c-imps c-exps l-top ...) (Lβ x l-top ...)]
   [c-imps ::= ((imp-obj ...) ...)]
   [c-exps ::= (exp-obj ...)]
   ;; import & export objects
@@ -64,32 +64,28 @@
   [exp-obj ::= (Export x x x)] ; int_gensymed int_id ext_id
 
   ;; instantiate
-  [LI ::= x (make-instance) (linklet-instance (x cell) ...)] ;; note that an instance have no exports
-  [I ::= (instantiate-linklet linkl-ref inst-ref ...)
+  [LI ::= x (linklet-instance (x cell) ...)] ;; note that an instance have no exports
+  [I ::= (make-instance)
+         (instantiate-linklet linkl-ref inst-ref ...)
          (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
 
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
-
+  [v ::= .... V]
   ;; program-stuff
   [p ::= (program (use-linklets (x_!_ L) ...) p-top) v]
-  [p-top ::= v LI I (let-inst x I p-top) (let-inst x LI p-top) (seq p-top ...)
+  [p-top ::= v I (let-inst x I p-top) (let-inst x V p-top) (seq p-top ...)
              (instance-variable-value inst-ref x)]
 
-  [V ::= v LI]
+  [V ::= (v x)]
 
   ;; evaluation-context for the programs
   [EP ::= hole
           (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EP inst-ref ...) ;; resolve the imported instances
           (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
-          (instantiate-linklet (Lγ v ... EP l-top ...) inst-ref ...) ;; evaluate
 
           (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
-          (instantiate-linklet L-obj LI ... EP inst-ref ... #:target inst-ref) ;; resolve the imported instances
-          (instantiate-linklet L-obj LI ... #:target EP) ;; resolve the target
 
-          (instance-variable-value EP x)
           (let-inst x EP p-top)
           (seq v ... EP p-top ...)
 

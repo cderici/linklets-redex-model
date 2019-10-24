@@ -11,9 +11,10 @@
 
 (define-metafunction Linklets
   ;; return
-  [(run-prog ((program (use-linklets) n) ρ σ)) n] ;; number
-  [(run-prog ((program (use-linklets) b) ρ σ)) b] ;; boolean
-  [(run-prog ((program (use-linklets) (void)) ρ σ)) (void)] ;; void
+  [(run-prog ((v _) ρ σ)) v]
+  [(run-prog ((program (use-linklets) (n _)) ρ σ)) n] ;; number
+  [(run-prog ((program (use-linklets) (b _)) ρ σ)) b] ;; boolean
+  [(run-prog ((program (use-linklets) ((void) _)) ρ σ)) (void)] ;; void
   [(run-prog ((raises e) ρ σ)) stuck] ;; stuck
 
   ;; compile and load the linklets
