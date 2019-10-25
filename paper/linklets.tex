@@ -284,6 +284,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     %\;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
     %\;          &\;|\; \bm{\Phi^V}(EP\; x) \\
+    \;          &\;|\; (\textbf{define\dash values}\:(x)\:EP) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
     \;          &\;|\; (\textbf{program}\; ()\; EP) \\
   \end{align*}
@@ -307,12 +308,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \redinput{(\textbf{let\dash inst}\; x\; (v\;x_i)\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow (lookup\; \sigma\; x_i)] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\rho}{\sigma} \\
     \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots v_{l}))} \rel \redoutput{(v_{l}\; x)}{\rho}{\sigma} \\
-    %\redinput{(\bm{\Phi^I}\; (\lc\; v\; \ldots\; v_{l})\; LI\; \ldots)} \rel \redoutput{v_{l}}{\rho}{\sigma} \\
-    %\redinput{(\bm{\Phi^I}\; (\lc)\; LI\; \ldots)} \rel \redoutput{(void)}{\rho}{\sigma} \\
-    \redinput{(\textbf{define\dash values}\; (x)\; e)} \rel \redoutput{(void)}{\rho_2}{\sigma_2} \\
-    \;          &\;\; \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
-    \;          &\;\; \hspace{2.1cm} \rho_2 = \rho_1[x\rightarrow cell],\; \sigma_2 = \sigma_1[cell\rightarrow v]  \\
-    \redinput{e} \rel \redoutput{v}{\rho_1}{\sigma_1} \where (v,\rho_1,\sigma_1) = rc\dash api(e,\rho,\sigma) \\
+    \redinput{(\textbf{define\dash values}\; (x)\; v)} \rel \redoutput{(void)}{\rho_1}{\sigma_1} \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
     \redinput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top\; \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t})}{\rho}{\sigma_1} \\
     \;          &\;\; \where x_t = (gensym), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
     %\;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma_1) \\
@@ -321,7 +317,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \rho, \sigma\; &\;\; \where \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
     \;          &\;\; \hspace{0.4cm} (\rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma) \\ \\
     (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma &\twoheadrightarrow_{p}\; (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\
-    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{p\cup\beta p} \; (\textbf{program}\; ()\;(v\;\_)) \\
+    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{p\cup\beta p\cup\beta r} \; (\textbf{program}\; ()\;(v\;\_)) \\
   \end{align*}
   \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Reduction Relation}
