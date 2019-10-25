@@ -231,24 +231,3 @@
   ((y1 cell_1))
   ((li (linklet-instance (y cell_1))) (cell_1 uninit) (li (linklet-instance)))))
 
-
-#;(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () (+ 1 2)) () ())))
-            (term (((Lα () () 3) () ()))))
-
-#;(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () (define-values (a) 5) a) () ())))
-            (term (((Lα () () (void) a) ((a cell)) ((cell 5))))))
-
-#;(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () 3 a) ((a cell)) ((cell 5)))))
-            (term (((Lα () () 3 5) ((a cell)) ((cell 5))))))
-
-#;(test-equal (apply-reduction-relation
-             -->βi
-             (term ((Lα () () (void) a) ((a cell)) ((cell 5)))))
-            (term (((Lα () () (void) 5) ((a cell)) ((cell 5))))))
-

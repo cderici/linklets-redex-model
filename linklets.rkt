@@ -7,6 +7,30 @@
 
 (provide (all-defined-out))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Instantiation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+#|
+
+Instantiating a linklet is basically getting the imported vars into
+the env and evaluating all the forms in the body in the presence of
+a "target" linklet instance.
+
+If a target instance is not provided to the instantiation (as an
+initial argument), then it's a regular instantiation, we will create a
+new instance and evaluate all the forms in the linklet body and the
+instantiation will return the created linklet instance (the variables
+inside the created instance depends on the evaluated forms within the
+linklet body).
+
+If a target is provided to the instantiation, then the instantiation
+will take place similarly, but the result will be the result of
+evaluating the last expression in the linklet body, i.e. the
+instantiation will return a value instead of an instance. This is what
+we call "evaluating a linklet".
+
+|#
+
 (define -->βp
   (reduction-relation
    Linklets
@@ -109,42 +133,3 @@
   [(instantiate-exports ((Export x_gen x_id x_ext) exp-obj ...) x_target ρ σ)
    (instantiate-exports (exp-obj ...) x_target ρ_1 σ_1)
    (where (ρ_1 σ_1) (process-one-export (Export x_gen x_id x_ext) x_target ρ σ))])
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Instantiation
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#|
-
-Instantiating a linklet is basically getting the imported vars into
-the env and evaluating all the forms in the body in the presence of
-a "target" linklet instance.
-
-If a target instance is not provided to the instantiation (as an
-initial argument), then it's a regular instantiation, we will create a
-new instance and evaluate all the forms in the linklet body and the
-instantiation will return the created linklet instance (the variables
-inside the created instance depends on the evaluated forms within the
-linklet body).
-
-If a target is provided to the instantiation, then the instantiation
-will take place similarly, but the result will be the result of
-evaluating the last expression in the linklet body, i.e. the
-instantiation will return a value instead of an instance. This is what
-we call "evaluating a linklet".
-
-|#
-
-(define -->βi
-  (reduction-relation
-   Linklets
-   #:domain (L-obj ρ σ)
-   (--> [(in-hole EI (define-values (x) e)) ρ σ]
-        [(in-hole EI (void)) ρ_2 σ_2]
-        (where (v_1 ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v_1))))
-        (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell))) "inst-def-val")
-   (--> [(in-hole EI e) ρ σ]
-        [(in-hole EI v) ρ_1 σ_1]
-        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (side-condition (not (redex-match? Linklets v (term e))))
-        "inst-expr")))

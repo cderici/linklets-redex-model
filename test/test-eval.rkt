@@ -10,74 +10,8 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Racket-Core
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; primitive δ tests
-(test-equal (term (δ (+ 12 8))) (term 20))
-(test-equal (term (δ (* 2 10))) (term 20))
-
-;; testing the transitive closure of -->βr
-;; (testing the single-step -->βr would require to write down all possible results)
-(test-->> -->βr (term ((if true 2 3) () ())) (term (2 () ())))
-(test-->> -->βr (term ((if false -1 (* 21 2)) () ())) (term (42 () ())))
-
-;; evaluation tests
-
-(test-equal (term (eval-rc 42)) 42)
-(test-equal (term (eval-rc ((lambda (x) x) 42))) 42)
-(test-equal (term (eval-rc (lambda (x) x))) 'closure)
-(test-equal (term (eval-rc (+ 20 22))) 42)
-(test-equal (term (eval-rc (* 21 2))) 42)
-(test-equal (term (eval-rc 42)) 42)
-
-(test-equal (term (eval-rc (begin 1 42))) 42)
-(test-equal (term (eval-rc (begin 1 2 3 4 42))) 42)
-(test-equal (term (eval-rc (begin (+ 2 3) 1 42))) 42)
-(test-equal (term (eval-rc (begin 1 (+ 2 3) (+ 2 3) 42))) 42)
-(test-equal (term (eval-rc (if true 42 -1))) 42)
-(test-equal (term (eval-rc (if 1 -1 42))) -1)
-(test-equal (term (eval-rc (if (< 2 1) -1 42))) 42)
-(test-equal (term (eval-rc (if (< 2 1) -1 (* 21 2)))) 42)
-(test-equal (term (eval-rc (let-values (((x) 42)) x))) 42)
-(test-equal (term (eval-rc (let-values (((x) (+ 21 21))) x))) 42)
-(test-equal (term (eval-rc (let-values (((x) 22) ((y) 20)) (+ x y)))) 42)
-(test-equal (term (eval-rc (let-values (((x) 4))
-                             (let-values (((c) (lambda (a) x)))
-                               (let-values (((x) 10))
-                                 (c 1)))))) 4)
-(test-equal (term (eval-rc (let-values (((x) 4)) (begin (set! x 42) x)))) 42)
-(test-equal (term (eval-rc (let-values (((x) 4))
-                             (let-values (((c) (lambda (a) x)))
-                               (begin
-                                 (set! x 10)
-                                 (c 1)))))) 10)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Linklet Model
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; put-imported-vars-into-env
-#;(test-equal (term (instantiate-imports () () ())) (term (())))
-#;(test-equal (term (instantiate-imports (((Import 0 c1 c c))) ((linklet-instance (c cell))) () ())) (term (((c1 cell)))))
-#;(test-equal (term (instantiate-imports (((Import 0 c1 c c))
-                                        ((Import 1 a1 a a)(Import 1 b1 b b)))
-                                       ((linklet-instance (c (variable v1 5)))
-                                        (linklet-instance (a (variable v2 2))(b (variable v3 3))))
-                                       () ()))
-            (term (((b1 cell2)(a1 cell1)(c1 cell))
-                   ((cell2 (variable v3 3)) (cell1 (variable v2 2)) (cell (variable v1 5))))))
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; eval-prog/run-prog side tests
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; eval-prog main tests
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-simple-macro (linklet-test p v)
   (test-equal (term (eval-prog p)) (term v)))
@@ -726,5 +660,3 @@
                                             (instantiate-linklet l5 #:target t3)
                                             (instance-variable-value t3 y)))))
               50)
-
-;|#
