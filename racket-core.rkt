@@ -34,49 +34,50 @@
 ;; standard reduction
 (define -->βr
   (reduction-relation
-   RC
-   #:domain (e ρ σ)
-   (--> [(in-hole E (raises e)) ρ σ]
-        [(raises e) ρ σ] "error")
-   (--> [(in-hole E x) ρ σ]
-        [(in-hole E (lookup σ x_1)) ρ σ] "lookup"
+   Linklets
+   #:domain (p ρ σ)
+   (--> [(in-hole EP (in-hole E (raises e))) ρ σ]
+        [(in-hole EP (raises e)) ρ σ] "error")
+
+   (--> [(in-hole EP (in-hole E x)) ρ σ]
+        [(in-hole EP (in-hole E (lookup σ x_1))) ρ σ] "lookup"
         (where x_1 ,(term (lookup ρ x))))
 
-   (--> [(in-hole E (var-ref x)) ρ σ]
-        [(in-hole E v) ρ σ]
+   (--> [(in-hole EP (in-hole E (var-ref x))) ρ σ]
+        [(in-hole EP (in-hole E v)) ρ σ]
         (where v (lookup σ (lookup ρ x)))
         "var-ref")
-   (--> [(in-hole E (var-ref/no-check x)) ρ σ]
-        [(in-hole E v) ρ σ]
+   (--> [(in-hole EP (in-hole E (var-ref/no-check x))) ρ σ]
+        [(in-hole EP (in-hole E v)) ρ σ]
         (where v (lookup σ (lookup ρ x)))
         "var-ref/no-check") ; for now the same with var-ref
-   (--> [(in-hole E (var-set! x v)) ρ σ]
-        [(in-hole E (void)) ρ (extend σ (cell_var) (v))]
+   (--> [(in-hole EP (in-hole E (var-set! x v))) ρ σ]
+        [(in-hole EP (in-hole E (void))) ρ (extend σ (cell_var) (v))]
         (where cell_var (lookup ρ x))
         "var-set!")
-   (--> [(in-hole E (var-set/check-undef! x v)) ρ σ]
-        [(in-hole E (void)) ρ (extend σ (cell_var) (v))]
+   (--> [(in-hole EP (in-hole E (var-set/check-undef! x v))) ρ σ]
+        [(in-hole EP (in-hole E (void))) ρ (extend σ (cell_var) (v))]
         (where cell_var (lookup ρ x))
         (where v_var (lookup σ cell_var)) ; to make sure it's there
         "var-set/check-undef!") ; for now the same with var-set!
 
-   (--> [(in-hole E (lambda (x ...) e)) ρ σ]
-        [(in-hole E (closure (x ...) e ρ)) ρ σ] "closure")
-   (--> [(in-hole E (set! x v)) ρ σ]
-        [(in-hole E (void)) ρ (extend σ (x_1) (v))]
+   (--> [(in-hole EP (in-hole E (lambda (x ...) e))) ρ σ]
+        [(in-hole EP (in-hole E (closure (x ...) e ρ))) ρ σ] "closure")
+   (--> [(in-hole EP (in-hole E (set! x v))) ρ σ]
+        [(in-hole EP (in-hole E (void))) ρ (extend σ (x_1) (v))]
         (side-condition (not (equal? (term (raises ,(term x))) (term (lookup ρ x)))))
         (where x_1 ,(term (lookup ρ x))) "set!")
-   (--> [(in-hole E (begin v_1 ... v_n)) ρ σ]
-        [(in-hole E v_n) ρ σ] "begin")
-   (--> [(in-hole E (if v_0 e_1 e_2)) ρ σ]
-        [(in-hole E e_1) ρ σ]
+   (--> [(in-hole EP (in-hole E (begin v_1 ... v_n))) ρ σ]
+        [(in-hole EP (in-hole E v_n)) ρ σ] "begin")
+   (--> [(in-hole EP (in-hole E (if v_0 e_1 e_2))) ρ σ]
+        [(in-hole EP (in-hole E e_1)) ρ σ]
         (side-condition (not (equal? (term v_0) (term false)))) "if-true")
-   (--> [(in-hole E (if false e_1 e_2)) ρ σ]
-        [(in-hole E e_2) ρ σ] "if-false")
-   (--> [(in-hole E (o v_1 v_2 ...)) ρ σ]
-        [(in-hole E (δ (o v_1 v_2 ...))) ρ σ] "δ")
-   (--> [(in-hole E ((closure (x ..._n) e ρ_1) v ..._n)) ρ_2 σ]
-        [(in-hole E e) (extend ρ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
+   (--> [(in-hole EP (in-hole E (if false e_1 e_2))) ρ σ]
+        [(in-hole EP (in-hole E e_2)) ρ σ] "if-false")
+   (--> [(in-hole EP (in-hole E (o v_1 v_2 ...))) ρ σ]
+        [(in-hole EP (in-hole E (δ (o v_1 v_2 ...)))) ρ σ] "δ")
+   (--> [(in-hole EP (in-hole E ((closure (x ..._n) e ρ_1) v ..._n))) ρ_2 σ]
+        [(in-hole EP (in-hole E e)) (extend ρ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
         (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))))
 
 (define-metafunction RC

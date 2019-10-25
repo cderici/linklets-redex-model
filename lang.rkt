@@ -84,7 +84,7 @@
           (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
           (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
           (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
-
+          (define-values (x) EP)
           (let-inst x EP p-top)
           (seq v ... EP p-top ...)
 

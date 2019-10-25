@@ -32,15 +32,10 @@
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last) LI ...)) ρ σ]
         [(in-hole EP (v_last x_target)) ρ σ] "return instance/value")
 
-   (--> [(in-hole EP (define-values (x) e)) ρ σ]
-        [(in-hole EP (void)) ρ_2 σ_2]
-        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (where cell ,(variable-not-in (term (x ρ_1 σ_1)) (term cell_1)))
-        (where (ρ_2 σ_2) ((extend ρ_1 (x) (cell)) (extend σ_1 (cell) (v))))  "define-values")
-   (--> [(in-hole EP e) ρ σ]
-        [(in-hole EP v) ρ_1 σ_1]
-        (where (v ρ_1 σ_1) ,(term (rc-api (e ρ σ))))
-        (side-condition (not (redex-match? Linklets v (term e)))) "expression")
+   (--> [(in-hole EP (define-values (x) v)) ρ σ]
+        [(in-hole EP (void)) ρ_1 σ_1]
+        (where cell ,(variable-not-in (term (x ρ σ)) (term cell_1)))
+        (where (ρ_1 σ_1) ((extend ρ (x) (cell)) (extend σ (cell) (v)))) "define-values")
 
    (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ...)) ρ σ]
         [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target x_target)) ρ σ_1]

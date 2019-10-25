@@ -3,6 +3,7 @@
 (require redex
          "lang.rkt"
          "linklets.rkt"
+         "racket-core.rkt"
          "compile-linklets.rkt"
          #;"racket-core.rkt"
          "util.rkt")
@@ -29,6 +30,10 @@
   [(run-prog any_1)
    (run-prog any_again)
    (where (any_again) ,(apply-reduction-relation -->βp (term any_1)))]
+  [(run-prog any_1)
+   (run-prog any_again)
+   (where (any_again) ,(apply-reduction-relation -->βr (term any_1)))]
+
   #;[(run-prog any_1) stuck])
 
 
