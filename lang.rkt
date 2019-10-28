@@ -71,13 +71,11 @@
 
   [linkl-ref ::= x L-obj (raises e)]
   [inst-ref ::= x LI (raises e)]
-  [v ::= .... V]
+  [v ::= .... (v x)]
   ;; program-stuff
   [p ::= (program (use-linklets (x_!_ L) ...) p-top) v]
-  [p-top ::= v I (let-inst x I p-top) (let-inst x V p-top) (seq p-top ...)
+  [p-top ::= v I (let-inst x p-top p-top) (seq p-top ...)
              (instance-variable-value inst-ref x)]
-
-  [V ::= (v x)]
 
   ;; evaluation-context for the programs
   [EP ::= hole
