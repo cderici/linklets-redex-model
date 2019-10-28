@@ -301,9 +301,9 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \;          &\;\; \where x_t \notin \mathit{dom}(\sigma), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
     EP\;\llbracket (\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t}) \rrbracket, \rel \redoutput{(\bm{\Phi^I}(\lb\; x_{t}\; l\dash top\; \ldots))}{\rho_2}{\sigma_1} \\
     \rho, \sigma\; &\;\; \where \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
-    \;          &\;\; \hspace{0.4cm} (\rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma) \\ \\
-    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma &\twoheadrightarrow_{p}\; (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\
-    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{p\cup\beta p\cup\beta r} \; (\textbf{program}\; ()\;(v\;\_)) \\
+    \;          &\;\; \hspace{0.4cm} (\rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma) \\
+    (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma &\longrightarrow_{\beta p}\; (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\ \\
+    eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{\beta p\cup\beta r} \; (\textbf{program}\; ()\;(v\;\_)) \\
   \end{align*}
   \hfill \footnotesize $\Phi^V : \textbf{instance\dash variable\dash value}\:,\: \Phi^I : \textbf{instantiate\dash linklet},\: \mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Reduction Relation}
