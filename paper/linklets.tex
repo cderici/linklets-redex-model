@@ -261,11 +261,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
     imp\dash obj   &::=\; (\textbf{Import}\; x\; x\; x) \tag*{[id int ext]} \\
     exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[id int ext]} \\
-    I              &::=\; \bm{\Phi^I}(l\dash ref\; x\; \ldots) \\
-    \;           &\;|\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x) \\
-    l\dash ref &::=\; x\; |\; L\dash obj \\
   \end{align*}
-  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
+  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}$
 \caption{Linklet Runtime Language}
 \label{fig:linklet-runtime}
 \end{figure}
@@ -275,6 +272,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top)\; |\; v \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(x\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top) \\
+    I              &::=\; \bm{\Phi^I}(l\dash ref\; x\; \ldots) \;|\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)\\
+    l\dash ref &::=\; x\; |\; L\dash obj \\
     v           &::=\; ....\;|\;(v\;x) \\
     EP          &::=\; [] \\
     \;          &\;|\; \bm{\Phi^I}(EP\; x\; \ldots) \\ % resolve the linklet
