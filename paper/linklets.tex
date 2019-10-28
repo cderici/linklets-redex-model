@@ -278,12 +278,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     v           &::=\; ....\;|\;(v\;x) \\
     EP          &::=\; [] \\
     \;          &\;|\; \bm{\Phi^I}(EP\; x\; \ldots) \\ % resolve the linklet
-    %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; x\; \ldots) \\ % resolve the imported instances
     \;          &\;|\; \bm{\Phi^I}(EP\; x\; \ldots\; \textbf{\#:t}\; x) \\ % resolve the linklet
-    %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; x\; \ldots\; \textbf{\#:t}\; x) \\ % resolve the imported instances
     \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; x\; \ldots) \\
-    %\;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; x\; \ldots) \\
-    %\;          &\;|\; \bm{\Phi^V}(EP\; x) \\
     \;          &\;|\; (\textbf{define\dash values}\:(x)\:EP) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
     \;          &\;|\; (\textbf{program}\; ()\; EP) \\
@@ -293,17 +289,13 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \label{fig:linklet-program}
 \end{figure}
 
-%\onecolumn
-%\newpage
 \newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \rho, \sigma\;}
 \newcommand{\redoutput}[3]{EP\;\llbracket #1 \rrbracket, #2, #3\;}
 \def\where {\textbf{where}\;}
 \def\rel {&\longrightarrow_{\beta p}\;}
 
-% \redoutput{}{}{}{}{}
 \begin{figure*}[tbp]
   \begin{align*}
-    %\redinput{x} \rel \redoutput{LI}{\rho}{\sigma} \where LI \; =\; (lookup\; \sigma\; x) \\
     \redinput{\bm{\Phi^V}(x_{li},\; x)} \rel \redoutput{v}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; (lookup\; \sigma\; x_{li})[x]) \\
     \redinput{(\textbf{let\dash inst}\; x\; (v\;x_i)\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow (lookup\; \sigma\; x_i)] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\rho}{\sigma} \\
@@ -311,8 +303,6 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \redinput{(\textbf{define\dash values}\; (x)\; v)} \rel \redoutput{(void)}{\rho_1}{\sigma_1} \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
     \redinput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top\; \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t})}{\rho}{\sigma_1} \\
     \;          &\;\; \where x_t = (gensym), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
-    %\;          &\;\; \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma_1) \\
-    %\;          &\;\; (\rho_2, \sigma_2) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma_1) \\
     EP\;\llbracket (\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t}) \rrbracket, \rel \redoutput{(\bm{\Phi^I}(\lb\; x_{t}\; l\dash top\; \ldots))}{\rho_2}{\sigma_1} \\
     \rho, \sigma\; &\;\; \where \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
     \;          &\;\; \hspace{0.4cm} (\rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma) \\ \\
@@ -393,7 +383,6 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
       (\textbf{Export}\;(gensym)\;x\;x) & if $exp_n = x$ \\
       (\textbf{Export}\;(gensym)\;x_{int}\;x_{ext}) & if $exp_n = (x_{int}\;x_{ext})$ \\
     \end{cases*} \\ \\
-    %\Phi^C_{\textbf{e}} : l\dash top \times (c\dash imps\;\ldots) \times (c\dash exps\;\ldots) \times (x\;\ldots) \times (x\;\ldots) \times (x\;\ldots) &\longrightarrow l\dash top\; \ldots \\
     \Phi^C_{\textbf{e}} : l\dash top \times \mathit{C_I} \times \mathit{C_E} \times \mathit{X_L} \times\mathit{X_M} \times\mathit{X_T} &\longrightarrow l\dash top\; \ldots \\
     \;          &\;\; \where \mathit{C_I} : (c\dash imps\;\ldots), \mathit{C_E} : (c\dash exps\;\ldots) \\
     \;          &\;\; \mathit{X_L} : (x\;\ldots), \mathit{X_M} : (x\;\ldots), \mathit{X_T} : (x\;\ldots) \\
