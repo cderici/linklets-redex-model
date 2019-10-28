@@ -270,9 +270,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \begin{figure}[h!]
   \begin{align*}
     p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top)\; |\; v \\
-    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(x\; x) \\
-    \;          &\;|\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top) \\
-    I              &::=\; \bm{\Phi^I}(l\dash ref\; x\; \ldots) \;|\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)\\
+    p\dash top  &::=\; v\; |\; \bm{\Phi^I}(l\dash ref\; x\; \ldots)\; |\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x) \\
+    \;          &\;|\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top)\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(x\; x) \\
     l\dash ref &::=\; x\; |\; L\dash obj \\
     v           &::=\; ....\;|\;(v\;x) \\
     EP          &::=\; [] \\
