@@ -212,7 +212,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \; &|\; (\textbf{set!}\; x\; e)\; |\; (\textbf{raises}\; e)\\
     \; &|\; (\textbf{var\dash ref}\; x)\; |\; (\textbf{var\dash ref/no\dash check}\; x) \\
     \; &|\; (\textbf{var\dash set!}\; x\; e)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; e) \\
-    v   &::=\; n\; |\; b\; |\; c\; |\; (void)\; (v\; x)|\; uninit \\ %;; values
+    v   &::=\; n\; |\; b\; |\; c\; |\; (void)\;|\; uninit \\ %;; values
     c   &::=\; (closure\; (x\; \ldots)\; e\; \rho) \\
     n   &::=\; number \\
     b   &::=\; true\; |\; false \\
@@ -274,8 +274,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top)\; |\; v \\
     p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(i\dash ref\; x) \\
-    \;          &\;|\; (\textbf{let\dash inst}\; x\; I\;p\dash top)\; |\; (\textbf{let\dash inst}\; x\; LI\;p\dash top) \\
-    V           &::=\; v\; |\; LI \\
+    \;          &\;|\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top) \\
+    v           &::=\; ....\;|\;(v\;x) \\
     EP          &::=\; [] \\
     \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots) \\ % resolve the linklet
     %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; i\dash ref\; \ldots) \\ % resolve the imported instances
