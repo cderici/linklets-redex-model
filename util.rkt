@@ -8,10 +8,10 @@
 
 (define-metafunction Linklets
   substitute-one : x L-obj p-top -> p-top
-  [(substitute-one x L-obj (instantiate-linklet x inst-ref ...))
-   (instantiate-linklet L-obj inst-ref ...)]
-  [(substitute-one x L-obj (instantiate-linklet x inst-ref ... #:target inst-ref_1))
-   (instantiate-linklet L-obj inst-ref ... #:target inst-ref_1)]
+  [(substitute-one x L-obj (instantiate-linklet x x_imp_inst ...))
+   (instantiate-linklet L-obj x_imp_inst ...)]
+  [(substitute-one x L-obj (instantiate-linklet x x_imp_inst ... #:target x_t))
+   (instantiate-linklet L-obj x_imp_inst ... #:target x_t)]
   [(substitute-one x L-obj (let-inst x_1 I p-top))
    (let-inst x_1 I_s p-top_new)
    (where I_s (substitute-one x L-obj I))
@@ -33,12 +33,12 @@
 
 #;(define-metafunction Linklets
   substitute-instance : x LI p-top -> p-top
-  [(substitute-instance x LI (instantiate-linklet linkl-ref inst-ref_bef ... x inst-ref_aft ...))
-   (instantiate-linklet linkl-ref inst-ref_bef ... LI inst-ref_aft ...)]
-  [(substitute-instance x LI (instantiate-linklet linkl-ref inst-ref_bef ... x inst-ref_aft ... #:target inst-ref_tar))
-   (instantiate-linklet linkl-ref inst-ref_bef ... LI inst-ref_aft ... #:target inst-ref_tar)]
-  [(substitute-instance x LI (instantiate-linklet linkl-ref inst-ref ... #:target x))
-   (instantiate-linklet linkl-ref inst-ref ... #:target LI)]
+  [(substitute-instance x LI (instantiate-linklet linkl-ref x_bef ... x x_aft ...))
+   (instantiate-linklet linkl-ref x_bef ... LI x_aft ...)]
+  [(substitute-instance x LI (instantiate-linklet linkl-ref x_bef ... x x_aft ... #:target x_tar))
+   (instantiate-linklet linkl-ref x_bef ... LI x_aft ... #:target x_tar)]
+  [(substitute-instance x LI (instantiate-linklet linkl-ref x ... #:target x))
+   (instantiate-linklet linkl-ref x ... #:target LI)]
   [(substitute-instance x LI (let-inst x_1 I p-top))
    (let-inst x_1 I_s p-top_1)
    (where I_s (substitute-instance x LI I))

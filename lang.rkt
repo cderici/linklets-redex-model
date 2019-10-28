@@ -66,22 +66,22 @@
   ;; instantiate
   [LI ::= x (linklet-instance (x cell) ...)] ;; note that an instance have no exports
   [I ::= (make-instance)
-         (instantiate-linklet linkl-ref inst-ref ...)
-         (instantiate-linklet linkl-ref inst-ref ... #:target inst-ref)]
+         (instantiate-linklet linkl-ref x ...)
+         (instantiate-linklet linkl-ref x ... #:target x)]
 
   [linkl-ref ::= x L-obj (raises e)]
-  [inst-ref ::= x LI (raises e)]
+
   [v ::= .... (v x)]
   ;; program-stuff
   [p ::= (program (use-linklets (x_!_ L) ...) p-top) v]
   [p-top ::= v I (let-inst x p-top p-top) (seq p-top ...)
-             (instance-variable-value inst-ref x)]
+             (instance-variable-value x x)]
 
   ;; evaluation-context for the programs
   [EP ::= hole
-          (instantiate-linklet EP inst-ref ...) ;; resolve the linklet
-          (instantiate-linklet EP inst-ref ... #:target inst-ref) ;; resolve the linklet
-          (instantiate-linklet (Lβ x v ... EP l-top ...) inst-ref ...) ;; instantiate
+          (instantiate-linklet EP x ...) ;; resolve the linklet
+          (instantiate-linklet EP x ... #:target x) ;; resolve the linklet
+          (instantiate-linklet (Lβ x v ... EP l-top ...) x ...) ;; instantiate
           (define-values (x) EP)
           (let-inst x EP p-top)
           (seq v ... EP p-top ...)
@@ -96,7 +96,7 @@
   [p-top-test ::= (instantiate-linklet x x ... #:target I-test)
                   (instantiate-linklet x x ...)
                   (let-inst x (instantiate-linklet x x ...) p-top-test)
-                  (instance-variable-value inst-ref x)
+                  (instance-variable-value x x)
                   v-test]
   [I-test ::= x (linklet-instance)]
   [v-test ::= n b (void)])
