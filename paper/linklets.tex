@@ -298,7 +298,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots v_{l}))} \rel \redoutput{(v_{l}\; x)}{\rho}{\sigma} \\
     \redinput{(\textbf{define\dash values}\; (x)\; v)} \rel \redoutput{(void)}{\rho_1}{\sigma_1} \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
     \redinput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top\; \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t})}{\rho}{\sigma_1} \\
-    \;          &\;\; \where x_t = (gensym), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
+    \;          &\;\; \where x_t \notin \mathit{dom}(\sigma), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
     EP\;\llbracket (\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t}) \rrbracket, \rel \redoutput{(\bm{\Phi^I}(\lb\; x_{t}\; l\dash top\; \ldots))}{\rho_2}{\sigma_1} \\
     \rho, \sigma\; &\;\; \where \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
     \;          &\;\; \hspace{0.4cm} (\rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma) \\ \\
