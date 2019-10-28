@@ -3,10 +3,7 @@
 (require redex
          "lang.rkt"
          "linklets.rkt"
-         "racket-core.rkt"
-         "compile-linklets.rkt"
-         #;"racket-core.rkt"
-         "util.rkt")
+         "racket-core.rkt")
 
 (provide (all-defined-out))
 
@@ -16,12 +13,6 @@
   [(run-prog ((program (use-linklets) (b _)) ρ σ)) b] ;; boolean
   [(run-prog ((program (use-linklets) ((void) _)) ρ σ)) (void)] ;; void
   [(run-prog ((raises e) ρ σ)) stuck] ;; stuck
-
-  ;; compile and load the linklets
-  [(run-prog ((program (use-linklets (x_1 L_1) (x L) ...) p-top) ρ σ))
-   (run-prog ((program (use-linklets (x L) ...) p-top_new) ρ σ))
-   (where L-obj_1 (compile-linklet L_1))
-   (where (p-top_new) (substitute-linklet x_1 L-obj_1 (p-top)))]
 
   ;; problem in intermediate steps
   [(run-prog ((program (use-linklets (x L) ...) stuck) ρ σ)) stuck]

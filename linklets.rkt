@@ -3,7 +3,8 @@
 (require redex
          "racket-core.rkt"
          "lang.rkt"
-         "util.rkt")
+         "util.rkt"
+         "compile-linklets.rkt")
 
 (provide (all-defined-out))
 
@@ -37,22 +38,23 @@ we call "evaluating a linklet".
    #:domain (p ρ σ)
    #;(--> [(in-hole EP (raises e)) ω Ω ρ σ]
           [(raises e) ω Ω ρ σ] "error")
+   (--> [(program (use-linklets (x_1 L_1) (x L) ...) p-top) ρ σ]
+        [(program (use-linklets (x L) ...) p-top_new) ρ σ]
+        (where L-obj_1 (compile-linklet L_1))
+        (where (p-top_new) (substitute-linklet x_1 L-obj_1 (p-top))) "compile and load")
+
    (--> [(in-hole EP (make-instance)) ρ σ]
         [(in-hole EP ((void) x_li)) ρ σ_1]
         (where x_li ,(variable-not-in (term σ) (term li)))
-        (where σ_1 (extend σ (x_li) ((linklet-instance))))
-        "make-instance")
+        (where σ_1 (extend σ (x_li) ((linklet-instance)))) "make-instance")
    (--> [(in-hole EP (instance-variable-value x_li x)) ρ σ]
         [(in-hole EP (v x_li)) ρ σ]
-        (where v (lookup σ (get-var-from-instance x x_li σ)))
-        "instance variable value")
+        (where v (lookup σ (get-var-from-instance x x_li σ))) "instance variable value")
    (--> [(in-hole EP (let-inst x (v x_i) p-top)) ρ σ]
         [(in-hole EP p-top) ρ (extend σ (x) (LI))]
         (where LI (lookup σ x_i)) "let-inst")
-
    (--> [(in-hole EP (seq v_1 ... v_n)) ρ σ]
         [(in-hole EP v_n) ρ σ] "seq")
-
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last) LI ...)) ρ σ]
         [(in-hole EP (v_last x_target)) ρ σ] "return instance/value")
 
@@ -65,7 +67,6 @@ we call "evaluating a linklet".
         [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target x_target)) ρ σ_1]
         (where x_target ,(variable-not-in (term σ) (term li)))
         (where σ_1 (extend σ (x_target) ((linklet-instance)))))
-
    (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target x_target)) ρ σ]
         [(in-hole EP (instantiate-linklet (Lβ x_target l-top ...))) ρ_2 σ_1]
         ; set the stage for target/imports/exports
