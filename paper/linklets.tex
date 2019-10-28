@@ -256,15 +256,14 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     CL             &::=\; \bm{\Phi^C}(L)\\
     L\dash obj     &::= (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\\
     \;           &\;|\; (\lb\; x\; l\dash top\; \ldots) \\
+    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
     c\dash imps    &::=\; ((imp\dash obj\; \ldots)\; \ldots)\\
     c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
     imp\dash obj   &::=\; (\textbf{Import}\; x\; x\; x) \tag*{[id int ext]} \\
     exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[id int ext]} \\
-    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
-    I              &::=\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots) \\
-    \;           &\;|\; \bm{\Phi^I}(l\dash ref\; i\dash ref\; \ldots\; \textbf{\#:t}\; i\dash ref) \\
+    I              &::=\; \bm{\Phi^I}(l\dash ref\; x\; \ldots) \\
+    \;           &\;|\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x) \\
     l\dash ref &::=\; x\; |\; L\dash obj \\
-    i\dash ref  &::=\; x\; |\; LI \\
   \end{align*}
   \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}\:,\: \Phi^I : \textbf{instantiate\dash linklet}$
 \caption{Linklet Runtime Language}
@@ -274,16 +273,16 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 \begin{figure}[h!]
   \begin{align*}
     p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top)\; |\; v \\
-    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(i\dash ref\; x) \\
+    p\dash top  &::=\; v\; |\; LI\; |\; I\; |\; (\textbf{seq}\; p\dash top\; \ldots)\; |\; \bm{\Phi^V}(x\; x) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top) \\
     v           &::=\; ....\;|\;(v\;x) \\
     EP          &::=\; [] \\
-    \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots) \\ % resolve the linklet
-    %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; i\dash ref\; \ldots) \\ % resolve the imported instances
-    \;          &\;|\; \bm{\Phi^I}(EP\; i\dash ref\; \ldots \textbf{\#:t}\; i\dash ref) \\ % resolve the linklet
-    %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; i\dash ref\; \ldots\; \textbf{\#:t}\; i\dash ref) \\ % resolve the imported instances
-    \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
-    %\;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; i\dash ref\; \ldots) \\
+    \;          &\;|\; \bm{\Phi^I}(EP\; x\; \ldots) \\ % resolve the linklet
+    %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; x\; \ldots) \\ % resolve the imported instances
+    \;          &\;|\; \bm{\Phi^I}(EP\; x\; \ldots\; \textbf{\#:t}\; x) \\ % resolve the linklet
+    %\;          &\;|\; \bm{\Phi^I}(L\dash obj\; LI\; \ldots EP\; x\; \ldots\; \textbf{\#:t}\; x) \\ % resolve the imported instances
+    \;          &\;|\; \bm{\Phi^I}((\lb\; x\; v\; \ldots\; EP\; l\dash top\; \ldots)\; x\; \ldots) \\
+    %\;          &\;|\; \bm{\Phi^I}((\lc\; v\; \ldots\; EP\; l\dash top\; \ldots)\; x\; \ldots) \\
     %\;          &\;|\; \bm{\Phi^V}(EP\; x) \\
     \;          &\;|\; (\textbf{define\dash values}\:(x)\:EP) \\
     \;          &\;|\; (\textbf{let\dash inst}\; x\; EP\; p\dash top)\; |\; (\textbf{seq}\; v\; \ldots\; EP\; p\dash top\; \ldots) \\
