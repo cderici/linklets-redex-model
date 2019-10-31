@@ -319,12 +319,15 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \redinput{\bm{\Phi^V}(x_{li},\; x)} \rel \redoutput{v}{\rho}{\sigma} \where v\; =\; \sigma[\sigma[x_{li}][x]] \\
     \redinput{(\textbf{let\dash inst}\; x\; (v\;x_i)\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow \sigma[x_i]] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\rho}{\sigma} \\
-    \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots v_{l}))} \rel \redoutput{(v_{l}\; x)}{\rho}{\sigma} \\
+    \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots\; v_{l}))} \rel \redoutput{(v_{l}\; x)}{\rho}{\sigma} \\
+    \redinput{(\bm{\Phi^I}\; (\lb\; x))} \rel \redoutput{((void)\; x)}{\rho}{\sigma} \\
+    EP\;\llbracket (\bm{\Phi^I}(\lb\; x_{t}\; v_p\; \ldots\; (\textbf{define\dash values}\; (x)\; v)\; l\dash top\; \ldots)) \rrbracket, \rel \redoutput{\bm{\Phi^I}(\lb\; x_{t}\; v_p\; \ldots\; l\dash top\; \ldots)}{\rho_1}{\sigma_1} \\
+    \;          &\;\; \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
     \redinput{(\textbf{define\dash values}\; (x)\; v)} \rel \redoutput{(void)}{\rho_1}{\sigma_1} \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
     \redinput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top\; \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t})}{\rho}{\sigma_1} \\
     \;          &\;\; \where x_t \notin \mathit{dom}(\sigma), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
     EP\;\llbracket (\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t}) \rrbracket, \rel \redoutput{(\bm{\Phi^I}(\lb\; x_{t}\; l\dash top\; \ldots))}{\rho_2}{\sigma_1} \\
-    \rho, \sigma\; &\;\; \where \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho, \sigma) \\
+    \rho, \sigma\; &\;\; \where \rho_1 = \mathit{V}^I(c\dash imps, (LI\; \ldots), \rho) \\
     \;          &\;\; \hspace{0.4cm} (\rho_2, \sigma_1) = \mathit{V}^E(c\dash exps, x_t, \rho_1, \sigma) \\
     (\textbf{program}\; ((x\;L),(x_1\;L_1)\;\ldots)\;p\dash top), \rho, \sigma &\longrightarrow_{\beta p}\; (\textbf{program}\; ((x_1\;L_1)\;\ldots)\;p\dash top[x := \bm{\Phi^C}(L)]), \rho, \sigma \\ \\
     eval^{\longrightarrow_{\beta p}}(p) &=\; v\; \textbf{if}\; p, (), () \twoheadrightarrow_{\beta p\cup\beta r} \; (\textbf{program}\; ()\;(v\;\_)) \\
@@ -340,22 +343,38 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure*}[tbp]
   \begin{align*}
-    \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho \times \sigma &\longrightarrow \rho \\
-    \mathit{V}^I((), (LI\;\ldots), \rho, \sigma) &= \rho \\
-    \mathit{V}^I((\ldots\;((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho, \sigma) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
+    \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho &\longrightarrow \rho \\
+    \mathit{V}^I((\ldots\;((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
+    \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho &\longrightarrow \rho \\
+    \mathit{V}^I((), (), \rho) &= \rho \\
+    \mathit{V}^I((()\;(imp\dash obj\; \ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho) &= \mathit{V}^I(((imp\dash obj\; \ldots)\;\ldots), (LI_r\;\ldots), \rho) \\
+    \mathit{V}^I((((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;imp\dash obj\;\ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho) &= \mathit{V}^I(((imp\dash obj\;\ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho[x_{id}\rightarrow var]) \\
+    \;          &\; \where var = LI(x_{ext}) \\ \\
     \mathit{V}^E : c\dash exps \times x \times \rho \times \sigma &\longrightarrow \rho \times \sigma \\
     \mathit{V}^E((), x_t, \rho, \sigma) &=\; (\rho, \sigma) \\
     \mathit{V}^E((exp\dash obj\;\ldots), x_t, \rho, \sigma) &= \mathit{P}(exp\dash obj, x_t, \rho, \sigma)\\
     \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \begin{cases*}
       \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
-      \;        &\; \where $LI_t = (lookup\; \sigma\; x_t)$ \\
+      \;        &\; \where $LI_t = \sigma[x_t]$ \\
       \;        &\; $\rho_1 = \rho[x_{id}\rightarrow LI_t[x_{ext}]]$ \\
         \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
-        \;        &\; \where $LI_t = (lookup\; \sigma\; x_t)$ \\
+        \;        &\; \where $LI_t = \sigma[x_t]$ \\
         \;        &\; $\rho_1 = \rho[x_{id}\rightarrow var_{new}]$ \\
         \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit,$ \\
         \;        &\; \hspace{1.7cm} $x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]]$ \\
     \end{cases*} \\ \\
+    \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \rho_1, \sigma_1\; \where \\
+    \;          &\; \rho_1 = \rho[x_{id}\rightarrow A] \\
+    \;          &\; A = \begin{cases*}
+      LI_t[x_{ext}] & if $x_{ext} \in LI_t$ \\
+      var_{new}     & o/w
+    \end{cases*} \\
+    \;          &\; \sigma_1 = \begin{cases*}
+      \sigma & if $x_{ext} \in LI_t$ \\
+      \sigma[var_{new}\rightarrow uninit, x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]] & o/w
+    \end{cases*} \\
+    \;          &\; var_{new} \notin LI_t \cup \sigma \\
+    \;          &\; LI_t = \sigma[x_t] \\
   \end{align*}
   \hfill \footnotesize $\mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Instantiation Utilities}
