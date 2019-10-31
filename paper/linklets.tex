@@ -343,11 +343,11 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \begin{align*}
     \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho &\longrightarrow \rho \\
     \mathit{V}^I((\ldots\;((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;\ldots)_n\;\ldots), (\ldots\;LI_n\;\ldots), \rho) &= \rho[x_{id}\rightarrow var]\; \where var = LI_n(x_{ext}) \\ \\
-    \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho &\longrightarrow \rho \\
-    \mathit{V}^I((), (), \rho) &= \rho \\
-    \mathit{V}^I((()\;(imp\dash obj\; \ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho) &= \mathit{V}^I(((imp\dash obj\; \ldots)\;\ldots), (LI_r\;\ldots), \rho) \\
-    \mathit{V}^I((((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;imp\dash obj\;\ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho) &= \mathit{V}^I(((imp\dash obj\;\ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho[x_{id}\rightarrow var]) \\
-    \;          &\; \where var = LI(x_{ext}) \\ \\
+    %% \mathit{V}^I : c\dash imps \times (LI\;\ldots) \times \rho &\longrightarrow \rho \\
+    %% \mathit{V}^I((), (), \rho) &= \rho \\
+    %% \mathit{V}^I((()\;(imp\dash obj\; \ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho) &= \mathit{V}^I(((imp\dash obj\; \ldots)\;\ldots), (LI_r\;\ldots), \rho) \\
+    %% \mathit{V}^I((((\textbf{Import}\; x_{id}\;x_{int}\;x_{ext})\;imp\dash obj\;\ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho) &= \mathit{V}^I(((imp\dash obj\;\ldots)\;\ldots), (LI\;LI_r\;\ldots), \rho[x_{id}\rightarrow var]) \\
+    %% \;          &\; \where var = LI(x_{ext}) \\ \\
     \mathit{V}^E : c\dash exps \times x \times \rho \times \sigma &\longrightarrow \rho \times \sigma \\
     \mathit{V}^E((), x_t, \rho, \sigma) &=\; (\rho, \sigma) \\
     \mathit{V}^E((exp\dash obj\;\ldots), x_t, \rho, \sigma) &= \mathit{P}(exp\dash obj, x_t, \rho, \sigma)\\
@@ -361,18 +361,18 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
         \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit,$ \\
         \;        &\; \hspace{1.7cm} $x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]]$ \\
     \end{cases*} \\ \\
-    \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \rho_1, \sigma_1\; \where \\
-    \;          &\; \rho_1 = \rho[x_{id}\rightarrow A] \\
-    \;          &\; A = \begin{cases*}
-      LI_t[x_{ext}] & if $x_{ext} \in LI_t$ \\
-      var_{new}     & o/w
-    \end{cases*} \\
-    \;          &\; \sigma_1 = \begin{cases*}
-      \sigma & if $x_{ext} \in LI_t$ \\
-      \sigma[var_{new}\rightarrow uninit, x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]] & o/w
-    \end{cases*} \\
-    \;          &\; var_{new} \notin LI_t \cup \sigma \\
-    \;          &\; LI_t = \sigma[x_t] \\
+    %% \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \rho_1, \sigma_1\; \where \\
+    %% \;          &\; \rho_1 = \rho[x_{id}\rightarrow A] \\
+    %% \;          &\; A = \begin{cases*}
+    %%   LI_t[x_{ext}] & if $x_{ext} \in LI_t$ \\
+    %%   var_{new}     & o/w
+    %% \end{cases*} \\
+    %% \;          &\; \sigma_1 = \begin{cases*}
+    %%   \sigma & if $x_{ext} \in LI_t$ \\
+    %%   \sigma[var_{new}\rightarrow uninit, x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]] & o/w
+    %% \end{cases*} \\
+    %% \;          &\; var_{new} \notin LI_t \cup \sigma \\
+    %% \;          &\; LI_t = \sigma[x_t] \\
   \end{align*}
   \hfill \footnotesize $\mathit{V}^I : \textbf{get  import variables},\: \mathit{V}^E : \textbf{create variables for exports}$
 \caption{Instantiation Utilities}
