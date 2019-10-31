@@ -55,13 +55,16 @@ we call "evaluating a linklet".
         (where LI (lookup σ x_i)) "let-inst")
    (--> [(in-hole EP (seq v_1 ... v_n)) ρ σ]
         [(in-hole EP v_n) ρ σ] "seq")
-   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last) LI ...)) ρ σ]
-        [(in-hole EP (v_last x_target)) ρ σ] "return instance/value")
 
-   (--> [(in-hole EP (define-values (x) v)) ρ σ]
-        [(in-hole EP (void)) ρ_1 σ_1]
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last))) ρ σ]
+        [(in-hole EP (v_last x_target)) ρ σ] "return instance/value")
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target))) ρ σ]
+        [(in-hole EP ((void) x_target)) ρ σ] "return instance/no-value")
+
+   (--> [(in-hole EP (instantiate-linklet (Lβ x_target v_prev ... (define-values (x) v) l-top ...))) ρ σ]
+        [(in-hole EP (instantiate-linklet (Lβ x_target v_prev ... l-top ...))) ρ_1 σ_1]
         (where cell ,(variable-not-in (term (x ρ σ)) (term cell_1)))
-        (where (ρ_1 σ_1) ((extend ρ (x) (cell)) (extend σ (cell) (v)))) "define-values")
+        (where (ρ_1 σ_1) ((extend ρ (x) (cell)) (extend σ (cell) (v)))))
 
    (--> [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ...)) ρ σ]
         [(in-hole EP (instantiate-linklet (Lα c-imps c-exps l-top ...) LI ... #:target x_target)) ρ σ_1]

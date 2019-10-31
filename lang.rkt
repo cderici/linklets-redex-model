@@ -56,7 +56,7 @@
 (define-extended-language Linklets LinkletSource
   ;; compile
   [CL ::= (compile-linklet L)]
-  [L-obj ::= (Lα c-imps c-exps l-top l-top ...) (Lβ x l-top l-top ...)]
+  [L-obj ::= (Lα c-imps c-exps l-top l-top ...) (Lβ x l-top ...)]
   [c-imps ::= ((imp-obj ...) ...)]
   [c-exps ::= (exp-obj ...)]
   ;; import & export objects
