@@ -40,7 +40,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-extended-language LinkletSource RC
-  [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top l-top ...)]
+  [L ::= (linklet ((imp-id ...) ...) (exp-id ...) l-top ... e)]
 
   [l-top ::= (define-values (x) e) e] ; linklet body expressions
 

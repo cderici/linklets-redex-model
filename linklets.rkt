@@ -58,8 +58,6 @@ we call "evaluating a linklet".
 
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v ... v_last))) ρ σ]
         [(in-hole EP (v_last x_target)) ρ σ] "return instance/value")
-   (--> [(in-hole EP (instantiate-linklet (Lβ x_target))) ρ σ]
-        [(in-hole EP ((void) x_target)) ρ σ] "return instance/no-value")
 
    (--> [(in-hole EP (instantiate-linklet (Lβ x_target v_prev ... (define-values (x) v) l-top ...))) ρ σ]
         [(in-hole EP (instantiate-linklet (Lβ x_target v_prev ... l-top ...))) ρ_1 σ_1]
