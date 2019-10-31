@@ -287,13 +287,37 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \rho, \sigma\;}
 \newcommand{\redoutput}[3]{EP\;\llbracket #1 \rrbracket, #2, #3\;}
+
+\newcommand{\rcinput}[1]{EP\;\llbracket E\;\llbracket #1 \rrbracket \rrbracket, \rho, \sigma\;}
+\newcommand{\rcoutput}[3]{EP\;\llbracket E\;\llbracket #1 \rrbracket \rrbracket, #2, #3\;}
+\def\rcrel {&\longrightarrow_{\beta r}\;}
+
 \def\where {\textbf{where}\;}
 \def\rel {&\longrightarrow_{\beta p}\;}
 
 \begin{figure*}[tbp]
   \begin{align*}
-    \redinput{\bm{\Phi^V}(x_{li},\; x)} \rel \redoutput{v}{\rho}{\sigma} \where v\; =\; (lookup\; \sigma\; (lookup\; \sigma\; x_{li})[x]) \\
-    \redinput{(\textbf{let\dash inst}\; x\; (v\;x_i)\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow (lookup\; \sigma\; x_i)] \\
+    \rcinput{x} \rcrel \rcoutput{\sigma[\rho[x]]}{\rho}{\sigma} \\
+    \rcinput{(\textbf{var\dash ref}\; x))} \rcrel \rcoutput{v}{\rho}{\sigma}\; \where x \in \rho, \rho[x] \in \sigma, v = \sigma[\rho[x]]\; \&\; v \neq uninit\\
+    \rcinput{(\textbf{var\dash ref/no\dash check}\; x))} \rcrel \rcoutput{x}{\rho}{\sigma} \\
+    \rcinput{(\textbf{var\dash set!}\; x\; v)} \rcrel \rcoutput{(void)}{\rho}{\sigma_1} \where \sigma_1 = \sigma[\rho[x]\rightarrow v]\\
+    \rcinput{(\textbf{var\dash set/check\dash undef!}\; x\; v)} \rcrel \rcoutput{(void)}{\rho}{\sigma_1} \where \sigma_1 = \sigma[\rho[x]\rightarrow v], x \in \rho\\
+    \rcinput{(\textbf{set!}\; x\; v)} \rcrel \rcoutput{(void)}{\rho}{\sigma_1} \where \sigma_1 = \sigma[\rho[x]\rightarrow v]\\
+    \rcinput{(\textbf{lambda}\; (x\; \ldots)\; e)} \rcrel \rcoutput{(closure\; (x\; \ldots)\; e\; \rho)}{\rho}{\sigma} \\
+    %\rcinput{(\textbf{begin}\; v\; \ldots\; v_l)} \rcrel \rcoutput{v_l}{\rho}{\sigma} \\
+    %% \rcinput{(\textbf{if}\; v\; e_1\; e_2)} \rcrel \rcoutput{e}{\rho}{\sigma} \where e = \begin{cases*}
+    %%   e_1 & if $v = true$ \\
+    %%   e_2 & otherwise
+    %% \end{cases*}\\
+  \end{align*}
+  \caption{Reduction Relation for Racket Core}
+  \label{fig:rc-reduction}
+\end{figure*}
+
+\begin{figure*}[tbp]
+  \begin{align*}
+    \redinput{\bm{\Phi^V}(x_{li},\; x)} \rel \redoutput{v}{\rho}{\sigma} \where v\; =\; \sigma[\sigma[x_{li}][x]] \\
+    \redinput{(\textbf{let\dash inst}\; x\; (v\;x_i)\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow \sigma[x_i]] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\rho}{\sigma} \\
     \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots v_{l}))} \rel \redoutput{(v_{l}\; x)}{\rho}{\sigma} \\
     \redinput{(\textbf{define\dash values}\; (x)\; v)} \rel \redoutput{(void)}{\rho_1}{\sigma_1} \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
