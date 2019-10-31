@@ -350,17 +350,13 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     %% \;          &\; \where var = LI(x_{ext}) \\ \\
     \mathit{V}^E : c\dash exps \times x \times \rho \times \sigma &\longrightarrow \rho \times \sigma \\
     \mathit{V}^E((), x_t, \rho, \sigma) &=\; (\rho, \sigma) \\
-    \mathit{V}^E((exp\dash obj\;\ldots), x_t, \rho, \sigma) &= \mathit{P}(exp\dash obj, x_t, \rho, \sigma)\\
-    \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \begin{cases*}
-      \rho_1, \sigma & if $\;x_{ext} \in LI_t$ \\
-      \;        &\; \where $LI_t = \sigma[x_t]$ \\
-      \;        &\; $\rho_1 = \rho[x_{id}\rightarrow LI_t[x_{ext}]]$ \\
-        \rho_1, \sigma_1 & if $\;x_{ext} \notin LI_t$\\
-        \;        &\; \where $LI_t = \sigma[x_t]$ \\
-        \;        &\; $\rho_1 = \rho[x_{id}\rightarrow var_{new}]$ \\
-        \;        &\; $\sigma_1 = \sigma[var_{new}\rightarrow uninit,$ \\
-        \;        &\; \hspace{1.7cm} $x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]]$ \\
-    \end{cases*} \\ \\
+    \mathit{V}^E((exp\dash obj\;\ldots), x_t, \rho, \sigma) &= \mathit{P}(exp\dash obj, x_t, \sigma[x_t], \rho, \sigma)\\
+    \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, LI_t, \rho, \sigma) &= \begin{cases*}
+      \rho_1, \sigma & if $\;x_{ext} \in dom(LI_t)$, \where $\rho_1 = \rho[x_{id}\rightarrow LI_t[x_{ext}]]$ \\
+      \rho_1, \sigma_1 & if $\;x_{ext} \notin dom(LI_t)$, \where $\rho_1 = \rho[x_{id}\rightarrow var_{new}]$\\
+      \;        &\; \hspace{2.6cm} $\sigma_1 = \sigma[var_{new}\rightarrow uninit,$ \\
+      \;        &\; \hspace{3.2cm} $x_t\rightarrow LI_t[x_{ext}\rightarrow var_{new}]]$
+    \end{cases*} \\
     %% \mathit{P}((\textbf{Export}\;x_{id}\;x_{int}\;x_{ext}), x_t, \rho, \sigma) &= \rho_1, \sigma_1\; \where \\
     %% \;          &\; \rho_1 = \rho[x_{id}\rightarrow A] \\
     %% \;          &\; A = \begin{cases*}
