@@ -231,7 +231,7 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 
 \begin{figure}[tbp]
   \begin{align*}
-    L  &::= (\textbf{linklet}\:((imp\: \ldots)\: \ldots)\:(exp\: \ldots)\:l\dash top\:\ldots)\\
+    L  &::= (\textbf{linklet}\:((imp\: \ldots)\: \ldots)\:(exp\: \ldots)\:l\dash top\:\ldots\:e)\\
     l\dash top &::= (\textbf{define\dash values}\:(x)\:e)\:|\:e \\
     imp &::= x\:|\:(x x) \tag*{[external internal]}\\
     exp &::= x\:|\:(x x) \tag*{[internal external]}
@@ -320,10 +320,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \redinput{(\textbf{let\dash inst}\; x\; (v\;x_i)\; p\dash top)} \rel \redoutput{p\dash top}{\rho}{\sigma_1} \where \sigma_1 = \sigma[x\rightarrow \sigma[x_i]] \\
     \redinput{(\textbf{seq}\; v_{1}\; \ldots\; v_{n})} \rel \redoutput{v_{n}}{\rho}{\sigma} \\
     \redinput{(\bm{\Phi^I}\; (\lb\; x\; v\; \ldots\; v_{l}))} \rel \redoutput{(v_{l}\; x)}{\rho}{\sigma} \\
-    \redinput{(\bm{\Phi^I}\; (\lb\; x))} \rel \redoutput{((void)\; x)}{\rho}{\sigma} \\
     EP\;\llbracket (\bm{\Phi^I}(\lb\; x_{t}\; v_p\; \ldots\; (\textbf{define\dash values}\; (x)\; v)\; l\dash top\; \ldots)) \rrbracket, \rel \redoutput{\bm{\Phi^I}(\lb\; x_{t}\; v_p\; \ldots\; l\dash top\; \ldots)}{\rho_1}{\sigma_1} \\
     \;          &\;\; \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
-    \redinput{(\textbf{define\dash values}\; (x)\; v)} \rel \redoutput{(void)}{\rho_1}{\sigma_1} \where \rho_1 = \rho[x\rightarrow cell],\; \sigma_1 = \sigma[cell\rightarrow v] \\
     \redinput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots)} \rel \redoutput{(\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top\; \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t})}{\rho}{\sigma_1} \\
     \;          &\;\; \where x_t \notin \mathit{dom}(\sigma), \sigma_1 = \sigma[x_t\rightarrow (linklet\dash instance)] \\
     EP\;\llbracket (\bm{\Phi^I}(\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\; LI\; \ldots\; \textbf{\#:t}\; x_{t}) \rrbracket, \rel \redoutput{(\bm{\Phi^I}(\lb\; x_{t}\; l\dash top\; \ldots))}{\rho_2}{\sigma_1} \\
