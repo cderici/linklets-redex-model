@@ -128,10 +128,11 @@
                    (linklet ((c)) ()
                             (define-values (a) (+ c c))
                             (define-values (x) (lambda (y) c))
-                            )))
+                            1)))
             (term (Lα (((Import 0 c1 c c))) ()
                                     (define-values (a) (+ (var-ref/no-check c1) (var-ref/no-check c1)))
-                                    (define-values (x) (lambda (y) (var-ref/no-check c1))))))
+                                    (define-values (x) (lambda (y) (var-ref/no-check c1)))
+                                    1)))
 
 ; create a variable for export
 (test-equal (term (compile-linklet

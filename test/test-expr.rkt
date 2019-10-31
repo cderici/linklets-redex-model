@@ -52,19 +52,19 @@
 
 
 (test-predicate L? (term (linklet () () 1)))
-(test-predicate L? (term (linklet () () (define-values (x) 1))))
-(test-predicate L? (term (linklet () () (define-values (x) 1) (define-values (x) 5))))
+(test-predicate L? (term (linklet () () (define-values (x) 1) 1)))
+(test-predicate L? (term (linklet () () (define-values (x) 1) (define-values (x) 5) 1)))
 (test-predicate L? (term (linklet () (x) 13)))
-(test-predicate L? (term (linklet () (x) (define-values (x) 1))))
+(test-predicate L? (term (linklet () (x) (define-values (x) 1) 1)))
 (test-predicate L? (term (linklet () (x) (define-values (x) 1) (+ x x))))
-(test-predicate L? (term (linklet (()) (x) (define-values (x) 1))))
-(test-predicate L? (term (linklet ((a)) (x) (define-values (x) a))))
-(test-predicate L? (term (linklet ((a)) ((x x1)) (define-values (x) a))))
+(test-predicate L? (term (linklet (()) (x) (define-values (x) 1) 1)))
+(test-predicate L? (term (linklet ((a)) (x) (define-values (x) a) 1)))
+(test-predicate L? (term (linklet ((a)) ((x x1)) (define-values (x) a) 1)))
 
 (test-predicate not-L? (term (linklet ()))) ; no imports (or exports)
 (test-predicate not-L? (term (linklet (x) ()))) ; imports are listof-listof-ids
 
-(test-predicate L? (term (linklet ((a)) ((x x1)) (define-values (x) a))))
+(test-predicate L? (term (linklet ((a)) ((x x1)) (define-values (x) a) 1)))
 
 ; compiled (linklet () (x) (define-values (x) 4) (+ x x))
 (test-predicate L? (term
