@@ -3,19 +3,6 @@
 (require redex
          "test-utils.rkt")
 
-(eval-rc=racket-core? 1)
-(eval-rc=racket-core? ((lambda (x) x) 1))
-(eval-rc=racket-core? (+ x 1))
-(eval-rc=racket-core? (void))
-(eval-rc=racket-core? (+ 1 (void)))
-(eval-rc=racket-core? (if (< 1 2) 1 2))
-(eval-rc=racket-core? (if (< 1 2) (< 1 2) 2))
-(eval-rc=racket-core? (set! q (void)))
-(eval-rc=racket-core? ((lambda (x) x) (+ a b)))
-(eval-rc=racket-core? (if (void) (void) (void)))
-(eval-rc=racket-core? (if (void) 3 (< qw F)))
-(eval-rc=racket-core? ((lambda () (void))))
-
 (eval-prog=racket-linklets? (program (use-linklets [l1 (linklet () () 1)])
                                      (let-inst t1 (instantiate-linklet l1)
                                                (instantiate-linklet l1 #:target t1))))

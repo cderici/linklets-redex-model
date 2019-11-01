@@ -79,31 +79,3 @@
    (--> [(in-hole EP (in-hole E ((closure (x ..._n) e ρ_1) v ..._n))) ρ_2 σ]
         [(in-hole EP (in-hole E e)) (extend ρ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
         (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))))
-
-(define-metafunction RC
-  eval-rc : e -> v or closure or stuck
-  [(eval-rc e) (run-rc (e () ()))])
-
-(define-metafunction RC
-  ;run-rc : (e Σ σ) -> v or closure or stuck
-  [(run-rc (n ρ σ)) n]
-  [(run-rc (b ρ σ)) b]
-  [(run-rc (c ρ σ)) closure]
-  [(run-rc ((void) ρ σ)) (void)]
-  [(run-rc ((raises e) ρ σ)) stuck]
-  [(run-rc any_1)
-   (run-rc any_again)
-   (where (any_again) ,(apply-reduction-relation -->βr (term any_1)))]
-  [(run-rc any_1) stuck])
-
-(define-metafunction RC
-  ;rc-api : (e Σ σ) -> (rc-out Σ σ)
-  [(rc-api (n ρ σ)) (n ρ σ)]
-  [(rc-api (b ρ σ)) (b ρ σ)]
-  [(rc-api (c ρ σ)) (c ρ σ)]
-  [(rc-api ((void) ρ σ)) ((void) ρ σ)]
-  [(rc-api ((raises e) ρ σ)) ((raises e) ρ σ)]
-  [(rc-api any_1)
-   (rc-api any_again)
-   (where (any_again) ,(apply-reduction-relation -->βr (term any_1)))]
-  [(rc-api (any_e any_ρ any_σ)) ((raises any_e) any_ρ any_σ)])

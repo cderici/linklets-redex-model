@@ -39,26 +39,6 @@
     ;; exn
     [else (make-exn (format "check the result type : ~a" result) (current-continuation-marks))]))
 
-(define-metafunction RC
-  eval-rc=racket-core : e -> boolean
-  [(eval-rc=racket-core e)
-   ,(letrec ([rr (racket-evaluator (term e))]
-             [vr (term (eval-rc e))])
-      (begin 1 #;(printf "Trying e : ~a\n" (term e))
-      (cond
-        [(and (exn? rr) (eq? (term stuck) vr)) (begin 1 #;(printf "both stuck on : ~a" (term e)) #true)]
-        [(exn? rr) (begin (printf "\n racket raised exn : ~a -- ~a\n\n" (term e) (exn-message rr)) #false)]
-        [(and (void? rr) (eq? (term void) vr)) #true]
-        [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term e)) #false)]
-        [else (let ((q (equal? vr rr)))
-                (begin (unless q
-                         (printf "\nTerm : ~a ==> racket : ~a -- eval-rc : ~a\n" (term e) rr vr))
-                       q))])))])
-
-
-(define-simple-macro (eval-rc=racket-core? e)
-  (test-equal (term (eval-rc=racket-core e)) #true))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; For Linklets
@@ -137,9 +117,8 @@
                [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term p-test)) #false)]
                [else (let ((q (equal? vr rr)))
                        (begin (unless q
-                                (printf "\nTerm : ~a ==> racket : ~a -- eval-rc : ~a\n" (term p-test) rr vr))
+                                (printf "\nTerm : ~a ==> racket : ~a -- eval-prog : ~a\n" (term p-test) rr vr))
                               q))])))])
-
 
 (define-simple-macro (eval-prog=racket-linklets? e)
   (test-equal (term (eval-prog=racket-linklets e)) #true))
