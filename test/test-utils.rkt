@@ -63,7 +63,10 @@
    (IT-to-racket ins)]
   ; let-inst
   [(prog-top-to-racket (let-inst x (instantiate-linklet x_L x_LI ...) p-top))
-   (let-values ([(x) (IT-to-racket (instantiate-linklet x_L x_LI ...))])
+   (let ([x (IT-to-racket (instantiate-linklet x_L x_LI ...))])
+     (prog-top-to-racket p-top))]
+  [(prog-top-to-racket (let-inst x (make-instance) p-top))
+   (let ([x (make-instance #f #f)])
      (prog-top-to-racket p-top))]
   ; values
   [(prog-top-to-racket true) #t]
@@ -95,29 +98,29 @@
   [(to-actual-racket
     (program
      (use-linklets (x (linklet ((imp-id_r ...) ...) (exp-id ...) l-top ...)) ...)
-     p-top-test ...))
+     p-top ...))
    (let ((x (compile-linklet
              (quote
               (linklet ((imp-id_r ...) ...) (exp-id ...)
                        (prog-top-to-racket l-top) ...)))) ...)
-     (prog-top-to-racket p-top-test) ...)])
+     (prog-top-to-racket p-top) ...)])
 
 (define-metafunction LinkletProgramTest
-  eval-prog=racket-linklets : p-test -> boolean
-  [(eval-prog=racket-linklets p-test)
-   ,(letrec ([rr (racket-evaluator (term (to-actual-racket p-test)))]
-             [vr (term (eval-prog p-test))])
-      (begin 1 #;(printf "Trying e : ~a\n" (term p-test))
+  eval-prog=racket-linklets : p -> boolean
+  [(eval-prog=racket-linklets p)
+   ,(letrec ([rr (racket-evaluator (term (to-actual-racket p)))]
+             [vr (term (eval-prog p))])
+      (begin 1 #;(printf "Trying e : ~a\n" (term p))
              (cond
                [(and (exn? rr) (eq? (term stuck) vr))
-                (begin 1 #;(printf "both stuck on : ~a" (term p-test)) #true)]
+                (begin 1 #;(printf "both stuck on : ~a" (term p)) #true)]
                [(exn? rr)
-                (begin (printf "\n racket raised exn : ~a -- ~a\n\n" (term p-test) (exn-message rr)) #false)]
+                (begin (printf "\n racket raised exn : ~a -- ~a\n\n" (term p) (exn-message rr)) #false)]
                [(and (void? rr) (eq? (term void) vr)) #true]
-               [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term p-test)) #false)]
+               [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term p)) #false)]
                [else (let ((q (equal? vr rr)))
                        (begin (unless q
-                                (printf "\nTerm : ~a ==> racket : ~a -- eval-prog : ~a\n" (term p-test) rr vr))
+                                (printf "\nTerm : ~a ==> racket : ~a -- eval-prog : ~a\n" (term p) rr vr))
                               q))])))])
 
 (define-simple-macro (eval-prog=racket-linklets? e)
