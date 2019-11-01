@@ -36,13 +36,3 @@
                                      (let-inst t1 (make-instance)
                                                (let-inst t3 (instantiate-linklet l3)
                                                          (instantiate-linklet l2 t3 #:target t1)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; random testing
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; Random Testing for Racket-Core
-
-#;(redex-check RC e-test (term (eval-rc=racket-core e)) #:attempts 1000)
-
-;(redex-check Linklets (term (eval-programs=racket-linklets e)) #:attempts 1000)
