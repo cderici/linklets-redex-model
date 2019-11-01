@@ -74,8 +74,8 @@
         (side-condition (not (equal? (term v_0) (term false)))) "if-true")
    (--> [(in-hole EP (in-hole E (if false e_1 e_2))) ρ σ]
         [(in-hole EP (in-hole E e_2)) ρ σ] "if-false")
-   (--> [(in-hole EP (in-hole E (o v_1 v_2 ...))) ρ σ]
-        [(in-hole EP (in-hole E (δ (o v_1 v_2 ...)))) ρ σ] "δ")
+   (--> [(in-hole EP (in-hole E (o v_1 v_2))) ρ σ]
+        [(in-hole EP (in-hole E (δ (o v_1 v_2)))) ρ σ] "δ")
    (--> [(in-hole EP (in-hole E ((closure (x ..._n) e ρ_1) v ..._n))) ρ_2 σ]
         [(in-hole EP (in-hole E e)) (extend ρ_1 (x ...) (x_2 ...)) (extend σ (x_2 ...) (v ...))] "βv"
         (where (x_2 ...) ,(variables-not-in (term e) (term (x ...)))))))
