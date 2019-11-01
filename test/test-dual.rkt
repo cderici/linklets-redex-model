@@ -21,7 +21,7 @@
                                      (let-inst t1 (make-instance)
                                                (instantiate-linklet l2 #:target t1))))
 (eval-prog=racket-linklets? (program (use-linklets
-                                      [l1 (linklet () ())]
+                                      [l1 (linklet () () 1)]
                                       [l2 (linklet () (a) (define-values (a) 5) a)])
                                      (let-inst t2 (instantiate-linklet l2)
                                                (instance-variable-value t2 a))))
@@ -32,7 +32,7 @@
 
 (eval-prog=racket-linklets? (program (use-linklets
                                       [l2 (linklet ((b)) () (define-values (a) 5) (+ a b))]
-                                      [l3 (linklet () (b) (define-values (b) 3))])
+                                      [l3 (linklet () (b) (define-values (b) 3) 1)])
                                      (let-inst t1 (make-instance)
                                                (let-inst t3 (instantiate-linklet l3)
                                                          (instantiate-linklet l2 t3 #:target t1)))))
