@@ -1,6 +1,6 @@
-.PHONY: test-utils test-expr test-compile test-reduce test-dual test-main
+.PHONY: test-utils test-expr test-compile test-reduce test-dual test-main test-random
 
-all: test-utils test-expr test-compile test-reduce test-dual test-main
+all: test-utils test-expr test-compile test-reduce test-dual test-main test-random
 
 
 test-utils:
@@ -15,3 +15,5 @@ test-dual:
 	raco test test-dual.rkt
 test-main:
 	raco test test-eval.rkt
+test-random:
+	raco test test-random.rkt
