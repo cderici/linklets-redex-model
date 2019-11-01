@@ -58,6 +58,8 @@
    (instance-variable-value x_1 (quote x_2))]
   ; instantiate
   [(prog-top-to-racket (name ins (instantiate-linklet x_L x_LI ...))) (IT-to-racket ins)]
+  ; make-instance
+  [(prog-top-to-racket (make-instance)) (make-instance #f #f #f)]
   ; evaluate
   [(prog-top-to-racket (name ins (instantiate-linklet x_L x_LI ... #:target I-test)))
    (IT-to-racket ins)]
@@ -116,7 +118,7 @@
                 (begin 1 #;(printf "both stuck on : ~a" (term p)) #true)]
                [(exn? rr)
                 (begin (printf "\n racket raised exn : ~a -- ~a\n\n" (term p) (exn-message rr)) #false)]
-               [(and (void? rr) (eq? (term void) vr)) #true]
+               [(and (void? rr) (eq? (term (void)) vr)) #true]
                [(eq? (term stuck) vr) (begin (printf "\n racket not stuck : ~a\n\n" (term p)) #false)]
                [else (let ((q (equal? vr rr)))
                        (begin (unless q
