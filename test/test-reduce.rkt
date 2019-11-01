@@ -80,28 +80,28 @@
  -->p
  ((program (use-linklets)
            (let-inst t
-                     (instantiate-linklet (Lβ li (void) (var-set! y1 y) (var-set/check-undef! y1 50)))
+                     (instantiate-linklet (Lβ li (var-set! y1 y) (var-set/check-undef! y1 50)))
                      (instance-variable-value t y)))
   ((y cell_2) (y1 cell_1))
   ((cell_2 10) (li (linklet-instance (y cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
            (let-inst t
-                     (instantiate-linklet (Lβ li (void) (var-set! y1 10) (var-set/check-undef! y1 50)))
+                     (instantiate-linklet (Lβ li (var-set! y1 10) (var-set/check-undef! y1 50)))
                      (instance-variable-value t y)))
   ((y cell_2) (y1 cell_1))
   ((cell_2 10) (li (linklet-instance (y cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
            (let-inst t
-                     (instantiate-linklet (Lβ li (void) (void) (var-set/check-undef! y1 50)))
+                     (instantiate-linklet (Lβ li (void) (var-set/check-undef! y1 50)))
                      (instance-variable-value t y)))
   ((y cell_2) (y1 cell_1))
   ((cell_1 10) (cell_2 10) (li (linklet-instance (y cell_1))) (cell_1 uninit)  (li (linklet-instance))))
  -->r
  ((program (use-linklets)
            (let-inst t
-                     (instantiate-linklet (Lβ li (void) (void) (void)))
+                     (instantiate-linklet (Lβ li (void) (void)))
                      (instance-variable-value t y)))
   ((y cell_2) (y1 cell_1))
   ((cell_1 50) (cell_1 10) (cell_2 10) (li (linklet-instance (y cell_1))) (cell_1 uninit) (li (linklet-instance))))
@@ -156,44 +156,44 @@
  -->p
  ((program (use-linklets)
            (seq
-            (instantiate-linklet (Lβ t (void) (var-set! x1 x) (var-set/check-undef! x1 6) (+ (var-ref x1) (var-ref x1))))
+            (instantiate-linklet (Lβ t (var-set! x1 x) (var-set/check-undef! x1 6) (+ (var-ref x1) (var-ref x1))))
             (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
            (seq
-            (instantiate-linklet (Lβ t (void) (var-set! x1 5) (var-set/check-undef! x1 6) (+ (var-ref x1) (var-ref x1))))
+            (instantiate-linklet (Lβ t (var-set! x1 5) (var-set/check-undef! x1 6) (+ (var-ref x1) (var-ref x1))))
             (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
            (seq
-            (instantiate-linklet (Lβ t (void) (void) (var-set/check-undef! x1 6) (+ (var-ref x1) (var-ref x1))))
+            (instantiate-linklet (Lβ t (void) (var-set/check-undef! x1 6) (+ (var-ref x1) (var-ref x1))))
             (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_1 5) (cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
  -->r
  ((program (use-linklets) (seq
-                           (instantiate-linklet (Lβ t (void) (void) (void) (+ (var-ref x1) (var-ref x1))))
+                           (instantiate-linklet (Lβ t (void) (void) (+ (var-ref x1) (var-ref x1))))
                            (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_1 6) (cell_1 5) (cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
  -->r
  ((program (use-linklets) (seq
-                           (instantiate-linklet (Lβ t (void) (void) (void) (+ 6 (var-ref x1))))
+                           (instantiate-linklet (Lβ t (void) (void) (+ 6 (var-ref x1))))
                            (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_1 6) (cell_1 5) (cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
  -->r
  ((program (use-linklets) (seq
-                           (instantiate-linklet (Lβ t (void) (void) (void) (+ 6 6)))
+                           (instantiate-linklet (Lβ t (void) (void) (+ 6 6)))
                            (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_1 6) (cell_1 5) (cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
  -->r
- ((program (use-linklets) (seq (instantiate-linklet (Lβ t (void) (void) (void) 12))
+ ((program (use-linklets) (seq (instantiate-linklet (Lβ t (void) (void) 12))
                                (instance-variable-value t x)))
   ((x cell_2) (x1 cell_1))
   ((cell_1 6) (cell_1 5) (cell_2 5) (t (linklet-instance (x cell_1))) (cell_1 uninit) (t (linklet-instance)) (li (linklet-instance))))
@@ -233,17 +233,17 @@
   ((a1 cell_1)) ((li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->p
  ((program (use-linklets)
-           (let-inst t (instantiate-linklet (Lβ li (void) (var-set! a1 a)))
+           (let-inst t (instantiate-linklet (Lβ li (var-set! a1 a)))
                      (instantiate-linklet (Lα () () (define-values (x) 5) (+ x a)) #:target t)))
   ((a cell_2) (a1 cell_1)) ((cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
-           (let-inst t (instantiate-linklet (Lβ li (void) (var-set! a1 10)))
+           (let-inst t (instantiate-linklet (Lβ li (var-set! a1 10)))
                      (instantiate-linklet (Lα () () (define-values (x) 5) (+ x a)) #:target t)))
   ((a cell_2) (a1 cell_1)) ((cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
-           (let-inst t (instantiate-linklet (Lβ li (void) (void)))
+           (let-inst t (instantiate-linklet (Lβ li (void)))
                      (instantiate-linklet (Lα () () (define-values (x) 5) (+ x a)) #:target t)))
   ((a cell_2) (a1 cell_1)) ((cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->p
@@ -261,19 +261,19 @@
   ((a cell_2) (a1 cell_1)) ((t (linklet-instance (a cell_1))) (cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->p
  ((program (use-linklets)
-           (instantiate-linklet (Lβ t (void) (+ x a))))
+           (instantiate-linklet (Lβ t (+ x a))))
   ((x cell_3) (a cell_2) (a1 cell_1)) ((cell_3 5) (t (linklet-instance (a cell_1))) (cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
-           (instantiate-linklet (Lβ t (void) (+ 5 a))))
+           (instantiate-linklet (Lβ t (+ 5 a))))
   ((x cell_3) (a cell_2) (a1 cell_1)) ((cell_3 5) (t (linklet-instance (a cell_1))) (cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
-           (instantiate-linklet (Lβ t (void) (+ 5 10))))
+           (instantiate-linklet (Lβ t (+ 5 10))))
   ((x cell_3) (a cell_2) (a1 cell_1)) ((cell_3 5) (t (linklet-instance (a cell_1))) (cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->r
  ((program (use-linklets)
-           (instantiate-linklet (Lβ t (void) 15)))
+           (instantiate-linklet (Lβ t 15)))
   ((x cell_3) (a cell_2) (a1 cell_1)) ((cell_3 5) (t (linklet-instance (a cell_1))) (cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  -->p
  ((program (use-linklets)
