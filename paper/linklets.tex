@@ -43,10 +43,24 @@
 
 \usepackage{float}
 \usepackage{bm}
+\usepackage{listings}
 \usepackage{mathtools}
 % \usepackage{multicol}
 \floatstyle{boxed}
 \restylefloat{figure}
+
+%% \usepackage{color}
+%% \definecolor{light-gray}{gray}{0.95}
+
+\lstset{
+  %numbers=right,
+  numberstyle=\tiny,
+  breaklines=true,
+  %backgroundcolor=\color{light-gray},
+  numbersep=5pt,
+  %xleftmargin=.25in,
+  %xrightmargin=.25in
+  }
 
 \def\dash {\text{-}}
 %
@@ -218,7 +232,11 @@ use. To run a linklet, it is instantiated as a {\it linklet
 instances for its imports, and it extracts a specified set of
 variables that are exported from each of the given instances. The
 newly created linklet instance provides its exported variables for use
-by other linklets.
+by other linklets. Moreover, an instantiation may be provided with an
+additional linklet instance (i.e. target) as an input. In this case,
+the target instance is used and modified for the linklet definitions
+and expressions, and the result is the value of the last expression in
+the linklet instead of a linklet instance.
 
 \begin{figure}[tbp]
   \begin{align*}
@@ -286,9 +304,21 @@ preparation step, with which the actual instantition may begin. Note
 that $\lb$ contains only a reference (to a linklet instance that is
 used during the instantiation) and the body expressions, and doesn't
 contain the import and export objects, as the instantiation uses the
-variables already prepared for them. Finally the \textbf{linklet\dash
-  instance}s are represented as a finite mapping from identifiers to
-variables (i.e. cells in the heap).
+variables that are already prepared for them. Finally the
+\textbf{linklet\dash instance}s are represented as a finite mapping
+from identifiers to variables (i.e. cells in the heap).
+
+\begin{figure}[h]
+  \small
+\begin{lstlisting}
+  (program ([l (linklet () (a)
+                  (define-values (a) 5) a)])
+    (let-inst i (instantiate-linklet l)
+      (instance-variable-value i a)))
+\end{lstlisting}
+\caption{An Example \textit{program} [CHANGE FONT]}
+\label{fig:program-example}
+\end{figure}
 
 Since the linklets are lambda\dash like binding forms and not capable
 of starting a computation by themselves, we introduce a top\dash level
@@ -296,8 +326,9 @@ form, namely \verb|program|. A \verb|program| consists of a set of
 given linklets to be loaded and a single top\dash level expression to
 perform a computation. Figure \ref{fig:linklet-program} shows the
 grammar for \verb|program|s. We provided the \verb|let-inst| form to
-name linklet instances, and \verb|seq| form to perform multiple
-computations in sequence.
+name a linklet instance, and \verb|seq| form to perform multiple
+computations in sequence. Figure \ref{fig:program-example} shows an
+example \verb|program|.
 
 %% math mode font fize
 
