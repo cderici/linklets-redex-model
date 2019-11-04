@@ -521,15 +521,17 @@ the variables that will be created during the instantiation.
     \mathit{create\dash import\dash objects} : ((imp\; \ldots)\; \ldots) &\longrightarrow ((imp\dash obj\; \ldots)\; \ldots) \\
     \mathit{create\dash import\dash objects}((imp_n\; \ldots)\; \ldots)\; &=\; ((imp\dash obj_n\; \ldots)\; \ldots) \\
     \;   \where imp\dash obj_n  &=\; \begin{cases*}
-      (\textbf{Import}\;(gensym)\;x\;x) & if $imp_n = x$ \\
-      (\textbf{Import}\;(gensym)\;x_{int}\;x_{ext}) & if $imp_n = (x_{ext}\;x_{int})$ \\
-    \end{cases*} \\ \\
+      (\textbf{Import}\;x_{gen}\;x\;x) & if $imp_n = x$ \\
+      (\textbf{Import}\;x_{gen}\;x_{int}\;x_{ext}) & if $imp_n = (x_{ext}\;x_{int})$ \\
+    \end{cases*} \\
+    \;     x_{gen} &\notin\; ((imp_n\; \ldots)\; \ldots) \\ \\
     \mathit{create\dash export\dash objects} : (exp\; \ldots) &\longrightarrow (exp\dash obj\; \ldots) \\
     \mathit{create\dash export\dash objects}(exp_n\; \ldots)\; &=\; (exp\dash obj\; \ldots) \\
     \;   \where exp\dash obj_n  &=\; \begin{cases*}
-      (\textbf{Export}\;(gensym)\;x\;x) & if $exp_n = x$ \\
-      (\textbf{Export}\;(gensym)\;x_{int}\;x_{ext}) & if $exp_n = (x_{int}\;x_{ext})$ \\
-    \end{cases*} \\ \\
+      (\textbf{Export}\;x_{gen}\;x\;x) & if $exp_n = x$ \\
+      (\textbf{Export}\;x_{gen}\;x_{int}\;x_{ext}) & if $exp_n = (x_{int}\;x_{ext})$ \\
+    \end{cases*} \\
+    \;     x_{gen} &\notin\; (exp_n\; \ldots) \\ \\
     \Phi^C_{\textbf{e}} : l\dash top \times \mathit{C_I} \times \mathit{C_E} \times \mathit{X_L} \times\mathit{X_M} \times\mathit{X_T} &\longrightarrow l\dash top\; \ldots \\
     \;          &\;\; \where \mathit{C_I} : (c\dash imps\;\ldots), \mathit{C_E} : (c\dash exps\;\ldots) \\
     \;          &\;\; \mathit{X_L} : (x\;\ldots), \mathit{X_M} : (x\;\ldots), \mathit{X_T} : (x\;\ldots) \\
