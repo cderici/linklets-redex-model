@@ -201,12 +201,13 @@ how they work to evaluate Racket modules and implement functionalities
 such as top-level.
 
 Figure \ref{fig:linklet-source} shows the grammar of the linklet
-language, which is an extension of a minimal subset of a Fully
-Expanded Racket Program with the \verb|linklet| form and toplevel
-definitions. Figure \ref{fig:racket-source} presents the grammar for
-the Racket core (RC) language that is used within the linklet body. RC
-is basically a $\lambda$-calculus with a handful of syntactic extensions, as
-well as some forms to manipulate linklet variables (e.g. \textit{var-ref}).
+language, which is a minimal subset of Fully Expanded Racket Programs
+extended with the \verb|linklet| form and toplevel definitions. Figure
+\ref{fig:racket-source} presents the grammar for the Racket core (RC)
+language that is used within the linklet body. RC is basically a
+$\lambda$-calculus with a handful of syntactic extensions, as well as some
+additional forms to manipulate linklet variables
+(e.g. \textit{var-ref}).
 
 A linklet consists of a set of variable definitions and expressions,
 an exported subset of the defined variable names, a set of variables
@@ -225,15 +226,37 @@ for instantiation, \textbf{ii)} \verb|instantiate-linklet| for
 instantiating, \textbf{iii)} \verb|instance-variable-value| for direct
 access to the exported variables of a linklet instance.
 
+\def\la {\bm{L_\alpha}}
+\def\lb {\bm{L_\beta}}
+
 Figure \ref{fig:linklet-runtime} shows the grammar of the run\dash
 time language for linklets, i.e. expressions that represent the
-run\dash time objects used in the instantiation of linklets. 
+run\dash time objects used in the instantiation of linklets. Given a
+linklet L, \verb|compile-linklet| produces a linklet object $\la$ that
+is ready to be instantiated. $\la$ consists of \textit{Import} and
+\textit{Export} objects for the identifiers denoting the imported and
+exported variables, and the body expressions with potentially some
+additional expressions for variable manipulations in the run\dash
+time. Each \textit{Import} and \textit{Export} object consists of two
+identifiers that are internal and external with respect to the linklet
+body (a variable may be imported/exported with different names), and
+one gensymed\footnote{is there a good name for this?} identifier for
+internal use during the instantiation. Before the actual instantiation
+of a linklet object begins, the \textit{Import} and \textit{Export}
+objects are processed. As we detail in Section \ref{sec:instantiate},
+references for the imported variables are collected from the given
+import instances, and additional variables may be created for exported
+variables. $\lb$ denotes a compiled linklet object after such a
+preparation step, with which the actual instantition may begin. Note
+that $\lb$ contains only a reference (to a linklet instance that is
+used during the instantiation) and the body expressions, and doesn't
+contain the import and export objects, as the instantiation uses the
+variables already prepared for them.
 
 Since the linklets are lambda\dash like binding forms and not capable
 of starting a computation by themselves, we introduce a top\dash level
 form, namely \verb|program|, to express loading and using a set of
 given linklets. A \verb|program| consists of a set of given linklets to be loaded
-
 
 Figure \ref{fig:linklet-program} shows the grammar for
 \verb|program|s. 
@@ -272,10 +295,6 @@ Figure \ref{fig:linklet-program} shows the grammar for
   \caption{Racket Core Language (RC)}
   \label{fig:racket-source}
 \end{figure}
-
-\def\la {\bm{L_\alpha}}
-\def\lb {\bm{L_\beta}}
-\def\lc {\bm{L_\gamma}}
 
 %% math mode font fize
 
