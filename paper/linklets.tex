@@ -282,6 +282,22 @@ access to the exported variables of a linklet instance.
 \def\la {\bm{L_\alpha}}
 \def\lb {\bm{L_\beta}}
 
+\begin{figure}[tbp]
+  \begin{align*}
+    CL             &::=\; \bm{\Phi^C}(L)\\
+    L\dash obj     &::= (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\\
+    \;           &\;|\; (\lb\; x\; l\dash top\; \ldots) \\
+    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
+    c\dash imps    &::=\; ((imp\dash obj\; \ldots)\; \ldots)\\
+    c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
+    imp\dash obj   &::=\; (\textbf{Import}\; x\; x\; x) \tag*{[id int ext]} \\
+    exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[id int ext]} \\
+  \end{align*}
+  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}$
+\caption{Linklet Runtime Language}
+\label{fig:linklet-runtime}
+\end{figure}
+
 Figure \ref{fig:linklet-runtime} shows the grammar of the run\dash
 time language for linklets, i.e. expressions that represent the
 run\dash time objects used in the instantiation of linklets. Given a
@@ -336,22 +352,6 @@ example \verb|program|.
 %% scriptstyle: $ {\scriptstyle x^2 + 2xy + y^2} $\\
 %% scriptscriptstyle: $ {\scriptscriptstyle x^2 + 2xy + y^2} $\\
 %% textstyle: $ {\textstyle x^2 + 2xy + y^2} $
-
-\begin{figure}[tbp]
-  \begin{align*}
-    CL             &::=\; \bm{\Phi^C}(L)\\
-    L\dash obj     &::= (\la\; c\dash imps \; c\dash exps \; l\dash top \ldots)\\
-    \;           &\;|\; (\lb\; x\; l\dash top\; \ldots) \\
-    LI             &::=\; (\textbf{linklet\dash instance}\; (x\; var)\; \ldots) \\
-    c\dash imps    &::=\; ((imp\dash obj\; \ldots)\; \ldots)\\
-    c\dash exps    &::=\; (exp\dash obj\; \ldots)\\
-    imp\dash obj   &::=\; (\textbf{Import}\; x\; x\; x) \tag*{[id int ext]} \\
-    exp\dash obj   &::=\; (\textbf{Export}\; x\; x\; x) \tag*{[id int ext]} \\
-  \end{align*}
-  \hfill \footnotesize $\Phi^C : \textbf{compile\dash linklet}$
-\caption{Linklet Runtime Language}
-\label{fig:linklet-runtime}
-\end{figure}
 
 \begin{figure}[h!]
   \begin{align*}
