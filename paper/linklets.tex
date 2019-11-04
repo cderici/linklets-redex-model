@@ -251,7 +251,9 @@ preparation step, with which the actual instantition may begin. Note
 that $\lb$ contains only a reference (to a linklet instance that is
 used during the instantiation) and the body expressions, and doesn't
 contain the import and export objects, as the instantiation uses the
-variables already prepared for them.
+variables already prepared for them. Finally the \textbf{linklet\dash
+  instance}s are represented as a finite mapping from identifiers to
+variables (cells in the heap).
 
 Since the linklets are lambda\dash like binding forms and not capable
 of starting a computation by themselves, we introduce a top\dash level
