@@ -371,6 +371,32 @@ example \verb|program|.
 \label{fig:linklet-program}
 \end{figure}
 
+\section{Compile Linklets}
+
+Before a linklet is ready for instantiation, several passes over the
+linklet are performed to ensure a correct information flow between the
+variables in the run\dash time. Figure \ref{fig:compile} shows the
+entire compilation procedure.
+
+For each import and export identifier (and possibly their
+corresponding renamings), \textit{Import} and \textit{Export} objects
+are created with the gensymed\footnote{[BETTER NAME]} references to
+the variables that will be created during the instantiation.
+
+%% - import and export objects are created
+%% - toplevel ids and mutated ids are collected
+%% - expressions are processed one by one
+
+%% - at define-values, a variable is setted if its exported
+%% - a set! is turned into var-set/check-undef! if its exported
+
+%% - imported symbol is turned into var-ref/no-check
+%% - exported symbol is turned into var-ref if i) mutated, ii) not defined
+
+%% ------ example compilation
+
+\section{Instantiation}
+
 \newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \rho, \sigma\;}
 \newcommand{\redoutput}[3]{EP\;\llbracket #1 \rrbracket, #2, #3\;}
 
