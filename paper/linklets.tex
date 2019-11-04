@@ -220,11 +220,46 @@ variables that are exported from each of the given instances. The
 newly created linklet instance provides its exported variables for use
 by other linklets.
 
+\begin{figure}[tbp]
+  \begin{align*}
+    L  &::= (\textbf{linklet}\:((imp\: \ldots)\: \ldots)\:(exp\: \ldots)\:l\dash top\:\ldots\:e)\\
+    l\dash top &::= (\textbf{define\dash values}\:(x)\:e)\:|\:e \\
+    imp &::= x\:|\:(x x) \tag*{[external internal]}\\
+    exp &::= x\:|\:(x x) \tag*{[internal external]}
+  \end{align*}
+  \caption{Linklet Source Language}
+  \label{fig:linklet-source}
+\end{figure}
+
 The minimal API for a runtime to use the linklets consists of the
 functions: \textbf{i)} \verb|compile-linklet| for preparing a linklet
 for instantiation, \textbf{ii)} \verb|instantiate-linklet| for
 instantiating, \textbf{iii)} \verb|instance-variable-value| for direct
 access to the exported variables of a linklet instance.
+
+\begin{figure}[tbp]
+  \begin{align*}
+    e &::=\; x\; |\; v\; |\; (e\; e\; \ldots)\; |\; (\textbf{if}\; e\; e\; e)\; |\; (o\; e\; e)\; \\
+    \; &|\; (\textbf{begin}\; e\; e\; \ldots)\; |\; (\textbf{lambda}\; (x_{\_!\_}\; \ldots)\; e)\\
+    \; &|\; (\textbf{set!}\; x\; e)\; |\; (\textbf{raises}\; e)\\
+    \; &|\; (\textbf{var\dash ref}\; x)\; |\; (\textbf{var\dash ref/no\dash check}\; x) \\
+    \; &|\; (\textbf{var\dash set!}\; x\; e)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; e) \\
+    v   &::=\; n\; |\; b\; |\; c\; |\; (void)\;|\; uninit \\ %;; values
+    c   &::=\; (closure\; (x\; \ldots)\; e\; \rho) \\
+    n   &::=\; number \\
+    b   &::=\; true\; |\; false \\
+    var &::=\; variable\dash not\dash otherwise\dash mentioned \\ %;; variables
+    x,\; cell &::=\; variable\dash not\dash otherwise\dash mentioned \\ %;; variables
+    o  &::=\; +\; |\; * |\; < \\
+    \rho   &::=\; ((x\; var)\; \ldots) \tag*{[Environment]}\\
+    \sigma   &::=\; ((var\; v)\; \ldots) \tag*{[Store]}\\
+    E   &::=\; []\; |\; (v\; \ldots\; E\; e\; \ldots)\; |\; (o\; E\; e)\; |\; (o\; v\; E) \\
+    \;  &|\; (\textbf{var\dash set!}\; x\; E)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; E) \\
+    \;  &|\; (\textbf{begin}\; v\; \ldots\; E\; e\; \ldots)\; |\; (\textbf{set!}\; x\; E)\; |\; (\textbf{if}\; E\; e\; e)
+  \end{align*}
+  \caption{Racket Core Language (RC)}
+  \label{fig:racket-source}
+\end{figure}
 
 \def\la {\bm{L_\alpha}}
 \def\lb {\bm{L_\beta}}
@@ -253,50 +288,15 @@ used during the instantiation) and the body expressions, and doesn't
 contain the import and export objects, as the instantiation uses the
 variables already prepared for them. Finally the \textbf{linklet\dash
   instance}s are represented as a finite mapping from identifiers to
-variables (cells in the heap).
+variables (i.e. cells in the heap).
 
 Since the linklets are lambda\dash like binding forms and not capable
 of starting a computation by themselves, we introduce a top\dash level
 form, namely \verb|program|, to express loading and using a set of
-given linklets. A \verb|program| consists of a set of given linklets to be loaded
-
-Figure \ref{fig:linklet-program} shows the grammar for
-\verb|program|s. 
-
-\begin{figure}[tbp]
-  \begin{align*}
-    L  &::= (\textbf{linklet}\:((imp\: \ldots)\: \ldots)\:(exp\: \ldots)\:l\dash top\:\ldots\:e)\\
-    l\dash top &::= (\textbf{define\dash values}\:(x)\:e)\:|\:e \\
-    imp &::= x\:|\:(x x) \tag*{[external internal]}\\
-    exp &::= x\:|\:(x x) \tag*{[internal external]}
-  \end{align*}
-  \caption{Linklet Source Language}
-  \label{fig:linklet-source}
-\end{figure}
-
-\begin{figure}[tbp]
-  \begin{align*}
-    e &::=\; x\; |\; v\; |\; (e\; e\; \ldots)\; |\; (\textbf{if}\; e\; e\; e)\; |\; (o\; e\; e)\; \\
-    \; &|\; (\textbf{begin}\; e\; e\; \ldots)\; |\; (\textbf{lambda}\; (x_{\_!\_}\; \ldots)\; e)\\
-    \; &|\; (\textbf{set!}\; x\; e)\; |\; (\textbf{raises}\; e)\\
-    \; &|\; (\textbf{var\dash ref}\; x)\; |\; (\textbf{var\dash ref/no\dash check}\; x) \\
-    \; &|\; (\textbf{var\dash set!}\; x\; e)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; e) \\
-    v   &::=\; n\; |\; b\; |\; c\; |\; (void)\;|\; uninit \\ %;; values
-    c   &::=\; (closure\; (x\; \ldots)\; e\; \rho) \\
-    n   &::=\; number \\
-    b   &::=\; true\; |\; false \\
-    var &::=\; variable\dash not\dash otherwise\dash mentioned \\ %;; variables
-    x,\; cell &::=\; variable\dash not\dash otherwise\dash mentioned \\ %;; variables
-    o  &::=\; +\; |\; * |\; < \\
-    \rho   &::=\; ((x\; var)\; \ldots) \tag*{[Environment]}\\
-    \sigma   &::=\; ((var\; v)\; \ldots) \tag*{[Store]}\\
-    E   &::=\; []\; |\; (v\; \ldots\; E\; e\; \ldots)\; |\; (o\; E\; e)\; |\; (o\; v\; E) \\
-    \;  &|\; (\textbf{var\dash set!}\; x\; E)\; |\; (\textbf{var\dash set/check\dash undef!}\; x\; E) \\
-    \;  &|\; (\textbf{begin}\; v\; \ldots\; E\; e\; \ldots)\; |\; (\textbf{set!}\; x\; E)\; |\; (\textbf{if}\; E\; e\; e)
-  \end{align*}
-  \caption{Racket Core Language (RC)}
-  \label{fig:racket-source}
-\end{figure}
+given linklets. A \verb|program| consists of a set of given linklets
+to be loaded and a single top\dash level expression to perform a
+computation. Figure \ref{fig:linklet-program} shows the grammar for
+\verb|program|s.
 
 %% math mode font fize
 
