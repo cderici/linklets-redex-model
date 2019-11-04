@@ -133,10 +133,7 @@
 %
 % The abstract is a short summary of the work to be presented in the article.
 \begin{abstract}
-A clear and well-documented \LaTeX\ document is presented as an article formatted for publication by ACM in
-a conference proceedings or journal publication. Based on the ``acmart'' document class, this article presents
-and explains many of the common variations, as well as many of the formatting elements
-an author may use in the preparation of the documentation of their work.
+  how linklets work
 \end{abstract}
 
 %
@@ -193,17 +190,64 @@ an author may use in the preparation of the documentation of their work.
 % the first part of the formatted document.
 \maketitle
 
-\section{Introduction}
-ACM's consolidated article template, introduced in 2017, provides a consistent \LaTeX\ style for use across ACM publications, and incorporates accessibility and metadata-extraction functionality necessary for future Digital Library endeavors. Numerous ACM and SIG-specific \LaTeX\ templates have been examined, and their unique features incorporated into this single new template.
+\section{Linklets \& Programs}
 
-ACM's consolidated article template, introduced in 2017, provides a consistent \LaTeX\ style for use across ACM publications, and incorporates accessibility and metadata-extraction functionality necessary for future Digital Library endeavors. Numerous ACM and SIG-specific \LaTeX\ templates have been examined, and their unique features incorporated into this single new template.
+Linklets are lambda-like forms that consume and produce potentially
+mutable variables (instead of values). They act as units of
+compilation in Racket runtime, where for a given Racket module the
+expander produces a bundle of linklets that will be consumed by the
+runtime compiler. The following sections explain what linklets are and
+how they work to evaluate Racket modules and implement functionalities
+such as top-level.
 
-ACM's consolidated article template, introduced in 2017, provides a consistent \LaTeX\ style for use across ACM publications, and incorporates accessibility and metadata-extraction functionality necessary for future Digital Library endeavors. Numerous ACM and SIG-specific \LaTeX\ templates have been examined, and their unique features incorporated into this single new template.
+Figure \ref{fig:linklet-source} shows the grammar of the linklet
+language, which is an extension of a minimal subset of a Fully
+Expanded Racket Program with the \verb|linklet| form and toplevel
+definitions. Figure \ref{fig:racket-source} presents the grammar for
+the Racket core (RC) language that is used within the linklet body. RC
+is basically a $\lambda$-calculus with a handful of syntactic extensions, as
+well as some forms to manipulate linklet variables (e.g. \textit{var-ref}).
+
+A linklet consists of a set of variable definitions and expressions,
+an exported subset of the defined variable names, a set of variables
+to export from the linklet despite having no corresponding definition,
+and a set of imports that provide other variables for the linklet to
+use. To run a linklet, it is instantiated as a {\it linklet
+  instance}. When a linklet is instantiated, it receives other linklet
+instances for its imports, and it extracts a specified set of
+variables that are exported from each of the given instances. The
+newly created linklet instance provides its exported variables for use
+by other linklets.
+
+The minimal API for a runtime to use the linklets consists of the
+functions: \textbf{i)} \verb|compile-linklet| for preparing a linklet
+for instantiation, \textbf{ii)} \verb|instantiate-linklet| for
+instantiating, \textbf{iii)} \verb|instance-variable-value| for direct
+access to the exported variables of a linklet instance.
+
+Figure \ref{fig:linklet-runtime} shows the grammar of the run\dash
+time language for linklets, i.e. expressions that represent the
+run\dash time objects used in the instantiation of linklets. 
+
+Since the linklets are lambda\dash like binding forms and not capable
+of starting a computation by themselves, we introduce a top\dash level
+form, namely \verb|program|, to express loading and using a set of
+given linklets. A \verb|program| consists of a set of given linklets to be loaded
 
 
-If you are new to publishing with ACM, this document is a valuable guide to the process of preparing your work for publication. If you have published with ACM before, this document provides insight and instruction into more recent changes to the article template.
+Figure \ref{fig:linklet-program} shows the grammar for
+\verb|program|s. 
 
-The ``\verb|acmart|'' document class can be used to prepare articles for any ACM publication --- conference or journal, and for any stage of publication, from review to final ``camera-ready'' copy, to the author's own version, with {\it very} few changes to the source.
+\begin{figure}[tbp]
+  \begin{align*}
+    L  &::= (\textbf{linklet}\:((imp\: \ldots)\: \ldots)\:(exp\: \ldots)\:l\dash top\:\ldots\:e)\\
+    l\dash top &::= (\textbf{define\dash values}\:(x)\:e)\:|\:e \\
+    imp &::= x\:|\:(x x) \tag*{[external internal]}\\
+    exp &::= x\:|\:(x x) \tag*{[internal external]}
+  \end{align*}
+  \caption{Linklet Source Language}
+  \label{fig:linklet-source}
+\end{figure}
 
 \begin{figure}[tbp]
   \begin{align*}
@@ -227,17 +271,6 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
   \end{align*}
   \caption{Racket Core Language (RC)}
   \label{fig:racket-source}
-\end{figure}
-
-\begin{figure}[tbp]
-  \begin{align*}
-    L  &::= (\textbf{linklet}\:((imp\: \ldots)\: \ldots)\:(exp\: \ldots)\:l\dash top\:\ldots\:e)\\
-    l\dash top &::= (\textbf{define\dash values}\:(x)\:e)\:|\:e \\
-    imp &::= x\:|\:(x x) \tag*{[external internal]}\\
-    exp &::= x\:|\:(x x) \tag*{[internal external]}
-  \end{align*}
-  \caption{Linklet Source Language}
-  \label{fig:linklet-source}
 \end{figure}
 
 \def\la {\bm{L_\alpha}}
@@ -306,8 +339,8 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
     \rcinput{(\textbf{lambda}\; (x\; \ldots)\; e)} \rcrel \rcoutput{(closure\; (x\; \ldots)\; e\; \rho)}{\rho}{\sigma} \\
     \rcinput{(\textbf{begin}\; v\; \ldots\; v_l)} \rcrel \rcoutput{v_l}{\rho}{\sigma} \\
     \rcinput{(\textbf{if}\; v\; e_1\; e_2)} \rcrel \rcoutput{e}{\rho}{\sigma} \where e = \begin{cases*}
-      e_1 & if $v = true$ \\
-      e_2 & otherwise
+      e_2 & if $v = false$ \\
+      e_1 & otherwise
     \end{cases*}\\
     \rcinput{(o\; v_1\; v_2)} \rcrel \rcoutput{\delta(v_1,v_2)}{\rho}{\sigma} \\
     \rcinput{((closure\; (x\; \ldots)\; e\; \rho_c)\;v\;\ldots)} \rcrel \rcoutput{e}{\rho_1}{\sigma_1} \where \rho_1 = \rho_c\overline{[x\rightarrow cell]}, \sigma_1 = \sigma\overline{[cell\rightarrow v]}, cell \notin \sigma \\
@@ -445,40 +478,6 @@ The ``\verb|acmart|'' document class can be used to prepare articles for any ACM
 %\newpage
 
 % \verb|acmart|
-
-\section{Linklets \& Programs}
-
-We start by presenting a core language (RC) that will be used in the
-linklet body. This language is a very minimal subset of Racket, the
-grammar of which is shown in Figure \ref{fig:racket-source}.
-
-Linklets act as compilation units in the Racket runtime. Given a
-Racket module, the expander produces a bundle of linklets for the
-compiler to consume.
-
-Figure \ref{fig:linklet-source} shows the grammar of the linklet
-language, which is an extension of RC with the \verb|linklet| form and
-toplevel definitions. A linklet consists of a set of variable
-definitions and expressions, an exported subset of the defined
-variable names, a set of variables to export from the linklet despite
-having no corresponding definition, and a set of imports that provide
-other variables for the linklet to use. To run a linklet, it is
-instantiated as a {\it linklet instance}. When a linklet is
-instantiated, it receives other linklet instances for its imports, and
-it extracts a specified set of variables that are exported from each
-of the given instances. The newly created linklet instance provides
-its exported variables for use by other linklets or for direct access
-via {\it instance-variable-value}. [COPY FROM DOCS]
-
-Figure \ref{fig:linklet-runtime} shows the grammar of the run\dash
-time language for linklets, i.e. produces expressions that represent
-the run\dash time objects used in the evaluation of linklets.
-
-Since the linklets are lambda\dash like binding forms and not capable
-of starting a computation by themselves, we introduce a top\dash level
-form, namely \verb|program|, to express loading and using a set of
-given linklets. Figure \ref{fig:linklet-program} shows the grammar for
-\verb|program|s. 
 
 \newpage
 \section{}
