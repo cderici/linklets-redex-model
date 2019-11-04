@@ -292,11 +292,12 @@ variables (i.e. cells in the heap).
 
 Since the linklets are lambda\dash like binding forms and not capable
 of starting a computation by themselves, we introduce a top\dash level
-form, namely \verb|program|, to express loading and using a set of
-given linklets. A \verb|program| consists of a set of given linklets
-to be loaded and a single top\dash level expression to perform a
-computation. Figure \ref{fig:linklet-program} shows the grammar for
-\verb|program|s.
+form, namely \verb|program|. A \verb|program| consists of a set of
+given linklets to be loaded and a single top\dash level expression to
+perform a computation. Figure \ref{fig:linklet-program} shows the
+grammar for \verb|program|s. We provided the \verb|let-inst| form to
+name linklet instances, and \verb|seq| form to perform multiple
+computations in sequence.
 
 %% math mode font fize
 
