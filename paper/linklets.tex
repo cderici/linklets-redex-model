@@ -323,7 +323,7 @@ computation. Figure \ref{fig:linklet-program} shows the grammar for
 
 \begin{figure}[h!]
   \begin{align*}
-    p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top)\; |\; v \\
+    p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top) \\
     p\dash top  &::=\; v\; |\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top)\; |\; (\textbf{seq}\; p\dash top\; \ldots) \\
     \;          &\;|\; \bm{\Phi^I}(l\dash ref\; x\; \ldots)\; |\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)\; |\; \bm{\Phi^V}(x\; x) \\
     l\dash ref &::=\; x\; |\; L\dash obj \\
