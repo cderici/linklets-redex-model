@@ -370,7 +370,23 @@ example \verb|program|.
 \label{fig:linklet-program}
 \end{figure}
 
-\section{Compile Linklets}
+\section{Program Evaluation}
+
+Evaluation of a program starts with compiling and loading the given
+set of linklets. After the given linklets are loaded, the expression
+in the body is evaluated. Figure \ref{fig:reduction} shows the
+reduction relation, $\beta_p$, that implements the evaluation, together
+with the reduction relation for RC, $\beta_r$, that is shown in Figure
+\ref{fig:rc-reduction}. For clarity, the reduction of programs and
+linklet instantiation is defined together by the same relation ($\beta_p$)
+so that the whole evaluation is defined as a relexive-transitive
+closure of the same relation, generating a single small-step sequence
+of reductions. The next subsections present the compilation and
+instantiation of linklets, as well as two example reductions for each
+instantiation modes (i.e. with and without a given target instance).
+
+\subsection{Compile Linklet}
+\label{sec:compile-linklet}
 
 Before a linklet is ready for instantiation, several passes over the
 linklet are performed to ensure a correct information flow between the
@@ -439,7 +455,12 @@ identifier a respectively.
 
 %% ------ example compilation
 
-\section{Instantiation}
+\subsection{Instantiate Linklet}
+\label{sec:instantiate}
+
+% target handling (regular instantiate vs targeted instantiate)
+% prep phase - - - - > L\alpha -> L\beta  - - - > create import/export variables
+% evaluation
 
 \newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \rho, \sigma\;}
 \newcommand{\redoutput}[3]{EP\;\llbracket #1 \rrbracket, #2, #3\;}
