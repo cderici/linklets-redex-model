@@ -161,3 +161,15 @@
                                     (var-set! x1 x)
                                     (var-set/check-undef! x1 6)
                                     (+ (var-ref x1) (var-ref x1)))))
+
+; import export define set!
+(test-equal (term (compile-linklet
+                   (linklet ((a)) (x)
+                            (define-values (x) 5)
+                            (set! x 6)
+                            (+ x a))))
+            (term (Lα (((Import 0 a1 a a))) ((Export x1 x x))
+                      (define-values (x) 5)
+                      (var-set! x1 x)
+                      (var-set/check-undef! x1 6)
+                      (+ (var-ref x1) (var-ref/no-check a1)))))

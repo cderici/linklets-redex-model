@@ -325,13 +325,12 @@ variables that are already prepared for them. Finally the
 from identifiers to variables (i.e. cells in the heap).
 
 \begin{figure}[h]
-  \small
-\begin{lstlisting}
-  (program ([l (linklet () (a)
-                  (define-values (a) 5) a)])
-    (let-inst i (instantiate-linklet l)
-      (instance-variable-value i a)))
-\end{lstlisting}
+\begin{verbatim}
+(program
+  ([l (linklet () (a) (define-values (a) 5) a)])
+  (let-inst i (instantiate-linklet l)
+    (instance-variable-value i a)))
+\end{verbatim}
 \caption{An Example \textit{program} [CHANGE FONT]}
 \label{fig:program-example}
 \end{figure}
@@ -411,15 +410,32 @@ expression:
     otherwise.
 \end{itemize}
 
-%% - import and export objects are created
-%% - toplevel ids and mutated ids are collected
-%% - expressions are processed one by one
+\begin{figure}[h]
+\begin{verbatim}
+(compile-linklet
+  (linklet ((a)) (x)
+    (define-values (x) 5)
+    (set! x 6)
+    (+ x a)))
 
-%% - at define-values, a variable is setted if its exported
-%% - a set! is turned into var-set/check-undef! if its exported
+(Lα (((Import a1 a a))) ((Export x1 x x))
+  (define-values (x) 5)
+  (var-set! x1 x)
+  (var-set/check-undef! x1 6)
+  (+ (var-ref x1) (var-ref/no-check a1)))
+\end{verbatim}
+\caption{An example linklet compilation [CHANGE FONT]}
+\label{fig:compile-example}
+\end{figure}
 
-%% - imported symbol is turned into var-ref/no-check
-%% - exported symbol is turned into var-ref if i) mutated, ii) not defined
+Figure \ref{fig:compile-example} shows an example compilation. The
+`(\textbf{var-set!} x1 x)` expression is added since the defined
+identifier x is exported. The `(\textbf{var-set/check-undef!} x1 6)`
+is introduced in place of the `(\textbf{set!} x 6)` expression, as the
+target identifier x is exported. Also, in `(+ x a)` expression,
+`(\textbf{var-ref} x1)` and `(\textbf{var-ref/no-check} a1)`
+expressions are introduced for the exported identifier x and imported
+identifier a respectively.
 
 %% ------ example compilation
 
