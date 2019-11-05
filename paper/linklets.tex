@@ -233,14 +233,14 @@ use. To run a linklet, it is instantiated as a {\it linklet
 instances for its imports, and it extracts a specified set of
 variables that are exported from each of the given instances. The
 newly created linklet instance provides its exported variables for use
-by other linklets. Moreover, an instantiation may be provided with an
-additional linklet instance (i.e. target) as an input. In this case,
-the target instance is used and modified for the linklet definitions
-and expressions, and the result is the value of the last expression in
-the linklet, instead of a linklet instance as in the instantiation
-without the target. In the remainder of this document we will use the
-names ``targeted instantiation'' and ``regular instantiation'' for
-these two modes.
+by other linklets. Moreover, instead of freshly creating an instance,
+an instantiation may be provided with an additional linklet instance
+as an input, namely the target instance. In this case, the target
+instance is used and modified for the linklet definitions and
+expressions during the evaluation of the body expressions, and the
+result is the value of the last expression in the linklet. In the
+remainder of this document we will use the names ``targeted
+instantiation'' and ``regular instantiation'' for these two modes.
 
 \begin{figure}[tbp]
   \begin{align*}
@@ -464,21 +464,34 @@ identifier a respectively.
 \label{sec:instantiate}
 
 After the compilation and loading phase in the program evaluation, all
-the linklet objects are in $\la$ form and ready to be
-instantiated. Recall that a linklet instantiation has two modes; i)
-regular instantiation, where only the import instances are given as
-inputs and the result of instantiation is a new linklet instance, and
-ii) targeted instantiation, where an additional target instance is
-provided along with the import instances as inputs, and the result is
-not an instance but the value of the last expression in the linklet
-body. The productions $\bm{\Phi^I}(l\dash ref\; x\; \ldots)$ and
+the linklet objects are in $\la$ form and ready to be instantiated. In
+general, an instantiation consists of preparing the import and export
+variables and then evaluating the expressions in the linklet body,
+much like $\beta$-reducing a lambda application.
+
+Recall that a linklet instantiation has two modes; \textbf{i)} regular
+instantiation, where a new instance is being created and returned
+after evaluating the body, and \textbf{ii)} targeted instantiation,
+where the given target instance is used during the
+instantiation. Since the only difference between the two modes is the
+return value based on whether a target instance is provided as an
+input, for simplicity in the model we remove the distinction between
+the modes by turning the regular instantiation into a targeted
+instantiation with a fresh empty instance. Moreover, the instantiation
+returns a pair of the last expression's value and the target instance
+being used. The caller of the \emph{instantiate-linklet} therefore
+decides to use either the value or the instance.
+
+- import/export variable prep $\la$ -> $\lb$
+
+- reducing $\lb$ by evaluating the body
+
+ The productions $\bm{\Phi^I}(l\dash ref\; x\; \ldots)$ and
 $\bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)$ in the program
 grammar in Figure \ref{fig:linklet-program} represent these two
 instantiation modes.
 
-% target handling (regular instantiate vs targeted instantiate)
-% prep phase - - - - > L\alpha -> L\beta  - - - > create import/export variables
-% evaluation
+
 
 \newcommand{\redinput}[1]{EP\;\llbracket #1 \rrbracket, \rho, \sigma\;}
 \newcommand{\redoutput}[3]{EP\;\llbracket #1 \rrbracket, #2, #3\;}
