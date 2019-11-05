@@ -236,7 +236,8 @@ by other linklets. Moreover, an instantiation may be provided with an
 additional linklet instance (i.e. target) as an input. In this case,
 the target instance is used and modified for the linklet definitions
 and expressions, and the result is the value of the last expression in
-the linklet instead of a linklet instance.
+the linklet instead of a linklet instance. In the remainder of this
+document we will call this ``targeted instantiation''.
 
 \begin{figure}[tbp]
   \begin{align*}
@@ -457,6 +458,19 @@ identifier a respectively.
 
 \subsection{Instantiate Linklet}
 \label{sec:instantiate}
+
+After the compilation and loading phase in the program evaluation, all
+the linklet objects are in $\la$ form and ready to be
+instantiated. Recall that a linklet instantiation has two modes; i)
+regular instantiation, where only the import instances are given as
+inputs and the result of instantiation is a new linklet instance, and
+ii) targeted instantiation, where an additional target instance is
+provided along with the import instances as inputs, and the result is
+not an instance but the value of the last expression in the linklet
+body. The productions $\bm{\Phi^I}(l\dash ref\; x\; \ldots)$ and
+$\bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)$ in the program
+grammar in Figure \ref{fig:linklet-program} represent these two
+instantiation modes.
 
 % target handling (regular instantiate vs targeted instantiate)
 % prep phase - - - - > L\alpha -> L\beta  - - - > create import/export variables
