@@ -215,13 +215,14 @@ how they work to evaluate Racket modules and implement functionalities
 such as top-level.
 
 Figure \ref{fig:linklet-source} shows the grammar of the linklet
-language, which is a minimal subset of Fully Expanded Racket Programs
-extended with the \verb|linklet| form and toplevel definitions. Figure
-\ref{fig:racket-source} presents the grammar for the Racket core (RC)
-language that is used within the linklet body. RC is basically a
-$\lambda$-calculus with a handful of syntactic extensions, as well as some
-additional forms to manipulate linklet variables
-(e.g. \textit{var-ref}).
+language, which is a minimal subset of the Fully Expanded Racket
+Programs extended with the \verb|linklet| form and toplevel
+definitions. Figure \ref{fig:racket-source} presents the grammar for
+the Racket part of the language, which is used within the linklet
+body. In the remainder of this document we will call this sub-language
+Racket Core (RC). RC is basically a $\lambda$-calculus with a handful of
+syntactic extensions, as well as some additional forms to manipulate
+linklet variables (e.g. \textit{var-ref}).
 
 A linklet consists of a set of variable definitions and expressions,
 an exported subset of the defined variable names, a set of variables
@@ -236,8 +237,10 @@ by other linklets. Moreover, an instantiation may be provided with an
 additional linklet instance (i.e. target) as an input. In this case,
 the target instance is used and modified for the linklet definitions
 and expressions, and the result is the value of the last expression in
-the linklet instead of a linklet instance. In the remainder of this
-document we will call this ``targeted instantiation''.
+the linklet, instead of a linklet instance as in the instantiation
+without the target. In the remainder of this document we will use the
+names ``targeted instantiation'' and ``regular instantiation'' for
+these two modes.
 
 \begin{figure}[tbp]
   \begin{align*}
@@ -249,12 +252,6 @@ document we will call this ``targeted instantiation''.
   \caption{Linklet Source Language}
   \label{fig:linklet-source}
 \end{figure}
-
-The minimal API for a runtime to use the linklets consists of the
-functions: \textbf{i)} \verb|compile-linklet| for preparing a linklet
-for instantiation, \textbf{ii)} \verb|instantiate-linklet| for
-instantiating, \textbf{iii)} \verb|instance-variable-value| for direct
-access to the exported variables of a linklet instance.
 
 \begin{figure}[tbp]
   \begin{align*}
@@ -279,6 +276,11 @@ access to the exported variables of a linklet instance.
   \caption{Racket Core Language (RC)}
   \label{fig:racket-source}
 \end{figure}
+
+The minimal API for a runtime to use the linklets consists of the
+functions \textbf{i)} \verb|compile-linklet| for preparing a linklet
+for instantiation and \textbf{ii)} \verb|instantiate-linklet| for
+running a compiled linklet.
 
 \def\la {\bm{L_\alpha}}
 \def\lb {\bm{L_\beta}}
@@ -311,19 +313,19 @@ time. Each \textit{Import} and \textit{Export} object consists of two
 identifiers that are internal and external with respect to the linklet
 body (a variable may be imported/exported with different names), and
 one gensymed\footnote{is there a good name for this?} identifier for
-internal use during the instantiation. Before the actual instantiation
-of a linklet object begins, the \textit{Import} and \textit{Export}
-objects are processed. As we detail in Section \ref{sec:instantiate},
-references for the imported variables are collected from the given
-import instances, and additional variables may be created for exported
-variables. $\lb$ denotes a compiled linklet object after such a
-preparation step, with which the actual instantition may begin. Note
-that $\lb$ contains only a reference (to a linklet instance that is
-used during the instantiation) and the body expressions, and doesn't
-contain the import and export objects, as the instantiation uses the
-variables that are already prepared for them. Finally the
-\textbf{linklet\dash instance}s are represented as a finite mapping
-from identifiers to variables (i.e. cells in the heap).
+internal use during the instantiation. After compiling, before an
+actual instantiation of a linklet object begins, the \textit{Import}
+and \textit{Export} objects are processed. As we detail in Section
+\ref{sec:instantiate}, references for the imported variables are
+collected from the given import instances, and additional variables
+may be created for exported variables. $\lb$ denotes a compiled
+linklet object after such a preparation step, with which the actual
+instantition may begin. Note that $\lb$ contains only a reference (to
+a linklet instance that is used during the instantiation) and the body
+expressions, and doesn't contain the import and export objects, as the
+instantiation uses the variables that are already prepared for
+them. Finally a \textbf{linklet\dash instance} is represented as a
+finite mapping from identifiers to variables (i.e. cells in the heap).
 
 \begin{figure}[h]
 \begin{verbatim}
@@ -332,7 +334,7 @@ from identifiers to variables (i.e. cells in the heap).
   (let-inst i (instantiate-linklet l)
     (instance-variable-value i a)))
 \end{verbatim}
-\caption{An Example \textit{program} [CHANGE FONT]}
+\caption{An example \textit{program}}
 \label{fig:program-example}
 \end{figure}
 
@@ -355,7 +357,7 @@ example \verb|program|.
 
 \begin{figure}[h!]
   \begin{align*}
-    p           &::=\; (\textbf{program}\; ((x_{\_!\_}\; L)\; \ldots)\; p\dash top) \\
+    p           &::=\; (\textbf{program}\; ((x\; L)\; \ldots)\; p\dash top) \\
     p\dash top  &::=\; v\; |\; (\textbf{let\dash inst}\; x\; p\dash top\;p\dash top)\; |\; (\textbf{seq}\; p\dash top\; \ldots) \\
     \;          &\;|\; \bm{\Phi^I}(l\dash ref\; x\; \ldots)\; |\; \bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)\; |\; \bm{\Phi^V}(x\; x) \\
     l\dash ref &::=\; x\; |\; L\dash obj \\
@@ -382,9 +384,9 @@ with the reduction relation for RC, $\beta_r$, that is shown in Figure
 linklet instantiation is defined together by the same relation ($\beta_p$)
 so that the whole evaluation is defined as a relexive-transitive
 closure of the same relation, generating a single small-step sequence
-of reductions. The next subsections present the compilation and
-instantiation of linklets, as well as two example reductions for each
-instantiation modes (i.e. with and without a given target instance).
+of reductions from programs to values. The next subsections present
+the compilation and instantiation of linklets, as well as two example
+reductions for each instantiation modes (i.e. regular and targeted).
 
 \subsection{Compile Linklet}
 \label{sec:compile-linklet}
@@ -396,30 +398,32 @@ entire compilation procedure.
 
 For each import and export identifier (and possibly their
 corresponding renamings), \textit{Import} and \textit{Export} objects
-are created with the gensymed\footnote{[BETTER NAME]} references to
-the variables that will be created during the
-instantiation. Additionally, a pass on the linklet body collects all
-the identifiers that are defined within the linklet body (via
+are created with the gensymed\footnote{[BETTER NAME]} references that
+will be used to name the variables that are dynamically created during
+the instantiation. Additionally, a pass on the linklet body collects
+all the identifiers that are defined within the linklet body (via
 \verb|define-values|) and all the mutated identifiers (i.e. targets of
 \verb|set!| expressions).
 
 Given a set of \textit{Import}s ($\mathit{C_I}$) and a set of
 \textit{Export}s ($\mathit{C_E}$), a set of toplevel defined
 identifiers ($\mathit{X_T}$) and a set of mutated identifiers
-($\mathit{X_M}$), the compilation starts to process each expression
-one by one, performing the following actions depending on the type of
-expression:
+($\mathit{X_M}$), the compilation starts to process each expression in
+the linklet body one by one, performing the following actions
+depending on the type of expression:
 
 \begin{itemize}
- \item For a `(\textbf{define-values} (x) e)` expression, add an
-   additional `(\textbf{var-set!} $x_{gen}$ x)` expression if x is exported,
-   i.e., $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in \mathit{C_E}$.
- \item For a `(\textbf{set!} x e)` expression, turn the expression into
-   `(\textbf{var-set/check-undef!} $x_{gen}$ e)` if x is exported,
-   i.e., $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in \mathit{C_E}$.
- \item For any identifier x where $(\textbf{Import}\; x_{gen}\; x\; x_{ext}) \in
-   \mathit{C_I}$, turn the identifier into `(\textbf{var-ref/no-check}
-   $x_{gen}$)` form.
+ \item For a `(\textbf{define-values} (x) e)` expression where \newline
+   $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in \mathit{C_E}$ (i.e. x
+   is exported), add an additional `(\textbf{var-set!} $x_{gen}$ x)`
+   expression.
+ \item For a `(\textbf{set!} x e)` expression where \newline
+   $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in \mathit{C_E}$ (i.e. x
+   is exported), turn the expression into
+   `(\textbf{var-set/check-undef!} $x_{gen}$ e)`.
+ \item For any identifier x where $(\textbf{Import}\; x_{gen}\; x\;
+   x_{ext}) \in \mathit{C_I}$ (i.e. x is imported), turn the identifier
+   into \newline `(\textbf{var-ref/no-check} $x_{gen}$)` form.
   \item For any identifier x where $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in
     \mathit{C_E}$ and either $x \in \mathit{X_M}$ or $x \notin \mathit{X_T}$,
     turn the identifier into `(\textbf{var-ref} $x_{gen}$)` form.
@@ -441,7 +445,7 @@ expression:
   (var-set/check-undef! x1 6)
   (+ (var-ref x1) (var-ref/no-check a1)))
 \end{verbatim}
-\caption{An example linklet compilation [CHANGE FONT]}
+\caption{An example linklet compilation [TODO: add line numbers]}
 \label{fig:compile-example}
 \end{figure}
 
