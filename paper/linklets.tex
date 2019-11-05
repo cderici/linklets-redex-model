@@ -381,7 +381,35 @@ entire compilation procedure.
 For each import and export identifier (and possibly their
 corresponding renamings), \textit{Import} and \textit{Export} objects
 are created with the gensymed\footnote{[BETTER NAME]} references to
-the variables that will be created during the instantiation.
+the variables that will be created during the
+instantiation. Additionally, a pass on the linklet body collects all
+the identifiers that are defined within the linklet body (via
+\verb|define-values|) and all the mutated identifiers (i.e. targets of
+\verb|set!| expressions).
+
+Given a set of \textit{Import}s ($\mathit{C_I}$) and a set of
+\textit{Export}s ($\mathit{C_E}$), a set of toplevel defined
+identifiers ($\mathit{X_T}$) and a set of mutated identifiers
+($\mathit{X_M}$), the compilation starts to process each expression
+one by one, performing the following actions depending on the type of
+expression:
+
+\begin{itemize}
+ \item For a `(\textbf{define-values} (x) e)` expression, add an
+   additional `(\textbf{var-set!} $x_{gen}$ x)` expression if x is exported,
+   i.e., $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in \mathit{C_E}$.
+ \item For a `(\textbf{set!} x e)` expression, turn the expression into
+   `(\textbf{var-set/check-undef!} $x_{gen}$ e)` if x is exported,
+   i.e., $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in \mathit{C_E}$.
+ \item For any identifier x where $(\textbf{Import}\; x_{gen}\; x\; x_{ext}) \in
+   \mathit{C_I}$, turn the identifier into `(\textbf{var-ref/no-check}
+   $x_{gen}$)` form.
+  \item For any identifier x where $(\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in
+    \mathit{C_E}$ and either $x \in \mathit{X_M}$ or $x \notin \mathit{X_T}$,
+    turn the identifier into `(\textbf{var-ref} $x_{gen}$)` form.
+  \item For any other expression e, recurse if e has subforms, return
+    otherwise.
+\end{itemize}
 
 %% - import and export objects are created
 %% - toplevel ids and mutated ids are collected
@@ -532,7 +560,7 @@ the variables that will be created during the instantiation.
       (\textbf{Export}\;x_{gen}\;x_{int}\;x_{ext}) & if $exp_n = (x_{int}\;x_{ext})$ \\
     \end{cases*} \\
     \;     x_{gen} &\notin\; (exp_n\; \ldots) \\ \\
-    \Phi^C_{\textbf{e}} : l\dash top \times \mathit{C_I} \times \mathit{C_E} \times \mathit{X_L} \times\mathit{X_M} \times\mathit{X_T} &\longrightarrow l\dash top\; \ldots \\
+    \Phi^C_{\textbf{e}} : l\dash top \times \mathit{C_I} \times \mathit{C_E} \times \mathit{X_L} \times \mathit{X_M} \times\mathit{X_T} &\longrightarrow l\dash top\; \ldots \\
     \;          &\;\; \where \mathit{C_I} : (c\dash imps\;\ldots), \mathit{C_E} : (c\dash exps\;\ldots) \\
     \;          &\;\; \mathit{X_L} : (x\;\ldots), \mathit{X_M} : (x\;\ldots), \mathit{X_T} : (x\;\ldots) \\
     \Phi^C_{\textbf{e}}((\textbf{define\dash values}\:(x)\:e),\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
@@ -545,8 +573,8 @@ the variables that will be created during the instantiation.
     \end{cases*} \\
     \Phi^C_{\textbf{e}}(x,\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; \begin{cases*}
       (\textbf{var\dash ref/no\dash check}\; x_{gen}) \hspace{1.5cm} if\; (\textbf{Import}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_I} \\
-      (\textbf{var\dash ref}\; x) \hspace{3.3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\;\; \&\;\; x\in \mathit{X_M} \\
-      (\textbf{var\dash ref}\; x) \hspace{3.3cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\;\; \&\;\; x\notin \mathit{X_T} \\
+      (\textbf{var\dash ref}\; x_{gen}) \hspace{2.9cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\;\; \&\;\; x\in \mathit{X_M} \\
+      (\textbf{var\dash ref}\; x_{gen}) \hspace{2.9cm} if\; (\textbf{Export}\; x_{gen}\; x\; x_{ext}) \in\;\mathit{C_E}\;\; \&\;\; x\notin \mathit{X_T} \\
       x \hspace{4.6cm} otherwise
     \end{cases*} \\
     \Phi^C_{\textbf{e}}(e,\mathit{C_I}, \mathit{C_E}, \mathit{X_L},\mathit{X_M},\mathit{X_T})\; &=\; recurse \\
