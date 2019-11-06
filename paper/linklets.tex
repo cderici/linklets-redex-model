@@ -482,13 +482,14 @@ returns a pair of the last expression's value and the target instance
 being used. The caller of the \emph{instantiate-linklet} therefore
 decides to use either the value or the instance.
 
-The collection of the imported variables from the given linklet
-instances is performed by simply going through each set of
-\emph{Import} objects in the $\la$ and the corresponding linklet
-instance that provides the variables, and putting the variable
-references into the environment with the names that the linklet
-expect. [MAKE THIS CLEAR] Figure~\ref{fig:inst-utils} shows the
-processing of both the imported and exported variables.
+Imported variables are collected from the given linklet instances by
+simply going through each set of \emph{Import} objects in the $\la$
+and the corresponding linklet instance that provides the
+variables. The collected variable references are then put into the
+environment with the names in the corresponding \emph{Import} objects
+that were generated for the variables during the
+compilation. Figure~\ref{fig:inst-utils} shows the processing of both
+the imported and exported variables.
 
 - import/export variable prep $\la$
 -> $\lb$
