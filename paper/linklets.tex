@@ -491,7 +491,15 @@ that were generated for the variables during the
 compilation. Figure~\ref{fig:inst-utils} shows the processing of both
 the imported and exported variables.
 
-- import/export variable prep $\la$
+The use of the target instance during an instantiation comes into play
+when the exported variables are being processed. Recall that a linklet
+may export a variable despite having no corresponding definition for
+it. This is achieved by for each \emph{Export} object in $\la$
+grabbing the variable from the target instance if it has a mapping for
+it and making it available in the environment. Otherwise a fresh
+variable is created and its mapping is placed into the environment and
+into the target instance as well.
+
 -> $\lb$
 
 - reducing $\lb$ by evaluating the body
