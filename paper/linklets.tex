@@ -500,14 +500,21 @@ it and making it available in the environment. Otherwise a fresh
 variable is created and its mapping is placed into the environment and
 into the target instance as well.
 
--> $\lb$
+After processing the import and export variables, the $\la$ object is
+reduced into $\lb$, which triggers the evaluation of the expressions
+in the linklet body. The linklet compilation makes sure that every
+variable reference within the body uses the appropriate variable, and
+at the beginning of the instantiation the preparation of the import
+and export variables explained above provides the actual variables in
+the environment to be modified and used. The reduction then proceeds
+with the evaluation of the body expressions one-by-one. After all the
+expressions are processed, a pair of the last expression's value and
+the reference to the target instance is returned.
 
-- reducing $\lb$ by evaluating the body
-
- The productions $\bm{\Phi^I}(l\dash ref\; x\; \ldots)$ and
-$\bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)$ in the program
-grammar in Figure \ref{fig:linklet-program} represent these two
-instantiation modes.
+%%  The productions $\bm{\Phi^I}(l\dash ref\; x\; \ldots)$ and
+%% $\bm{\Phi^I}(l\dash ref\; x\; \ldots\; \textbf{\#:t}\; x)$ in the program
+%% grammar in Figure \ref{fig:linklet-program} represent these two
+%% instantiation modes.
 
 
 
