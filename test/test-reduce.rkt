@@ -281,6 +281,421 @@
   ((x cell_3) (a cell_2) (a1 cell_1)) ((cell_3 5) (t (linklet-instance (a cell_1))) (cell_1 10) (cell_2 10) (li (linklet-instance (a cell_1))) (cell_1 uninit) (li (linklet-instance))))
  )
 
+;; Top-level repl example
+
+#|
+> (define k (lambda () a))
+> (define a 10)
+> (k)
+10
+|#
+
+(test-multi-step
+ ((program
+   (use-linklets
+    (l1 (linklet () (a k) (define-values (k) (lambda () a)) 1))
+    (l2 (linklet () (a) (define-values (a) 10) 1))
+    (l3 (linklet () (k) (k))))
+   (let-inst t (make-instance)
+             (seq
+              (instantiate-linklet l1 #:target t)
+              (instantiate-linklet l2 #:target t)
+              (instantiate-linklet l3 #:target t))))
+  () ())
+ -->p
+ ((program
+   (use-linklets
+    (l2 (linklet () (a) (define-values (a) 10) 1))
+    (l3 (linklet () (k) (k))))
+   (let-inst t (make-instance)
+             (seq
+              (instantiate-linklet (Lα () ((Export a1 a a) (Export k1 k k))
+                                       (define-values (k) (lambda () (var-ref a1)))
+                                       (var-set! k1 k) 1) #:target t)
+              (instantiate-linklet l2 #:target t)
+              (instantiate-linklet l3 #:target t))))
+  () ())
+ -->p
+ ((program
+   (use-linklets
+    (l3 (linklet () (k) (k))))
+   (let-inst t (make-instance)
+             (seq
+              (instantiate-linklet (Lα () ((Export a1 a a) (Export k1 k k))
+                                       (define-values (k) (lambda () (var-ref a1))) (var-set! k1 k) 1) #:target t)
+              (instantiate-linklet (Lα () ((Export a1 a a))
+                                       (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+              (instantiate-linklet l3 #:target t))))
+  () ())
+ -->p
+ ((program
+   (use-linklets)
+   (let-inst t (make-instance)
+             (seq
+              (instantiate-linklet (Lα () ((Export a1 a a) (Export k1 k k))
+                                       (define-values (k) (lambda () (var-ref a1))) (var-set! k1 k) 1) #:target t)
+              (instantiate-linklet (Lα () ((Export a1 a a))
+                                       (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+              (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t))))
+  () ())
+ -->p
+ ((program
+   (use-linklets)
+   (let-inst t ((void) li)
+             (seq
+              (instantiate-linklet (Lα () ((Export a1 a a) (Export k1 k k))
+                                       (define-values (k) (lambda () (var-ref a1))) (var-set! k1 k) 1) #:target t)
+              (instantiate-linklet (Lα () ((Export a1 a a))
+                                       (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+              (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t))))
+  () ((li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (seq
+    (instantiate-linklet (Lα () ((Export a1 a a) (Export k1 k k))
+                             (define-values (k) (lambda () (var-ref a1))) (var-set! k1 k) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  () ((t (linklet-instance)) (li (linklet-instance))))
+ -->p ;;; (define k (lambda () a)) start
+ ((program
+   (use-linklets)
+   (seq
+    (instantiate-linklet (Lβ t (define-values (k) (lambda () (var-ref a1))) (var-set! k1 k) 1))
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((k1 cell_2) (a1 cell_1))
+  ((t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (instantiate-linklet (Lβ t (define-values (k) (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1)))) (var-set! k1 k) 1))
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((k1 cell_2) (a1 cell_1))
+  ((t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (seq
+    (instantiate-linklet (Lβ t (var-set! k1 k) 1))
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((k cell_3) (k1 cell_2) (a1 cell_1))
+  ((cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (instantiate-linklet (Lβ t (var-set! k1 (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1)))) 1))
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((k cell_3) (k1 cell_2) (a1 cell_1))
+  ((cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (instantiate-linklet (Lβ t (void) 1))
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((k cell_3) (k1 cell_2) (a1 cell_1))
+  ((cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (instantiate-linklet (Lα () ((Export a1 a a)) (define-values (a) 10) (var-set! a1 a) 1) #:target t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((k cell_3) (k1 cell_2) (a1 cell_1))
+  ((cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p ;;; (define a 10) start
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (instantiate-linklet (Lβ t (define-values (a) 10) (var-set! a1 a) 1))
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((a1 cell_1) (k cell_3) (k1 cell_2) (a1 cell_1))
+  ((cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (instantiate-linklet (Lβ t (var-set! a1 a) 1))
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((a cell_4)
+   (a1 cell_1)
+   (k cell_3)
+   (k1 cell_2)
+   (a1 cell_1))
+  ((cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (instantiate-linklet (Lβ t (var-set! a1 10) 1))
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((a cell_4)
+   (a1 cell_1)
+   (k cell_3)
+   (k1 cell_2)
+   (a1 cell_1))
+  ((cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (instantiate-linklet (Lβ t (void) 1))
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((a cell_4)
+   (a1 cell_1)
+   (k cell_3)
+   (k1 cell_2)
+   (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (1 t)
+    (instantiate-linklet (Lα () ((Export k1 k k)) ((var-ref k1))) #:target t)))
+  ((a cell_4)
+   (a1 cell_1)
+   (k cell_3)
+   (k1 cell_2)
+   (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p ;; (k) starts
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (1 t)
+    (instantiate-linklet (Lβ t ((var-ref k1))))))
+  ((k1 cell_2)
+   (a cell_4)
+   (a1 cell_1)
+   (k cell_3)
+   (k1 cell_2)
+   (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (1 t)
+    (instantiate-linklet (Lβ t ((closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))))))
+  ((k1 cell_2)
+   (a cell_4)
+   (a1 cell_1)
+   (k cell_3)
+   (k1 cell_2)
+   (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (1 t)
+    (instantiate-linklet (Lβ t (var-ref a1)))))
+  ((k1 cell_2) (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->r
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (1 t)
+    (instantiate-linklet (Lβ t 10))))
+  ((k1 cell_2) (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (seq
+    (1 t)
+    (1 t)
+    (10 t)))
+  ((k1 cell_2) (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+ -->p
+ ((program
+   (use-linklets)
+   (10 t))
+  ((k1 cell_2) (a1 cell_1))
+  ((cell_1 10)
+   (cell_4 10)
+   (cell_2
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (cell_3
+    (closure () (var-ref a1) ((k1 cell_2) (a1 cell_1))))
+   (t (linklet-instance (a cell_1) (k cell_2)))
+   (cell_2 uninit)
+   (t (linklet-instance (a cell_1)))
+   (cell_1 uninit)
+   (t (linklet-instance))
+   (li (linklet-instance))))
+
+ )
+
 #;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
